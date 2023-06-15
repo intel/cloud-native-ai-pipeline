@@ -1,0 +1,14 @@
+{
+    "version": "0.2",
+    "ignorepaths": [
+        ".github/",
+        ".git/"
+    ],
+    "ignorewords": [],
+    "import": [],
+    "dictionarydefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "cnap"
+    ]
+}
