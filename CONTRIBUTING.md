@@ -1,57 +1,49 @@
-# Contributing
+# Contributing guide
 
-### License
+## Commit guidelines
 
-<PROJECT NAME> is licensed under the terms in [LICENSE]<link to license file in repo>. By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
+### Subject line content
 
-### Sign your work
+The subject line of a commit should explain what files or topic in the project
+is being modified as well as the overall change that is being made.
 
-Please use the sign-off line at the end of the patch. Your signature certifies that you wrote the patch or otherwise have the right to pass it on as an open-source patch. The rules are pretty simple: if you can certify
-the below (from [developercertificate.org](http://developercertificate.org/)):
+For example, if the overall documentation format is being changed to meet a new
+standard, a good subject line would be as follows:
 
 ```
-Developer Certificate of Origin
-Version 1.1
-
-Copyright (C) 2004, 2006 The Linux Foundation and its contributors.
-660 York Street, Suite 102,
-San Francisco, CA 94110 USA
-
-Everyone is permitted to copy and distribute verbatim copies of this
-license document, but changing it is not allowed.
-
-Developer's Certificate of Origin 1.1
-
-By making a contribution to this project, I certify that:
-
-(a) The contribution was created in whole or in part by me and I
-    have the right to submit it under the open source license
-    indicated in the file; or
-
-(b) The contribution is based upon previous work that, to the best
-    of my knowledge, is covered under an appropriate open source
-    license and I have the right under that license to submit that
-    work with modifications, whether created in whole or in part
-    by me, under the same open source license (unless I am
-    permitted to submit under a different license), as indicated
-    in the file; or
-
-(c) The contribution was provided directly to me by some other
-    person who certified (a), (b) or (c) and I have not modified
-    it.
-
-(d) I understand and agree that this project and the contribution
-    are public and that a record of the contribution (including all
-    personal information I submit with it, including my sign-off) is
-    maintained indefinitely and may be redistributed consistent with
-    this project or the open source license(s) involved.
+documentation: rework to fit standard X
 ```
 
-Then you just add a line to every git commit message:
+Another example, if a specific documentation file is being changed to fix
+spelling errors, a good subject line would be as follows:
 
-    Signed-off-by: Joe Smith <joe.smith@email.com>
+```
+documentation/some-file.md: fix spelling errors
+```
 
-Use your real name (sorry, no pseudonyms or anonymous contributions.)
+### Subject line format
 
-If you set your `user.name` and `user.email` git configs, you can sign your
-commit automatically with `git commit -s`.
+The subject line should be no longer than 72 characters. Past this it will wrap
+when reading via a standard sized terminal. If the changes cannot be summarized
+in that length then the commit is likely better split into multiple commits.
+
+The `topic: summary of what changed` format is preferred but will not be
+enforced. As long as it includes the topic and a summary of what changed it is
+acceptable.
+
+### Body content
+
+The body of the commit should explain the why the commit is needed or wanted.
+
+The body may also give more detail on what is being changed or how it is being
+changed.
+
+With simple and obvious commits this is not always necessary and the body of the
+commit may be omitted.
+
+### Body format
+
+Body text should usually not go past 72 characters per line. This is not a hard
+rule and can be broken where appropriate. For example, if error text is included
+in the commit body and is longer than 72 characters, it does not need to be
+broken into shorter lines.
