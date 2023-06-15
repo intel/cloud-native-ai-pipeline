@@ -1,0 +1,22 @@
+name: Document Scan
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  scan_doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: streetsidesoftware/cspell-action@v2
+        with:
+          files: |
+            **/*.md
+            *.md
+          config: .github/cspell.json
+          verbose: true
+          incremental_files_only: false
