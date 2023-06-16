@@ -1,0 +1,33 @@
+name: Python Code Scan
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  scan_python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pylint
+          python3 -m pip install -r ./cnap/requirements.txt
+
+      - name: Analyze python code 
+        run: |
+          set -ex
+          export PYTHONPATH=$PWD/cnap:$PYTHONPATH
+          python_files=$(find . -path ./cnap/ -prune -o -name "*.py" -print)
+          if [[ -n "$python_files" ]]; then
+            echo "$python_files" | xargs -n 1 python3 -m pylint --rcfile=.github/pylintrc
+          else
+            echo "No Python files found."
+          fi
