@@ -3,6 +3,7 @@
 ![CI Check License](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-license-check.yaml/badge.svg)
 ![CI Check Spelling](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-doclint.yaml/badge.svg)
 ![CI Check Python](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-pylint.yaml/badge.svg)
+![CI Check Shell](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-shell-check.yaml/badge.svg)
 
 _(Disclaimer: This project is currently under active development, and as such, all source code may not be included in any release. This means that the code is subject to change without notice, and that any information contained within the code should be considered as work in progress.)_
 
