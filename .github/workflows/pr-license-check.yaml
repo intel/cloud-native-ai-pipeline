@@ -1,0 +1,29 @@
+name: License Scan
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  codescan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+
+      - name: Check License
+        run: |
+          set -ex
+          python3 -m pip install liccheck
+          license_files=$(find -type f -name "requirements.txt")
+          if [[ -n "$license_files" ]]; then
+            for f in $license_files; do
+              liccheck -s .github/.license_check.ini -r $f
+            done
+          else
+            echo "No license files found."
+          fi
