@@ -5,6 +5,8 @@
         ".git/"
     ],
     "ignorewords": [],
+    "useGitignore": true,
+    "language": "en",
     "import": [],
     "dictionarydefinitions": [],
     "dictionaries": [],
