@@ -25,12 +25,12 @@ into several microservices:
 | Infer Engine | Data Analytics | Infer the frame and send result to result broker |
 | Dashboard | Data Visualization | Render the result into client's single page application |
 
-## 2. Usages
+## 2. Uses
 
-It is be extend for the following uses:
+It is extended for the following uses:
 
-- End-to-End Macro Bench Framework for cloud native pipeline like DeathStar Bench
-- Trusted AI pipeline to protect input stream or model in TEE VN/Container
-- Sustainable AI computing to reduce carbon footprint for AI workloads
+- `End-to-End Macro Bench Framework` for cloud native pipeline like DeathStar Bench
+- `Trusted AI pipeline` to protect input stream or model in TEE VM/Container
+- `Sustainable AI computing` to reduce carbon footprint for AI workloads
 
 ![](docs/cnap-uses.png)
