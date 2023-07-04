@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message FrameMessage {
+    string pipeline_id = 1;
+    int64 sequence = 2;
+    bytes raw = 3;
+    double ts_new = 4;
+    int32 raw_height = 5;
+    int32 raw_width = 6;
+    int32 raw_channels = 7;
+    double ts_infer_start = 8;
+}
