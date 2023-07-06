@@ -1,8 +1,8 @@
 """
-This module contains the definition of the ModelInfo class, which encapsulates 
+This module contains the definition of the ModelInfo class, which encapsulates
 all relevant information about an Inference model in a machine learning pipeline.
 
-In addition, ModelInfo instances can be easily serialized to dictionaries 
+In addition, ModelInfo instances can be easily serialized to dictionaries
 for further processing or storage, by using Python's built-in `dict()` function.
 """
 
