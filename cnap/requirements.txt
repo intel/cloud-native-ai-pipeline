@@ -1,1 +1,4 @@
 redis>=4.3.0
+protobuf
+numpy
+opencv-python
