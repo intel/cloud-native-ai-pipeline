@@ -4,7 +4,7 @@ It implements an abstract base class `FileDatabase` and a concrete filedatabase 
 `LocalFileDatabase`.
 
 `FileDatabase` serves as a blueprint for custom filedatabase implementations, while
-`LocalFileDatabase` provide an implementation for local filedatabase to get video 
+`LocalFileDatabase` provide an implementation for local filedatabase to get video
 file locally.
 
 These classes can be easily extended or modified to accommodate new filedatabase type.

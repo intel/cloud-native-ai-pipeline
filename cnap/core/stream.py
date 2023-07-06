@@ -3,7 +3,7 @@ This module provides an object-oriented design for Stream provider to provide st
 It implement an abstract base class `StreamProvider` and two concrete stream provider classes
 `CameraSource` and `FileSource`. It also provides a `StreamProcessor` class to process stream
 and provides a `create_stream_from_type` function to create StreamProvider instance according
-to type. 
+to type.
 
 `StreamProvider` serves as a blueprint for custom stream provider implementations, while
 `CameraSource` provides an implementation to provide stream input from camera, and `FileSource`
