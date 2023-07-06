@@ -5,7 +5,6 @@
 ![CI Check Python](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-pylint.yaml/badge.svg)
 ![CI Check Shell](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-shell-check.yaml/badge.svg)
 
-_(Disclaimer: This project is currently under active development, and as such, all source code may not be included in any release. This means that the code is subject to change without notice, and that any information contained within the code should be considered as work in progress.)_
 
 ## 1. Overview
 
@@ -34,3 +33,5 @@ It is extended for the following uses:
 - `Sustainable AI computing` to reduce carbon footprint for AI workloads
 
 ![](docs/cnap-uses.png)
+
+**Note**: This is pre-release/prototype software and, as such, it may be substantially modified as updated versions are made available. Also, the authors make no assurance that it will ever develop or make generally available a production-ready version.
