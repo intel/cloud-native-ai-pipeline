@@ -67,7 +67,7 @@ class RedisDB(RuntimeDatabaseBase):
     def __init__(self):
         self._conn = None
 
-    def connect(self, host: str = "127.0.0.1", port: int = 6379, db: int = 0) -> bool:
+    def connect(self, host: str = "127.0.0.1", port: int = 6379, db: int = 0) -> None:
         """
         Connect to Redis server.
         Args:
@@ -75,15 +75,16 @@ class RedisDB(RuntimeDatabaseBase):
             port: Redis server port
             db: Database number in Redis server
         Returns:
-            bool: Indicate whether connecting to the Redis server successfully
+            None
+        Raises:
+            redis.exceptions.ConnectionError: If connection to the Redis server fails.
         """
         self._conn = redis.Redis(host=host, port=port, db=db)
         try:
             self._conn.ping()
-        except redis.exceptions.ConnectionError:
+        except redis.exceptions.ConnectionError as e:
             LOG.error("Failed to connect to Redis")
-            return False
-        return True
+            raise e
 
     def save_table_object_dict(self, table: str, obj: str, d: dict) -> None:
         """
@@ -94,9 +95,23 @@ class RedisDB(RuntimeDatabaseBase):
             d: The value to be saved
         Returns:
             None
+        Raises:
+            ValueError: If `table` or `obj` is None.
         """
+        if table is None:
+            raise ValueError("table name cannot be None")
+
+        if obj is None:
+            raise ValueError("object cannot be None")
+
+        try:
+            json_value = json.dumps(d)
+        except TypeError as e:
+            LOG.error("Failed to serialize value into JSON: %s", str(d))
+            raise e
+
         LOG.debug("[Redis] Save => table: %s, obj: %s", table, obj)
-        self._conn.hset(table, obj, json.dumps(d))
+        self._conn.hset(table, obj, json_value)
 
     def get_table_object_dict(self, table: str, obj: str) -> dict:
         """
@@ -106,7 +121,15 @@ class RedisDB(RuntimeDatabaseBase):
             obj: The name of the object
         Returns:
             dict: The value get by table name and object name
+        Raises:
+            ValueError: If `table` or `obj` is None.
         """
+        if table is None:
+            raise ValueError("table name cannot be None")
+
+        if obj is None:
+            raise ValueError("object cannot be None")
+
         value = self._conn.hget(table, obj)
         if value is None:
             return {}
@@ -123,12 +146,23 @@ class RedisDB(RuntimeDatabaseBase):
             table: The name of the table
         Returns:
             dict: All values get by the table name
+        Raises:
+            ValueError: If `table` is None.
         """
+        if table is None:
+            raise ValueError("table name cannot be None")
+
         result_bytes = self._conn.hgetall(table)
-        key_value_dict = {
-            key.decode(): json.loads(value.decode())
-            for key, value in result_bytes.items()
-        }
+        if not result_bytes:
+            return {}
+
+        key_value_dict = {}
+        for key, value in result_bytes.items():
+            try:
+                key_value_dict[key.decode()] = json.loads(value.decode())
+            except json.JSONDecodeError:
+                LOG.error("Invalid JSON value for table: %s, key: %s", table, key.decode())
+
         return key_value_dict
 
     def check_table_object_exist(self, table: str, obj: str) -> bool:
@@ -139,7 +173,15 @@ class RedisDB(RuntimeDatabaseBase):
             obj: The name of the object
         Returns:
             bool: Indicate whether a given object exists in a given table
+        Raises:
+            ValueError: If `table` or `obj` is None.
         """
+        if table is None:
+            raise ValueError("table name cannot be None")
+
+        if obj is None:
+            raise ValueError("object cannot be None")
+
         return self._conn.hexists(table, obj)
 
     def del_table_object(self, table: str, obj: str) -> None:
@@ -150,5 +192,13 @@ class RedisDB(RuntimeDatabaseBase):
             obj: The name of the object
         Returns:
             None
+        Raises:
+            ValueError: If `table` or `obj` is None.
         """
+        if table is None:
+            raise ValueError("table name cannot be None")
+
+        if obj is None:
+            raise ValueError("object cannot be None")
+
         self._conn.hdel(table, obj)
