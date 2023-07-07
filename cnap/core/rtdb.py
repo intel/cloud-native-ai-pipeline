@@ -9,6 +9,7 @@ for Redis backend service.
 
 import json
 import logging
+import time
 
 from abc import ABC, abstractmethod
 
@@ -64,6 +65,8 @@ class RedisDB(RuntimeDatabaseBase):
     Redis backend implementation for runtime database
     """
 
+    MAX_RECONNECTION_TIMES = 5
+
     def __init__(self):
         self._conn = None
 
@@ -77,14 +80,41 @@ class RedisDB(RuntimeDatabaseBase):
         Returns:
             None
         Raises:
-            redis.exceptions.ConnectionError: If connection to the Redis server fails.
+            redis.exceptions.ConnectionError: If connection to the Redis server fails
+                and reconnection exceeds the limit.
         """
         self._conn = redis.Redis(host=host, port=port, db=db)
-        try:
-            self._conn.ping()
-        except redis.exceptions.ConnectionError as e:
-            LOG.error("Failed to connect to Redis")
-            raise e
+
+        sleep_time = 0.5
+
+        # Attempts to reconnect when a connection error occurs, up to MAX_RECONNECTION_TIMES times,
+        # so if a connection error still occurs on the (MAX_RECONNECTION_TIMES + 1)th loop,
+        # raise conncection error
+        for i in range(self.MAX_RECONNECTION_TIMES + 1):
+            try:
+                self._conn.ping()
+            except redis.exceptions.ConnectionError as e:
+                if i == self.MAX_RECONNECTION_TIMES:
+                    LOG.error("Continuously reconnect to Redis server more than %d times",
+                              self.MAX_RECONNECTION_TIMES)
+                    raise redis.exceptions.ConnectionError(e) from e
+
+                LOG.error("Failed to connect to Redis: %s", e)
+                LOG.info("Reconnect to Redis server")
+
+                # Sleep before reconnect, double the sleep time per reconnection.
+                sleep_time *= 2
+
+                time.sleep(sleep_time)
+
+                # Connect to Redis server.
+                self._conn = redis.Redis(host=host, port=port, db=0)
+
+                # Connection is not successful, can not return.
+                continue
+
+            # If no connection error occurs, return directly.
+            return
 
     def save_table_object_dict(self, table: str, obj: str, d: dict) -> None:
         """
