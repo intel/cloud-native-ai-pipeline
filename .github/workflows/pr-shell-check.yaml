@@ -4,7 +4,11 @@ on:
   push:
     branches:
     - main
+    paths:
+    - 'tools/**/*.sh'
   pull_request:
+    paths:
+    - 'tools/**/*.sh'
   workflow_dispatch:
 
 jobs:

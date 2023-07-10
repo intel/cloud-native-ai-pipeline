@@ -4,7 +4,11 @@ on:
   push:
     branches:
     - main
+    paths:
+    - 'cnap/ui/**'
   pull_request:
+    paths:
+    - 'cnap/ui/**'
   workflow_dispatch:
 
 jobs:
