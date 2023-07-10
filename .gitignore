@@ -1,0 +1,5 @@
+*.swp
+*.pyd
+__pycache__/
+dictionary.dic
+node_modules/
