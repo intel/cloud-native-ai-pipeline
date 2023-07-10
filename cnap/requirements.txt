@@ -1,4 +1,5 @@
-redis>=4.3.0
-protobuf
+kafka-python
 numpy
 opencv-python
+protobuf
+redis
