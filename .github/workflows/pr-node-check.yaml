@@ -1,0 +1,33 @@
+name: UI Node Code Scan
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  codescan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup workspace for the job (self hosted only)
+        run: |
+          sudo rm -fr *
+
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Dependencies
+        run: |
+          cd cnap/ui/
+          npm install --registry=https://registry.npmmirror.com
+
+      - name: Type Check
+        run: |
+          cd cnap/ui/
+          npm run typecheck
