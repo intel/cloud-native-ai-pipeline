@@ -4,3 +4,4 @@ opencv-python
 protobuf
 redis
 tensorflow
+websockets
