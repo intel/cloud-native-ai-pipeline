@@ -1,13 +1,10 @@
-"""
-This module provides an object-oriented design for file database to load video file.
-It implements an abstract base class `FileDatabase` and a concrete filedatabase class
-`LocalFileDatabase`.
+"""A FileDatabase module.
 
-`FileDatabase` serves as a blueprint for custom filedatabase implementations, while
-`LocalFileDatabase` provide an implementation for local filedatabase to get video
-file locally.
+This module provides an object-oriented design for a file database to load video files.
 
-These classes can be easily extended or modified to accommodate new filedatabase type.
+Classes:
+    FileDatabase: An abstract base class for creating custom filedatabase implementations.
+    LocalFileDatabase: A concrete class implementing the FileDatabase for local file operations.
 """
 
 import os
@@ -17,46 +14,62 @@ from abc import ABC, abstractmethod
 LOG = logging.getLogger(__name__)
 
 class FileDatabase(ABC):
-    """
-    Abstract base class for creating custom filedatabase implementations.
+    """An abstract base class for creating custom file database implementations.
+
+    This class serves as a blueprint for subclasses that need to implement
+    the `get_file` method for different types of file databases.
     """
 
+    @abstractmethod
     def __init__(self):
-        pass
+        """Initialize the FileDatabase object."""
 
     @abstractmethod
     def get_file(self, filename: str) -> str:
-        """
-        Get/Download file from file database and return the local path for file.
+        """Abstract method for getting a file from the file database.
+
+        This method is expected to retrieve a file from the file database and return
+        the local path for the file.
 
         Args:
-            filename: The name of file to get/Download.
+            filename (str): The name of the file to get.
 
         Returns:
-            str: The local path for file.
+            str: The local path for the file.
+
+        Raises:
+            NotImplementedError: if the subclass does not implement this method.
         """
         raise NotImplementedError("Subclasses should implement get_file() method.")
 
 class LocalFileDatabase(FileDatabase):
-    """
-    Local filedata base implementation for getting video file locally.
+    """A concrete class implementing the FileDatabase for local file operations.
+
+    This class uses local filesystem to implement the `get_file` method
+    defined in the `FileDatabase` abstract base class.
+
+    Attributes:
+        _root_dir (str): The root directory path for local file operations.
     """
 
     def __init__(self, root_dir: str):
+        """Initializes the LocalFileDatabase with a given root directory."""
         self._root_dir = os.path.abspath(root_dir)
 
     def get_file(self, filename: str) -> str:
-        """
-        Get the local path for file.
+        """Gets the local path for a file.
+
+        This method uses the root directory to find the given file and returns
+        its local path.
 
         Args:
-            filename: The name of file to get.
+            filename (str): The name of the file to get.
 
         Returns:
-            str: The local path for file.
+            str: The local path for the file.
 
         Raises:
-            FileNotFoundError: if the root_dir is invalid or filed to find the given file.
+            FileNotFoundError: If the root_dir is invalid or failed to find the given file.
         """
         if not os.path.exists(self._root_dir):
             LOG.error("Invalid root directory for local file database.")
