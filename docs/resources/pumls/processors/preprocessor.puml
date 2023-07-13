@@ -1,0 +1,13 @@
+@startuml PreProcessor
+
+!includeurl ../style.puml
+
+package "PreProcessor" {
+
+    abstract class Preprocessor<<abstract>> {
+        + {abstract} preprocess(frame: np.ndarray): np.ndarray
+    }
+
+}
+
+@enduml

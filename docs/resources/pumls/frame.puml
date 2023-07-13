@@ -1,0 +1,49 @@
+@startuml Frame
+
+!includeurl ./style.puml
+
+package "Frame" {
+
+    abstract class FrameCipherBase<<abstract>> {
+        + {abstract} encrypt()
+        + {abstract} decrypt()
+    }
+
+    class QATFrameCipher {
+        + encrypt()
+        + decrypt()
+    }
+
+    class Frame {
+        - _provider: StreamProvider
+        - _pipeline_id: str
+        - _sequence: int
+        - _raw: np.ndarray
+        - _ts_new: float
+        - _ts_infer_start: float
+        + {static} last_sequence: int
+        --
+        + pipeline_id(): str (property)
+        + sequence(): int (property)
+        + timestamp_new_frame(): float (property)
+        + timestamp_infer_start(): float (property)
+        + raw(): np.ndarray (property)
+        + pipeline_id(new_str: str) (setter)
+        + timestamp_new_frame(timestamp: float) (setter)
+        + timestamp_infer_start(timestamp: float) (setter)
+        + raw(raw_frame: np.ndarray) (setter)
+        + __init__(provider: StreamProvider, pipeline_id: str, sequence: int, raw: np.ndarray)
+        + {static} get_sequence(): int
+        + to_blob(): bytes
+        + {static} from_blob(blob: bytes): Frame
+        + normalize(target_size: Tuple[int, int]))
+        + encrypt(actor: FrameCipherBase)
+        + decrypt(actor: FrameCipherBase)
+        --
+    }
+
+    FrameCipherBase <|-- QATFrameCipher
+    Frame o-- FrameCipherBase: encryption/decryption
+}
+
+@enduml
