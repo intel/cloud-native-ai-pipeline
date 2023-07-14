@@ -1,5 +1,15 @@
-"""
-Inference Engine classes.
+"""A Inference Engine module.
+
+This module contains the definition of InferenceInfo class, which encapsulates the
+inference information. It also contains the definition of InferEngineManager class,
+which manages inference engines.
+
+In addition, this module provides an object-oriented design for inference engine.
+
+Classes:
+    InferenceInfo: A class that encapsulates inference information.
+    InferEngineManager: A class to manage inference engines.
+    InferenceEngine: An abstract base class for creating custom inference engine implementations.
 """
 import logging
 import uuid
@@ -37,23 +47,25 @@ INFER_ENGINE_TABLE = "InferEngine-table"
 VALID_DEVICES = {"cpu", "gpu", "tpu"}
 
 class InferenceInfo:
-    """
-    Inference information class.
+    """Inference information class.
+
+    Attributes:
+        _device (str): The device type for infer engine.
+        _model_id (str): The UUID for infer model.
+        _id (str): The UUID for Infer Engine Info.
+        _queue_topic (str): The queue topic for infer engine.
+        _input_size (Tuple[int, int]): The input size tuple required by infer model.
     """
 
     def __init__(self, device: str, model_id: str) -> None:
-        """
-        Initialize an inference engine info object
+        """Initialize an inference engine info object.
 
         Args:
-            device: Device type for infer engine
-            model_id: UUID for infer model
-
-        Returns:
-            None
+            device (str): The device type for infer engine.
+            model_id (str): The UUID for infer model.
 
         Raises:
-            ValueError: If device type is invalid
+            ValueError: If device type is invalid.
         """
         if device not in VALID_DEVICES:
             raise ValueError(f"Invalid device type: {device}. Valid types are {VALID_DEVICES}.")
@@ -66,123 +78,86 @@ class InferenceInfo:
 
     @property
     def id(self) -> str:
-        """
-        UUID for Infer Engine Info
-
-        Returns:
-            UUID for Infer Engine Info
-        """
+        """The UUID for Infer Engine Info."""
         if self._id is None:
             self._id = uuid.uuid1()
         return str(self._id)
 
     @id.setter
     def id(self, new_str: str) -> None:
-        """
-        Set UUID for Infer Engine Info
-
-        Args:
-            new_str: UUID for Infer Engine Info
-
-        Returns:
-            None
-        """
+        """Set UUID for Infer Engine Info."""
         self._id = uuid.UUID(new_str)
 
     @property
     def input_size(self) -> Tuple[int, int]:
-        """
-        Input size tuple required by infer model
-
-        Returns:
-            Input size tuple required by infer model
-        """
+        """The input size tuple required by infer model."""
         return self._input_size
 
     @property
     def device(self) -> str:
-        """
-        Device type for infer engine
-
-        Returns:
-            Device type for infer engine
-        """
+        """The device type for infer engine."""
         return self._device
 
     @property
     def model_id(self) -> str:
-        """
-        UUID for infer model
-
-        Returns:
-            UUID for infer model
-        """
+        """The UUID for infer model."""
         return self._model_id
 
     @property
     def queue_topic(self) -> str:
-        """
-        Queue topic for infer engine
-
-        Returns:
-            Queue topic for infer engine
-        """
+        """The queue topic for infer engine."""
         if self._queue_topic is None:
             self._queue_topic = f"origin-{self.model_id}-{self.device}"
         return self._queue_topic
 
     @queue_topic.setter
     def queue_topic(self, new_queue_topic: str) -> None:
-        """
-        Set queue topic for infer engine
-
-        Args:
-            new_queue_topic: Queue topic for infer engine
-
-        Returns:
-            None
-        """
+        """Set queue topic for infer engine."""
         self._queue_topic = new_queue_topic
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        """The Iterator for InferenceInfo class."""
         yield 'id', self.id
         yield 'device', self.device
         yield 'model_id', self.model_id
 
 class InferEngineManager:
-    """
-    To manage inference engines by registering them and searching for available engines.
+    """The class to manage inference engines.
+
+    This class is the class that manages inference engines, it provides `register_engine`
+    and `unregister_engine` methods to register and unregister inference engines, and provides
+    `search_engine` method to search available engines.
+
+    Attributes:
+        _db (RuntimeDatabaseBase): The RuntimeDatabaseBase object for InferEngineManager to use.
     """
 
     _instance = None
 
     def __init__(self, db: RuntimeDatabaseBase) -> None:
-        """
-        Initialize the InferEngineManager
+        """Initialize a InferEngineManager object.
 
         Args:
-            db: RuntimeDatabaseBase object
-
-        Returns:
-            None
+            db: The RuntimeDatabaseBase object for InferEngineManager to use.
         """
         self._db = db
 
     def search_engine(self, framework: str, target: str, device: str,
                       model_name: str, model_version: str) -> Optional[InferenceInfo]:
-        """
-        Search the engine according to the framework and target requested.
-        return the InferenceInfo include the UUID of infer engine
+        """Search inference engine.
+
+        This method is uesd to search the engine according to the framework and target requested,
+        return the InferenceInfo include the UUID of infer engine.
 
         Args:
-            framework: Framework of the model
-            target: Target of the model
-            device: Device type for infer engine
-            model_name: Name of the model
-            model_version: Version of the model
+            framework (str): Framework of the model
+            target (str): Target of the model
+            device (str): Device type for infer engine
+            model_name (str): Name of the model
+            model_version (str): Version of the model
 
         Returns:
-            InferenceInfo object if engine is found, None otherwise
+            Optional[InferenceInfo]: An InferenceInfo object if engine is found, None otherwise.
         """
         # Get all available engines from database
         try:
@@ -220,15 +195,11 @@ class InferEngineManager:
         return matching_engine_info
 
     def register_engine(self, infer_info: InferenceInfo, model_info: ModelInfo) -> None:
-        """
-        Register the infer engine to database
+        """Register the infer engine to database.
 
         Args:
-            infer_info: InferenceInfo object
-            model_info: ModelInfo object
-
-        Returns:
-            None
+            infer_info (InferenceInfo): The InferenceInfo object to register.
+            model_info (ModelInfo): The ModelInfo object to register.
         """
         data = {
         "infer": dict(infer_info),
@@ -246,14 +217,10 @@ class InferEngineManager:
             raise
 
     def unregister_engine(self, infer_info_id: str) -> None:
-        """
-        Unregister the infer engine from database
+        """Unregister the infer engine from database.
 
         Args:
-            infer_info_id: UUID for Infer Engine Info
-
-        Returns:
-            None
+            infer_info_id (str): The UUID of Infer Engine Info to unregister.
         """
         try:
             self._db.del_table_object(INFER_ENGINE_TABLE, infer_info_id)
@@ -262,14 +229,15 @@ class InferEngineManager:
             raise
 
 class InferenceEngine(ABC):
-    """
-    Abstract base class for creating custom inference engine implementations.
+    """An abstract base class for creating custom inference engine implementations.
+
+    This class serves as a blueprint for subclasses that need to implement the `verify`,
+    `preprocess`, `postprocess`, `_predict` methods for different inference frameworks.
     """
 
     @abstractmethod
     def verify(self) -> bool:
-        """
-        Checks if the model is valid for inference.
+        """Checks if the model is valid for inference.
 
         Returns:
             bool: True if the model is valid, otherwise False.
@@ -281,11 +249,10 @@ class InferenceEngine(ABC):
 
     @abstractmethod
     def preprocess(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Preprocesses the input data.
+        """Preprocesses the input data.
 
         Args:
-            frame: The input data to preprocess.
+            frame (np.ndarray): The input data to preprocess.
 
         Returns:
             np.ndarray: The preprocessed input data.
@@ -296,11 +263,10 @@ class InferenceEngine(ABC):
         raise NotImplementedError("Subclasses should implement the preprocess() method.")
 
     def predict(self, frame: np.ndarray) -> Tuple[np.ndarray, float]:
-        """
-        Performs inference using the loaded model and input data, and measures the latency.
+        """Performs inference using the loaded model and input data, and measures the latency.
 
         Args:
-            frame: The input data to use for inference.
+            frame (np.ndarray): The input data to use for inference.
 
         Returns:
             Tuple[np.ndarray, float]: The postprocessed result and the latency in seconds.
@@ -317,12 +283,11 @@ class InferenceEngine(ABC):
 
     @abstractmethod
     def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
-        """
-        Postprocesses the output from the inference process.
+        """Postprocesses the output from the inference process.
 
         Args:
-            frame: The input frame.
-            outputs: The output result from the inference process.
+            frame (np.ndarray): The input frame.
+            outputs (dict): The output result from the inference process.
 
         Returns:
             np.ndarray: The postprocessed result.
@@ -334,11 +299,10 @@ class InferenceEngine(ABC):
 
     @abstractmethod
     def _predict(self, preprocessed_frame: np.ndarray) -> dict:
-        """
-        Performs inference using the loaded model and preprocessed input data.
+        """Performs inference using the loaded model and preprocessed input data.
 
         Args:
-            preprocessed_frame: The preprocessed input data to use for inference.
+            preprocessed_frame (np.ndarray): The preprocessed input data to use for inference.
 
         Returns:
             dict: The output result of the inference.
