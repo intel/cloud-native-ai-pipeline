@@ -1,13 +1,18 @@
-"""
-This module contains the definition of frame class, which encapsulates raw frame
-and related information for transferring data between micro services, it can be
-simply encoded and decoded by protobuf. A frame should include enough information
-for traceability, observability, etc.
+"""A Frame module.
 
-In addition, this module provides an object-oriented design for frame cipher to
-encrypt and decrypt frame. The abstract base class `FrameCipherBase` serves as a
-blueprint for custom frame cipher implementations while `QATFrameCipher` provides
-an implementation to encrypt and decrypt frame accelerated with QAT, it is TODO now.
+This module contains the definition of frame class, which encapsulates raw frame and related
+information for transferring data between micro services, it can be simply encoded and decoded
+by protobuf. A frame should include enough information for traceability, observability, etc.
+
+In addition, this module provides an object-oriented design for frame cipher to encrypt and
+decrypt frame.
+
+Classes:
+    Frame: A class that encapsulates raw frame and related information, can be simply encoded and
+      decoded by protobuf.
+    FrameCipherBase: An abstract base class for creating custom frame cipher implementations.
+    QATFrameCipher: A concrete class implementing encrypt and decrypt frame accelerated with QAT,
+      it is TODO now.
 """
 
 import logging
@@ -26,32 +31,43 @@ LOG = logging.getLogger(__name__)
 # pylint: disable=no-member
 
 class FrameCipherBase(ABC):
-    """
-    Abstract base class frame cipher implementations.
+    """An Abstract base class for creating custom frame cipher implementations.
+
+    This class serves as a blueprint for subclass that need to implement `encrypt`
+    and `decrypt` method for different accelerators.
     """
 
     @abstractmethod
     def encrypt(self) -> None:
-        """
-        Encrypt the frame
+        """Encrypt the frame.
 
-        Return: None
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement encrypt() method.")
 
     @abstractmethod
     def decrypt(self) -> None:
-        """
-        Decrypt the frame
+        """Decrypt the frame.
 
-        Return: None
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement decrypt method.")
 
 class Frame:
-    """
-    A class that encapsulates raw frame and related information, can be simply
-    encoded and decoded by protobuf.
+    """A class that encapsulates raw frame and related information.
+
+    The Frame include enough information for traceability, observability, and
+    can be simply encoded and decoded by protobuf.
+
+    Attributes:
+        _provider (StreamProvider): The stream provider of the frame.
+        _pipeline_id (str): The id of the pipeline to which the frame belongs.
+        _sequence (int): The monolithic counter of the frame sequence number.
+        _raw (np.ndarray): The raw frame of the frame.
+        _ts_new (float): The timestamp of the beginning of this new frame.
+        _ts_infer_start (float): The timestamp of the inference's start point of this frame.
     """
 
     # Class variable to calculate the last sequence number
@@ -59,14 +75,13 @@ class Frame:
 
     def __init__(self, provider: StreamProvider, pipeline_id: str,
                  sequence: int, raw_frame: np.ndarray):
-        """
-        Initialize a Frame object.
+        """Initialize a Frame object.
 
         Args:
-            provider: The stream provider of the frame.
-            pipeline_id: The pipeline id of the frame.
-            sequenece: The initial sequenece number of the frame.
-            raw_frame: The raw frame of the frame.
+            provider (StreamProvider): The stream provider of the frame.
+            pipeline_id (str): The pipeline id of the frame.
+            sequence (int): The initial sequence number of the frame.
+            raw_frame (np.ndarray): The raw frame of the frame.
         """
         self._provider = provider
         self._pipeline_id = pipeline_id
@@ -77,76 +92,59 @@ class Frame:
 
     @property
     def pipeline_id(self) -> str:
-        """
-        Get the pipeline ID.
-        """
+        """The id of the pipeline to which the frame belongs."""
         return self._pipeline_id
 
     @pipeline_id.setter
     def pipeline_id(self, new_str: str) -> None:
-        """
-        Set pipeline ID from string
-        """
+        """Set pipeline ID from string."""
         self._pipeline_id = new_str
 
     @property
     def sequence(self) -> int:
-        """
-        Get the monolithic counter for the frame sequence number.
-        """
+        """The monolithic counter of the frame sequence number."""
         return self._sequence
 
     @property
     def timestamp_new_frame(self) -> float:
-        """
-        Get the timestamp of the beginning of this new frame.
-        """
+        """The timestamp of the beginning of this new frame."""
         return self._ts_new
 
     @timestamp_new_frame.setter
     def timestamp_new_frame(self, timestamp: float) -> None:
-        """
-        Set the timestamp of the beginning of this new frame.
-        """
+        """Set the timestamp of the beginning of this new frame."""
         self._ts_new = timestamp
 
     @property
     def raw(self) -> np.ndarray:
-        """
-        Get the raw frame.
-        """
+        """The raw frame of the frame."""
         return self._raw
 
     @raw.setter
     def raw(self, raw_frame: np.ndarray) -> None:
-        """
-        Set raw frame.
-        """
+        """Set raw frame."""
         self._raw = raw_frame
 
     @property
     def timestamp_infer_start(self) -> float:
-        """
-        Get the timestamp of the inference's start point.
-        """
+        """The timestamp of the inference's start point of this frame."""
         return self._ts_infer_start
 
     @timestamp_infer_start.setter
     def timestamp_infer_start(self, timestamp: float) -> None:
-        """
-        Set the timestamp of the inference's start point.
-        """
+        """Set the timestamp of the inference's start point."""
         self._ts_infer_start = timestamp
 
     def to_blob(self) -> bytes:
-        """
-        Encode the raw frame to a blob for transferring to the infer queue.
+        """Encode the raw frame to a blob for transferring to the infer queue.
+
+        This method uses protobuf to serialize a Frame into a blob.
 
         Returns:
-            bytes: the blob encoded from raw frame.
+            bytes: The blob encoded from raw frame.
 
         Raises:
-            RuntimeError: if any errors while encoding.
+            RuntimeError: If any errors while encoding.
         """
         try:
             # Get the frame shape info
@@ -175,15 +173,19 @@ class Frame:
 
     @staticmethod
     def from_blob(blob: bytes) -> 'Frame':
-        """
-        Restore a frame instance from a blob.
+        """Restore a frame instance from a blob.
+
+        This method uses protobuf to deserialize a blob to a Frame.
+
+        Args:
+            blob (bytes): The blob to restore.
 
         Returns:
-            Frame: the frame restored from a blob.
+            Frame: The frame restored from a blob.
 
         Raises:
-            TypeError: if the type of 'blob' argument is not bytes type.
-            RuntimeError: if any errors while decoding.
+            TypeError: If the type of 'blob' argument is not bytes type.
+            RuntimeError: If any errors while decoding.
         """
         if not isinstance(blob, bytes):
             raise TypeError("The 'blob' argument must be a bytes object.")
@@ -206,11 +208,10 @@ class Frame:
 
     @classmethod
     def get_sequence(cls) -> int:
-        """
-        Monolithic count for the sequence number of a frame.
+        """Get the monolithic count for the sequence number of a frame.
 
         Returns:
-            int: the last sequence number.
+            int: The last sequence number.
         """
         if cls.last_sequence > 0x7fffffffffff0000:
             cls.last_sequence = 0
@@ -218,16 +219,13 @@ class Frame:
         return cls.last_sequence
 
     def normalize(self, target_size: Tuple[int, int]) -> None:
-        """
-        Normalize the frame to the target size.
+        """Normalize the frame to the target size.
 
         Args:
-            target_size: the target size for frame to normalize
-
-        Returns: None
+            target_size (Tuple[int, int]): The target size for frame to normalize.
 
         Raises:
-            ValueError: if the target_size is invalid.
+            ValueError: If the target_size is invalid.
         """
         if self._provider.raw_size == target_size:
             return
@@ -237,26 +235,20 @@ class Frame:
             raise ValueError(f"Invalid target size: {target_size}")
 
     def encrypt(self, actor: FrameCipherBase) -> None:
-        """
-        Encrypt the frame before transferring it outside of TEE.
-        """
+        """Encrypt the frame before transferring it outside of TEE."""
         # TODO: implement the frame encryption
 
     def decrypt(self, actor: FrameCipherBase) -> None:
-        """
-        Decrypt the frame after transferring it into TEE.
-        """
+        """Decrypt the frame after transferring it into TEE."""
         # TODO: implement the frame decryption
 
 class QATFrameCipher(FrameCipherBase):
-    """
-    Use QAT to accelerate frame encryption and decryption.
-    """
+    """Use QAT to accelerate frame encryption and decryption."""
 
     def encrypt(self) -> None:
+        """See base class."""
         # TODO: implement the encryption
-        pass
 
     def decrypt(self) -> None:
+        """See base class."""
         # TODO: implement the decryption
-        pass
