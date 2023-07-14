@@ -1,10 +1,11 @@
-"""
-Runtime Database (RTDB) is designed to cache the runtime information and
-use an in-memory database service (like Redis,Kafka) as the backend
-service.
-An abstract class `RuntimeDatabaseBase` is defined as common abstract
-methods to manage the tables, and class `RedisDB` is an implementation
-for Redis backend service.
+"""A RuntimeDatabase module.
+
+This module provides an object-oriented design for Runtime Database to cache the
+runtime information and use in-memory datbase services (like Redis) as backend service.
+
+Classes:
+    RuntimeDatabaseBase: An abstract base class to manage runtime database tables.
+    RedisDB:  A concrete class implementing the RuntimeDatabaseBase using Redis as backend service.
 """
 
 import json
@@ -18,70 +19,136 @@ import redis
 LOG = logging.getLogger(__name__)
 
 class RuntimeDatabaseBase(ABC):
-    """
-    Abstract base class to manage runtime database tables.
+    """An abstract base class to manage runtime database tables.
+
+    This class serves as a blutprint for subclasses that need to implement `connect`,
+    `save_table_object_dict`, `get_table_object_dict`, `get_all_table_objects_dict`,
+    `check_table_object_exist`, `del_table_object` methods for different types of
+    in-memory database services.
     """
 
+    # The max reconnection times for runtime database.
+    MAX_RECONNECTION_TIMES = 5
+
     @abstractmethod
-    def connect(self) -> bool:
+    def connect(self, host: str, port: int):
+        """Connect to runtime database.
+
+        This method is used to connect to runtime database, will attempt to reconnect
+        when a connection error occcurs.
+
+        Args:
+            host (str): The host ip or hostname of runtime database.
+            port (int): The port of runtime database.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
-        Connect to the runtime database
-        """
-        raise NotImplementedError("Subclasses should implement this")
+        raise NotImplementedError("Subclasses should implement connect() method.")
 
     @abstractmethod
     def save_table_object_dict(self, table: str, obj: str, d: dict) -> None:
+        """Save a dict value for an object in a table.
+
+        Args:
+            table (str): The name of the table.
+            obj (str): The name of the object.
+            d (dict): The value to be saved.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If `table` or `obj` is None.
         """
-        Save a dict value for an object in a table
-        """
+        raise NotImplementedError("Subclasses should implement save_table_object_dict() method.")
 
     @abstractmethod
     def get_table_object_dict(self, table: str, obj: str) -> dict:
+        """Get a dict value for an object from a table.
+
+        Args:
+            table (str): The name of the table.
+            obj (str): The name of the object.
+
+        Returns:
+            dict: The dict value get by table name and object name.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If `table` or `obj` is None.
         """
-        Get a dict value for an object from a table
-        """
+        raise NotImplementedError("Subclasses should implement get_table_object_dict() method.")
 
     @abstractmethod
     def get_all_table_objects_dict(self, table: str) -> dict:
+        """Get all dict values from a table.
+
+        Args:
+            table (str): The name of the table.
+
+        Returns:
+            dict: All dict values get by the table name.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If `table` is None.
         """
-        Get all dict values from a table
-        """
+        raise NotImplementedError("Subclasses should implement get_all_table_objects_dict() \
+                                  method.")
 
     @abstractmethod
     def check_table_object_exist(self, table: str, obj: str) -> bool:
+        """Check whether a given object exists in a given table.
+
+        Args:
+            table (str): The name of the table.
+            obj (str): The name of the object.
+
+        Returns:
+            bool: True if a given object exists in a given table, otherwise False.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If `table` or `obj` is None.
         """
-        Check whether given object exists in given table
-        """
+        raise NotImplementedError("Subclasses should implement check_table_object_exist() method.")
 
     @abstractmethod
     def del_table_object(self, table: str, obj: str) -> None:
+        """Delete an object from a given table.
+
+        Args:
+            table (str): The name of the table.
+            obj (str): The name of the object.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If `table` or `obj` is None.
         """
-        Delete an object from a given table
-        """
+        raise NotImplementedError("Subclasses should implement del_table_object() method.")
 
 class RedisDB(RuntimeDatabaseBase):
+    """Redis backend implementation for runtime database.
 
-    """
-    Redis backend implementation for runtime database
-    """
+    This class implements `connect`, `save_table_object_dict`, `get_table_object_dict`,
+    `get_all_table_objects_dict`, `check_table_object_exist`, `del_table_object` methods
+    defined in RuntimeDatabaseBase abstract base class for Redis in-memory datbase backend.
 
-    MAX_RECONNECTION_TIMES = 5
+    Attributes:
+        _conn (redis.Redis): The Redis connection object.
+    """
 
     def __init__(self):
+        """Initialize a RedisDB object."""
         self._conn = None
 
     def connect(self, host: str = "127.0.0.1", port: int = 6379, db: int = 0) -> None:
-        """
-        Connect to Redis server.
-        Args:
-            host: Redis server host hostname/IP
-            port: Redis server port
-            db: Database number in Redis server
-        Returns:
-            None
+        """The connect method for the runtime database of Redis backend implementation.
+
+        The general description can see base class, the differences is raises.
+
         Raises:
             redis.exceptions.ConnectionError: If connection to the Redis server fails
-                and reconnection exceeds the limit.
+              and reconnection exceeds the limit.
         """
         self._conn = redis.Redis(host=host, port=port, db=db)
 
@@ -117,17 +184,7 @@ class RedisDB(RuntimeDatabaseBase):
             return
 
     def save_table_object_dict(self, table: str, obj: str, d: dict) -> None:
-        """
-        Save a dict value for an object in a table.
-        Args:
-            table: The name of the table
-            obj: The name of the object
-            d: The value to be saved
-        Returns:
-            None
-        Raises:
-            ValueError: If `table` or `obj` is None.
-        """
+        """See base class."""
         if table is None:
             raise ValueError("table name cannot be None")
 
@@ -144,16 +201,7 @@ class RedisDB(RuntimeDatabaseBase):
         self._conn.hset(table, obj, json_value)
 
     def get_table_object_dict(self, table: str, obj: str) -> dict:
-        """
-        Get a dict value for an object from a table.
-        Args:
-            table: The name of the table
-            obj: The name of the object
-        Returns:
-            dict: The value get by table name and object name
-        Raises:
-            ValueError: If `table` or `obj` is None.
-        """
+        """See base class."""
         if table is None:
             raise ValueError("table name cannot be None")
 
@@ -170,15 +218,7 @@ class RedisDB(RuntimeDatabaseBase):
             return {}
 
     def get_all_table_objects_dict(self, table: str) -> dict:
-        """
-        Get all dict values from a table.
-        Args:
-            table: The name of the table
-        Returns:
-            dict: All values get by the table name
-        Raises:
-            ValueError: If `table` is None.
-        """
+        """See base class."""
         if table is None:
             raise ValueError("table name cannot be None")
 
@@ -196,16 +236,7 @@ class RedisDB(RuntimeDatabaseBase):
         return key_value_dict
 
     def check_table_object_exist(self, table: str, obj: str) -> bool:
-        """
-        Check whether a given object exists in a given table.
-        Args:
-            table: The name of the table
-            obj: The name of the object
-        Returns:
-            bool: Indicate whether a given object exists in a given table
-        Raises:
-            ValueError: If `table` or `obj` is None.
-        """
+        """See base class."""
         if table is None:
             raise ValueError("table name cannot be None")
 
@@ -215,16 +246,7 @@ class RedisDB(RuntimeDatabaseBase):
         return self._conn.hexists(table, obj)
 
     def del_table_object(self, table: str, obj: str) -> None:
-        """
-        Delete an object from a given table.
-        Args:
-            table: The name of the table
-            obj: The name of the object
-        Returns:
-            None
-        Raises:
-            ValueError: If `table` or `obj` is None.
-        """
+        """See base class."""
         if table is None:
             raise ValueError("table name cannot be None")
 
