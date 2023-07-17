@@ -33,7 +33,8 @@ class Postprocessor(ABC):
             frame (np.ndarray): An np.ndarray object representing the input frame.
             outputs (dict): A dictionary object representing the output from the model.
 
-        Returns: An np.ndarray object representing the postprocessed frame.
+        Returns:
+            np.ndarray: An np.ndarray object representing the postprocessed frame.
 
         Raises:
             NotImplementedError: If the subclasses don't implement the method.
