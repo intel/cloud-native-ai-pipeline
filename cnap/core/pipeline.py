@@ -1,8 +1,10 @@
-"""
+"""A Pipeline module.
+
 This module contains the definition of the `Pipeline` class and `PipelineManager` class.
-The `Pipeline` class contains the pipeline information including pipeline id, stream provider
-and inference engine info. The `PipelineManager` class manage the pipeline database, including
-registration and unregistration of pipeline.
+
+Classes:
+    Pipeline: A Class that encapsulates the pipeline information.
+    PipelineManager: A class that manage the pipeline with runtime database.
 """
 
 import uuid
@@ -16,17 +18,20 @@ from core.rtdb import RuntimeDatabaseBase
 LOG = logging.getLogger(__name__)
 
 class Pipeline:
-    """
-    Manage the pipeline.
+    """A Class that encapsulates the pipeline information.
+
+    Attributes:
+        _id (str): The pipeline ID.
+        _provider (StreamProvider): The stream provider of pipeline.
+        _info_engine_info (InferenceInfo): The inference engine inforamtion of pipeline.
     """
 
     def __init__(self, provider: StreamProvider, infer_engine_info: InferenceInfo):
-        """
-        Initialize a Pipeline object.
+        """Initialize a Pipeline object.
 
         Args:
-            provider: the stream provider of pipeline.
-            infer_engine_info: the inference engine inforamtion of pipeline.
+            provider (StreamProvider): The stream provider of pipeline.
+            infer_engine_info (InferenceInfo): The inference engine inforamtion of pipeline.
         """
         self._id = None
         self._provider = provider
@@ -34,49 +39,47 @@ class Pipeline:
 
     @property
     def id(self) -> str:
-        """
-        Get the pipeline ID (string of UUID)
-        """
+        """The pipeline ID (string of UUID)."""
         if self._id is None:
             self._id = uuid.uuid1()
         return str(self._id)
 
     @id.setter
     def id(self, new_str: str) -> None:
-        """
-        Set pipeline ID from string
-        """
+        """Set pipeline ID from string."""
         self._id = uuid.UUID(new_str)
 
     def __iter__(self) -> Iterator[Tuple[str, Dict[str, Any]]]:
+        """The Iterator for Pipeline class."""
         yield 'provider', dict(self._provider)
         yield 'info_engine_info', dict(self._info_engine_info)
 
 
 class PipelineManager:
-    """
-    Manage the pipeline database.
+    """A class that manage the pipeline with runtime database.
+
+    This class manage the pipeline with runtime database, provides the `register_pipeline`
+    and `unregister_pipeline` methods.
+
+    Attributes:
+        _db (RuntimeDatabaseBase): The runtime database used by pipeline manager.
     """
 
     PIPELINE_TABLE = "Pipeline-table"
 
     def __init__(self, db: RuntimeDatabaseBase):
-        """
-        Initialize a PipelineManager object.
+        """Initialize a PipelineManager object.
 
         Args:
-            db: the runtime database used by pipeline manager.
+            db (RuntimeDatabaseBase): The runtime database used by pipeline manager.
         """
         self._db = db
 
     def register_pipeline(self, pipeline_obj: Pipeline) -> None:
-        """
-        Register a new pipeline.
+        """Register a new pipeline.
 
         Args:
-            pipeline_obj: the pipeline object to register.
-
-        Return: None
+            pipeline_obj (Pipeline): The pipeline object to register.
 
         Raises:
             ValueError: Propagates the ValueError raised by `save_table_object_dict` if some cases
@@ -90,13 +93,10 @@ class PipelineManager:
             )
 
     def unregister_pipeline(self, pipeline_id: str) -> None:
-        """
-        Unregister an existing pipeline.
+        """Unregister an existing pipeline.
 
         Args:
-            pipeline_id: the id of pipeline to unregister.
-
-        Return: None
+            pipeline_id (str): The id of pipeline to unregister.
 
         Raises:
             ValueError: Propagates the ValueError raised by `del_table_object` if some cases are
