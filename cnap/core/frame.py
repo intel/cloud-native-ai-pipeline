@@ -11,8 +11,7 @@ Classes:
     Frame: A class that encapsulates raw frame and related information, can be simply encoded and
       decoded by protobuf.
     FrameCipherBase: An abstract base class for creating custom frame cipher implementations.
-    QATFrameCipher: A concrete class implementing encrypt and decrypt frame accelerated with QAT,
-      it is TODO now.
+    QATFrameCipher: A concrete class implementing encrypt and decrypt frame accelerated with QAT.
 """
 
 import logging
@@ -92,7 +91,7 @@ class Frame:
 
     @property
     def pipeline_id(self) -> str:
-        """The id of the pipeline to which the frame belongs."""
+        """str: The id of the pipeline to which the frame belongs."""
         return self._pipeline_id
 
     @pipeline_id.setter
@@ -102,12 +101,12 @@ class Frame:
 
     @property
     def sequence(self) -> int:
-        """The monolithic counter of the frame sequence number."""
+        """int: The monolithic counter of the frame sequence number."""
         return self._sequence
 
     @property
     def timestamp_new_frame(self) -> float:
-        """The timestamp of the beginning of this new frame."""
+        """float: The timestamp of the beginning of this new frame."""
         return self._ts_new
 
     @timestamp_new_frame.setter
@@ -117,17 +116,17 @@ class Frame:
 
     @property
     def raw(self) -> np.ndarray:
-        """The raw frame of the frame."""
+        """np.ndarray: The raw frame of the frame."""
         return self._raw
 
     @raw.setter
     def raw(self, raw_frame: np.ndarray) -> None:
-        """Set raw frame."""
+        """Set raw frame raw data."""
         self._raw = raw_frame
 
     @property
     def timestamp_infer_start(self) -> float:
-        """The timestamp of the inference's start point of this frame."""
+        """float: The timestamp of the inference's start point of this frame."""
         return self._ts_infer_start
 
     @timestamp_infer_start.setter
@@ -235,15 +234,27 @@ class Frame:
             raise ValueError(f"Invalid target size: {target_size}")
 
     def encrypt(self, actor: FrameCipherBase) -> None:
-        """Encrypt the frame before transferring it outside of TEE."""
+        """Encrypts the frame with a given frame cipher before transferring it outside of TEE.
+
+        Args:
+            actor (FrameCipherBase): The frame cipher to use for encryption.
+        """
         # TODO: implement the frame encryption
 
     def decrypt(self, actor: FrameCipherBase) -> None:
-        """Decrypt the frame after transferring it into TEE."""
+        """Decrypts the frame with a given frame cipher after transferring it into TEE.
+
+        Args:
+            actor (FrameCipherBase): The frame cipher to use for decryption.
+        """
         # TODO: implement the frame decryption
 
 class QATFrameCipher(FrameCipherBase):
-    """Use QAT to accelerate frame encryption and decryption."""
+    """Class that uses QAT to accelerate frame encryption and decryption.
+
+    This class implements the `encrypt` and `decrypt` methods from the
+    `FrameCipherBase` abstract base class.
+    """
 
     def encrypt(self) -> None:
         """See base class."""
