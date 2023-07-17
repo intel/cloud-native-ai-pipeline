@@ -84,9 +84,11 @@ class RedisStreamBrokerClient(StreamBrokerClientBase):
         self._conn = None
 
     def connect(self, host: str="127.0.0.1", port: int=6379):
-        """The Redis stream broker client implementation for connect method.
+        """Implement the connect method for the Redis stream broker client.
 
-        The general description can see base class, the differences is raises.
+        The method overrides the abstract method defined in the base class.
+        If connection to the Redis server fails and reconnection exceeds the limit,
+        raise ConnectionError.
 
         Raises:
             redis.exceptions.ConnectionError: If connection to the Redis server fails
@@ -158,9 +160,11 @@ class KafkaStreamBrokerClient(StreamBrokerClientBase):
         self._conn = None
 
     def connect(self, host="127.0.0.1", port=9092):
-        """The Kafka stream broker client implementation for connect method.
+        """Implement the connect method for the Kafka stream broker client.
 
-        The general description can see base class, the differences is raises.
+        The method overrides the abstract method defined in the base class.
+        If connection to the Kafka server fails and reconnection exceeds the limit,
+        raise NoBrokersAvailable error.
 
         Raises:
             kafka.errors.NoBrokersAvailable: if connection to the Kafka server fails and
