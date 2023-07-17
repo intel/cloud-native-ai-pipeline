@@ -200,7 +200,9 @@ class CameraSource(StreamProvider):
     def open(self):
         """Open the stream for camera source stream provider.
 
-        The general description can see base class, the differences is raises.
+        The method override the `open` method defined in `StreamProvider` abstract base class.
+        If the device node is not valid, or failed to open the camera, the method will raise
+        ValueError or FileNotFoundError or IOError.
 
         Raises:
             ValueError: If the dev_num getted from path name is not valid.
@@ -266,7 +268,9 @@ class FileSource(StreamProvider):
     def open(self):
         """Open the stream for file source stream provider.
 
-        The general description can see base class, the differences is raises.
+        The method overrides the `open` method defined in `StreamProvider` abstract base class.
+        If the file path is not valid, or failed to open the file, the method will raise
+        FileNotFoundError or TypeError.
 
         Raises:
             FileNotFoundError: If the path name for video file is not found.
