@@ -1,0 +1,70 @@
+@startuml Stream
+
+!includeurl ./style.puml
+
+package "Stream" {
+
+    abstract class StreamProvider<<abstract>> {
+        - _name: str
+        - _pathname: str
+        - _raw_size: Tuple[int, int]
+        - _raw_fps: int
+        - _seq: int
+        - _target_fps: int
+        ---
+        + __init__(name: str, pathname: str)
+        + name(): str (property)
+        + pathname(): str (property)
+        + raw_size(): Tuple[int, int] (property)
+        + raw_fps(): int (property)
+        + target_fps(): int (property)
+        + target_fps(new_val) (setter)
+        + {abstract} verify(): bool
+        + {abstract} read_raw_frame(): numpy.ndarray
+        + {abstract} open()
+        + {abstract} close()
+
+    }
+
+    class CameraSource {
+        - _device_obj: any
+        ---
+        - _dev_num(): int
+        + __init__(name:str, pathname: str)
+        + verify(): bool
+        + read_raw_frame(): numpy.ndarray
+        + open()
+        + close()
+    }
+
+    class FileSource {
+        - _file_db: FileDatabase
+        - _file_object: any
+        - _file_path: str
+        - _frame_counter: int
+        - _max_frame: int
+        ---
+        + __init__(name: str, pathname: str)
+        + verify(): bool
+        + open()
+        + close()
+        + read_raw_frame(): numpy.ndarray
+        + file_db(): FileDatabase (property)
+        + file_db(new_val: FileDatabase) (setter)
+        + target_fps(): int (property)
+    }
+
+    class StreamProcessor {
+        - _provider: StreamProvider
+        ---
+        + __init__(provider: StreamProvider)
+        + provider: StreamProvider (property)
+        + prepare()
+    }
+
+    CameraSource --|> StreamProvider: Inheritance
+    FileSource --|> StreamProvider: Inheritance
+    StreamProcessor -- StreamProvider
+}
+
+@enduml

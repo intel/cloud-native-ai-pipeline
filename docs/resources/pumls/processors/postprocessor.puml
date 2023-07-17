@@ -1,0 +1,30 @@
+@startuml PostProcessor
+
+!includeurl ../style.puml
+
+package "PostProcessor" {
+
+    abstract class Postprocessor<<abstract>> {
+        + {abstract} postprocess(frame: np.ndarray, outputs: dict): np.ndarray
+    }
+
+    class ObjectDetectionPostprocessor {
+        - _drawing: dict
+        ---
+        + __init__(drawing: dict)
+        + postprocess(frame: np.ndarray, outputs: dict): np.ndarray
+    }
+
+    class FaceRecognitionPostprocessor {
+        - _drawing: dict
+        ---
+        + __init__(drawing: dict)
+        + postprocess(frame: np.ndarray, outputs: dict): np.ndarray
+    }
+
+    Postprocessor <|-- ObjectDetectionPostprocessor
+    Postprocessor <|-- FaceRecognitionPostprocessor
+
+}
+
+@enduml

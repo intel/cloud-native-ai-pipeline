@@ -1,0 +1,70 @@
+@startuml Model
+
+!includeurl ./style.puml
+
+package "Model" {
+
+    class ModelMetrics {
+        - _accuracy: float
+        - _precision: float
+        - _recall: float
+        - _f1_score: float
+        - _loss: float
+        ---
+        + __init__(accuracy: float, precision: float, recall: float, f1_score: float, loss: float)
+        + accuracy(): float (property)
+        + precision(): float (property)
+        + recall(): float (property)
+        + f1_score(): float (property)
+        + loss(): float (property)
+        + __iter__(): Iterator[Tuple[str, Any]]
+    }
+
+    class ModelDetails {
+        - _name: str
+        - _version: str
+        - _framework: str
+        - _target: str
+        - _dtype: str
+        ---
+        + __init__(name: str, version: str, framework: str, target: str, dtype: str)
+        + name(): str  (property)
+        + version(): str (property)
+        + framework(): str (property)
+        + target(): str (property)
+        + dtype(): str (property)
+        + __iter__(): Iterator[Tuple[str, Any]]
+    }
+
+    class ModelInfo {
+        - _id: uuid.UUID
+        - _details: ModelDetails
+        - _uploaded_date: datetime
+        - _metrics: ModelMetrics
+        ---
+        + __init__(details: ModelDetails, uploaded_date: datetime, metrics: ModelMetrics)
+        + id(): str (property)
+        + details(): ModelDetails (property)
+        + uploaded_date(): datetime (property)
+        + metrics(): ModelMetrics (property)
+        + id(new_str: str) (setter)
+        + __iter__(): Iterator[Tuple[str, Any]]
+    }
+
+    class Model {
+        - _model_info: ModelInfo
+        - _model_binary: bytes
+        ---
+        + __init__(model_info: ModelInfo, model_binary: bytes)
+        + model_info(): ModelInfo (property)
+        + model_binary(): bytes (property)
+        + __iter__(): Iterator[Tuple[str, Any]]
+    }
+
+    ModelInfo -- ModelMetrics : has >
+    ModelInfo -- ModelDetails : has >
+    Model -- ModelInfo : has >
+
+}
+
+@enduml

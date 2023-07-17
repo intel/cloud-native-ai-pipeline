@@ -1,0 +1,21 @@
+@startuml FileDatabase
+
+!includeurl ./style.puml
+
+package "FileDatabase" {
+
+    abstract class FileDatabase<<abstract>> {
+        + {abstract} get_file(filename: str): str
+    }
+
+    class LocalFileDatabase {
+        - _root_dir: str
+        ---
+        + __init__(root_dir: str)
+        + get_file(filename: str): str
+    }
+
+    LocalFileDatabase --|> FileDatabase: Inheritance
+}
+
+@enduml

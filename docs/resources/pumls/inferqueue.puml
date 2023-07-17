@@ -1,0 +1,53 @@
+@startuml InferqQueue
+
+!includeurl ./style.puml
+
+package "InferqQueue" {
+
+    abstract class InferQueueClientBase<<abstract>> {
+        - _buffer_len: int
+        ---
+        + __init__()
+        + {abstract} connect(host: str, port: int)
+        + {abstract} publish_frame(topic: str, frame: Frame)
+        + {abstract} get_frame(topic: str): Frame
+        + {abstract} drop(topic: str): int
+        + buffer_len(): int （property)
+        + buffer_len(new_buffer_len: int) (setter)
+        + {abstract} infer_queue_available(topic: str): bool
+        + {abstract} register_infer_queue(topic: str)
+        + {abstract} unregister_infer_queue(topic: str) 
+    }
+
+    class RedisInferQueueClient {
+        - _conn: redis.
+        ---
+        + __init__()
+        + connect(host: str, port: int)
+        + publish_frame(topic: str, frame: Frame)
+        + get_frame(topic: str): Frame
+        + drop(topic: str): int
+        + infer_queue_available(topic: str): bool
+        + register_infer_queue(topic: str)
+        + unregister_infer_queue(topic: str) 
+    }
+
+    class KafkaInferQueueClient {
+        - _conn: KafkaProducer
+        ---
+        + __init__()
+        + connect(host: str, port: int)
+        + publish_frame(topic: str, frame: Frame)
+        + get_frame(topic: str): Frame
+        + drop(topic: str): int
+        + infer_queue_available(topic: str): bool
+        + register_infer_queue(topic: str)
+        + unregister_infer_queue(topic: str)
+    }
+
+    InferQueueClientBase <|-- RedisInferQueueClient
+    InferQueueClientBase <|-- KafkaInferQueueClient
+
+}
+
+@enduml

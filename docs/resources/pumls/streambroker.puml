@@ -1,0 +1,33 @@
+@startuml StreamBroker
+
+!includeurl ./style.puml
+
+package "StreamBroker" {
+
+    abstract class StreamBrokerClientBase<<abstract>> {
+        + {abstract} connect(host: str, port: int)
+        + {abstract} publish_frame(topic: str, frame: Frame)
+    }
+
+    class RedisStreamBrokerClient {
+        - _conn: redis.Redis
+        ---
+        + __init__()
+        + connect(host: str, port: int): bool
+        + publish_frame(topic: str, frame: Frame)
+    }
+
+    class KafkaStreamBrokerClient {
+        - _conn: kafka.KafkaProducer
+        ---
+        + __init__()
+        + connect(host: str, port: int): bool
+        + publish_frame(topic: str, frame: Frame)
+    }
+
+    RedisStreamBrokerClient --|> StreamBrokerClientBase
+    KafkaStreamBrokerClient --|> StreamBrokerClientBase
+
+}
+
+@enduml

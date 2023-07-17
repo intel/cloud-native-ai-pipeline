@@ -1,0 +1,37 @@
+@startuml Style
+
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam defaultFontColor #333333
+
+skinparam class {
+    BackgroundColor<<abstract>> #8CC152
+    BackgroundColor<<normal>> #FFFFFF
+    BorderColor<<normal>> #9E9E9E
+    BorderColor<<abstract>> #333333
+    borderThickness 1.5
+    shadowing true
+    Padding 5
+    roundCorner 10
+}
+
+skinparam package {
+    backgroundColor #F5F5F5
+    borderColor #333333
+    borderThickness 2
+    fontStyle Bold
+    fontSize 14
+    roundCorner 25
+    shadowing true
+    padding 10
+}
+
+skinparam arrow {
+    color #333333
+    thickness 1.5
+    fontStyle Bold
+    fontSize 12
+    shadowing true
+}
+
+@enduml

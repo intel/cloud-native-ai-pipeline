@@ -1,0 +1,32 @@
+@startuml RuntimeDatabase
+
+!includeurl ./style.puml
+
+package "RuntimeDatabase" {
+
+    abstract class RuntimeDatabaseBase<<abstract>> {
+        + {abstract} connect()
+        + {abstract} save_table_object_dict(table: str, obj: str, d: dict)
+        + {abstract} get_table_object_dict(table: str, obj: str): dict
+        + {abstract} get_all_table_objects_dict(table: str): dict
+        + {abstract} check_table_object_exist(table: str, obj: str): bool
+        + {abstract} del_table_object(table: str, obj: str)
+    }
+
+    class RedisDB {
+        - _conn: redis.Redis
+        ---
+        + __init__()
+        + connect(host: str, port: int, db: int)
+        + save_table_object_dict(table: str, obj: str, d: dict)
+        + get_table_object_dict(table: str, obj: str): dict
+        + get_all_table_objects_dict(table: str): dict
+        + check_table_object_exist(table: str, obj: str): bool
+        + del_table_object(table: str, obj: str)
+    }
+
+    RedisDB --|> RuntimeDatabaseBase
+
+}
+
+@enduml

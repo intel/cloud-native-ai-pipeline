@@ -1,0 +1,30 @@
+@startuml Pipeline
+
+!includeurl ./style.puml
+
+package "Pipeline" {
+
+class Pipeline {
+    - _id: str
+    - _provider: StreamProvider
+    - _info_engine_info: InferenceInfo
+    ---
+    + __init__(provider: StreamProvider, info_engine_info: InferenceInfo)
+    + id(): str (property)
+    + id(new_id: str) (setter)
+    + __iter__(): Iterator[Tuple[str, Dict[str, Any]]]
+}
+
+class PipelineManager {
+    - _db: RuntimeDatabaseBase
+    ---
+    + __init__(db: RuntimeDatabaseBase)
+    + register_pipeline(pipeline_obj: Pipeline)
+    + unregister_pipeline(pipeline_id: str)
+}
+
+PipelineManager -- Pipeline : manages >
+
+}
+
+@enduml

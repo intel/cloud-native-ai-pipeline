@@ -1,0 +1,46 @@
+@startuml InferenceEngine
+
+!includeurl ./style.puml
+
+package "InferenceEngine" {
+
+    class InferenceInfo {
+        - _device: str
+        - _model_id: str
+        - _id: str
+        - _queue_topic: str
+        - _input_size: Tuple[int, int]
+        ---
+        + __init__(device: str, model_id: str)
+        + id: str (property)
+        + input_size: Tuple[int, int] (property)
+        + device: str (property)
+        + model_id: str (property)
+        + queue_topic: str (property)
+        + id(new_str: str) (setter)
+        + queue_topic(new_queue_topic: str) (setter)
+        + __iter__(): Iterator[Tuple[str, Any]]
+    }
+
+    class InferEngineManager {
+        - _db: RuntimeDatabaseBase
+        + {static} _instance: InferEngineManager
+        ---
+        + __init__(db: RuntimeDatabaseBase)
+        + search_engine(framework: str, target: str, device: str, model_name: str, model_version: str): Optional[InferenceInfo]
+        + register_engine(infer_info: InferenceInfo, model_info: ModelInfo)
+        + unregister_engine(infer_info_id: str)
+    }
+
+    abstract class InferenceEngine<<abstract>> {
+        + {abstract} verify(): bool
+        + {abstract} preprocess(frame: np.ndarray): np.ndarray
+        + predict(frame: np.ndarray): Tuple[np.ndarray, float]
+        + {abstract} postprocess(frame: np.ndarray, outputs: dict): np.ndarray
+        + {abstract} _predict(preprocessed_frame: np.ndarray): dict
+    }
+
+    InferEngineManager "1" -- "0..*" InferenceInfo
+}
+
+@enduml

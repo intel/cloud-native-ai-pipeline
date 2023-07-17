@@ -1,0 +1,70 @@
+@startuml TensorFlowEngine
+
+!includeurl ../style.puml
+
+package "TensorFlowEngine" {
+
+    class TFModelConfig {
+        - _path: str
+        - _dtype: str
+        - _device: str
+        - _target: str
+        - _output_layer: list
+        - _drawing: dict
+        ---
+        + path: str (property)
+        + dtype: str (property)
+        + device: str (property)
+        + target: str (property)
+        + output_layer: list (property)
+        + drawing: dict (property)
+    }
+
+    class TensorFlowPreprocessor {
+        - _input_size: Tuple[int, int]
+        - _dtype: str
+        ---
+        + __init__(input_size: Tuple[int, int], dtype: str)
+        + preprocess(frame: np.ndarray): np.ndarray
+    }
+
+    class TensorFlowPostprocessor {
+        - _postprocessor: Postprocessor
+        ---
+        - _select_postprocessor(target: str, drawing: dict): Postprocessor
+        + __init__(target: str, drawing: dict)
+        + postprocess(frame: np.ndarray, outputs: dict): np.ndarray
+    }
+
+    class TensorFlowEngine {
+        - _model_path: str
+        - _dtype: str
+        - _target: str
+        - _drawing: dict
+        - _output_layer: list
+        - _input_size: Tuple[int, int]
+        - _model: any
+        - _session: any
+        - _preprocessor: TensorFlowPreprocessor
+        - _postprocessor: TensorFlowPostprocessor
+        ---
+        - _load_model(): None
+        - _load_frozen_graph_model(): None
+        - _load_saved_model(): None
+        - _configure_optimizer(): None
+        - _configure_environment(): None
+        + __init__(config: TFModelConfig)
+        + verify(): bool
+        + preprocess(frame: np.ndarray): np.ndarray
+        + _predict(preprocessed_frame: np.ndarray): np.ndarray
+        + postprocess(frame: np.ndarray, outputs: dict): np.ndarray
+        + input_size: Tuple[int, int] (property)
+    }
+
+    TFModelConfig <-- TensorFlowEngine
+    TensorFlowPreprocessor <-- TensorFlowEngine
+    TensorFlowPostprocessor <-- TensorFlowEngine
+
+}
+
+@enduml
