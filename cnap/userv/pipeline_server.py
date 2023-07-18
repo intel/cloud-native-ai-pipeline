@@ -1,12 +1,22 @@
 #!/usr/bin/python3
-"""
+"""A Pipeline Sever module.
+
 Pipeline Server provides a Restful API to get pipeline data.
+
+Classes:
+    PipelineService: A class for pipeline server services to get pipeline data.
+
+functinos:
+    _get_env: A function to get environment variable.
+    api_get_pipelines: Restful API for getting pipeline data.
+    health_check: Health check endpoint.
 """
 import os
 import sys
 import logging
 import signal
 from multiprocessing import Process
+from typing import Any, Optional
 
 from flask import Flask, jsonify, Response
 from flask_cors import cross_origin
@@ -18,7 +28,17 @@ LOG = logging.getLogger(__name__)
 WEB_APP = Flask(__name__)
 server = Process(target=WEB_APP.run, args=('0.0.0.0',))
 
-def _get_env(key, default=None):
+def _get_env(key, default: Optional[Any]=None) -> Optional[Any]:
+    """A function to get environment variable.
+
+    Args:
+        key (str): The name of the environment variable.
+        default (Optional[Any]): The default value to return if the environment variable
+            does not exist.
+
+    Returns:
+        Optional[Any]: The value of the environment variable or the default value.
+    """
     if key not in os.environ:
         LOG.warning("Could not find the key %s in environment, "
                     "use default value %s", key, str(default))
@@ -26,21 +46,27 @@ def _get_env(key, default=None):
     return os.environ[key]
 
 class PipelineService:
+    """A class for pipeline server services to get pipeline data.
+
+    Attributes:
+        _db (RuntimeDatabaseBase): The RuntimeDatabaseBase object for PipelineService to use.
     """
-    Service to get pipeline data.
-    """
+
     INFER_ENGINE_TABLE = "InferEngine-table"
     PIPELINE_TABLE = "Pipeline-table"
 
     _instance = None
 
     def __init__(self):
+        """Initialize a PipelineService object."""
         self._db = None
 
     @property
     def db(self) -> RuntimeDatabaseBase:
-        """
-        Get the runtime database.
+        """The runtime database.
+
+        If `_db` is None, this function will create a `RuntimeDatabaseBase` object
+        and connect to runtime database.
 
         Returns:
             RuntimeDatabaseBase: An instance of the RuntimeDatabaseBase class.
@@ -65,8 +91,7 @@ class PipelineService:
 
     @property
     def pipelines(self) -> list:
-        """
-        Gets the pipeline list.
+        """The pipeline list.
 
         Returns:
             list: List of pipeline dictionaries.
@@ -94,8 +119,7 @@ class PipelineService:
 
     @classmethod
     def inst(cls):
-        """
-        Singleton instance.
+        """Singleton instance.
 
         Returns:
             PipelineService: An instance of the PipelineService class.
@@ -107,8 +131,7 @@ class PipelineService:
 @WEB_APP.route('/api/pipelines', methods=['GET'])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def api_get_pipelines() -> Response:
-    """
-    Restful API for getting pipeline data.
+    """Restful API for getting pipeline data.
 
     Returns:
         Response: Flask response object with JSON data and status.
@@ -118,8 +141,7 @@ def api_get_pipelines() -> Response:
 
 @WEB_APP.route('/healthz', methods=['GET'])
 def health_check() -> Response:
-    """
-    Health check endpoint.
+    """Health check endpoint.
 
     Returns:
         Response: Flask response object with message and status.
@@ -135,8 +157,7 @@ if __name__ == "__main__":
     server.start()
 
     def signal_handler(num, _):
-        """
-        Signal handler.
+        """Signal handler.
 
         Args:
             num (int): The received signal number.

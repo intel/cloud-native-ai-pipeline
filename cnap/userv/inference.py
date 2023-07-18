@@ -341,6 +341,11 @@ def entry() -> None:
     app = InferenceService()
 
     def signal_handler(num, _):
+        """Signal handler.
+
+        Args:
+            num (int): The received signal number.
+        """
         LOG.error("signal %d", num)
         app.stop()
         sys.exit(1)
