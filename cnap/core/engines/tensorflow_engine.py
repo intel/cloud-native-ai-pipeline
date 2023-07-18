@@ -66,6 +66,7 @@ class TFModelConfig:
         _output_layer (list): The output layers of the model.
         _drawing (dict): the drawing configuration of the inference task.
     """
+
     def __init__(self, path: str, dtype: str, target: str, device: str = 'CPU'):
         """Initializes a TFModelConfig object.
 
@@ -133,6 +134,7 @@ class TensorFlowPreprocessor(Preprocessor):
         _input_size (Tuple[int, int]): The expected input size of the model.
         _dtype (str): The data type of the model.
     """
+
     def __init__(self, input_size: Tuple[int, int], dtype: str):
         """Initialize a TensorFlowPreprocessor object.
 
@@ -178,6 +180,7 @@ class TensorFlowPostprocessor(Postprocessor):
         _postprocessor (Postprocessor): A Postprocessor object representing the appropriate
           postprocessor for the output data of TensorFlow models.
     """
+
     def __init__(self, target: str, drawing: dict):
         """Initialize a TensorFlowPostprocessor object.
 
@@ -235,6 +238,7 @@ class TensorFlowEngine(InferenceEngine):
         _postprocessor (Postprocessor): The Postprocessor object for postprocessing the output
             data.
     """
+
     def __init__(self, config: TFModelConfig):
         """Initialize a TensorFlowEngine object.
 

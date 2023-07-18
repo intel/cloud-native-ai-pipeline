@@ -2,6 +2,7 @@
 
 This dictionary object maps the category ID to the category name.
 """
+
 CategoryList = {
     1: 'person',
     2: 'bicycle',

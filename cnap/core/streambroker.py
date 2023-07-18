@@ -80,7 +80,11 @@ class RedisStreamBrokerClient(StreamBrokerClientBase):
     """
 
     def __init__(self):
-        """Initialize a RedisStreamBrokerClient object."""
+        """Initialize a RedisStreamBrokerClient object.
+
+        This constructor initializes the RedisStreamBrokerClient object with a
+        Redis connection object.
+        """
         self._conn = None
 
     def connect(self, host: str="127.0.0.1", port: int=6379):
@@ -157,7 +161,11 @@ class KafkaStreamBrokerClient(StreamBrokerClientBase):
     """
 
     def __init__(self):
-        """Initialize a KafkaStreamBrokerClient object."""
+        """Initialize a KafkaStreamBrokerClient object.
+
+        This constructor initializes the KafkaStreamBrokerClient object with a
+        Kafka connection object.
+        """
         self._conn = None
 
     def connect(self, host="127.0.0.1", port=9092):

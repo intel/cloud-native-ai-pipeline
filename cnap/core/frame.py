@@ -40,6 +40,8 @@ class FrameCipherBase(ABC):
     def encrypt(self) -> None:
         """Encrypt the frame.
 
+        The method is to encrypt the frame to protect the privacy of the frame.
+
         Raises:
             NotImplementedError: If the subclasses don't implement the method.
         """
@@ -48,6 +50,8 @@ class FrameCipherBase(ABC):
     @abstractmethod
     def decrypt(self) -> None:
         """Decrypt the frame.
+
+        The method is to decrypt the encrypted frame.
 
         Raises:
             NotImplementedError: If the subclasses don't implement the method.
@@ -75,6 +79,9 @@ class Frame:
     def __init__(self, provider: StreamProvider, pipeline_id: str,
                  sequence: int, raw_frame: np.ndarray):
         """Initialize a Frame object.
+
+        This constructor initializes a Frame object with the given stream provider,
+        pipeline id, sequence number and raw frame.
 
         Args:
             provider (StreamProvider): The stream provider of the frame.
@@ -209,6 +216,9 @@ class Frame:
     def get_sequence(cls) -> int:
         """Get the monolithic count for the sequence number of a frame.
 
+        The method will return the last sequence number plus one, and update the last sequence
+        number to the new value.
+
         Returns:
             int: The last sequence number.
         """
@@ -219,6 +229,8 @@ class Frame:
 
     def normalize(self, target_size: Tuple[int, int]) -> None:
         """Normalize the frame to the target size.
+
+        This method uses OpenCV to resize the frame to the target size.
 
         Args:
             target_size (Tuple[int, int]): The target size for frame to normalize.
@@ -236,6 +248,8 @@ class Frame:
     def encrypt(self, actor: FrameCipherBase) -> None:
         """Encrypts the frame with a given frame cipher before transferring it outside of TEE.
 
+        The method should be called before transferring the frame outside of TEE.
+
         Args:
             actor (FrameCipherBase): The frame cipher to use for encryption.
         """
@@ -243,6 +257,8 @@ class Frame:
 
     def decrypt(self, actor: FrameCipherBase) -> None:
         """Decrypts the frame with a given frame cipher after transferring it into TEE.
+
+        The method should be called after transferring the frame into TEE.
 
         Args:
             actor (FrameCipherBase): The frame cipher to use for decryption.

@@ -20,6 +20,9 @@ LOG = logging.getLogger(__name__)
 class Pipeline:
     """A Class that encapsulates the pipeline information.
 
+    This class defines the pipeline information, including the pipeline ID, stream provider and
+    inference engine information.
+
     Attributes:
         _id (str): The pipeline ID.
         _provider (StreamProvider): The stream provider of pipeline.
@@ -28,6 +31,9 @@ class Pipeline:
 
     def __init__(self, provider: StreamProvider, infer_engine_info: InferenceInfo):
         """Initialize a Pipeline object.
+
+        This constructor initializes a Pipeline object with the given stream provider and
+        inference engine information.
 
         Args:
             provider (StreamProvider): The stream provider of pipeline.
@@ -69,6 +75,8 @@ class PipelineManager:
 
     def __init__(self, db: RuntimeDatabaseBase):
         """Initialize a PipelineManager object.
+
+        This constructor initializes a PipelineManager object with the given runtime database.
 
         Args:
             db (RuntimeDatabaseBase): The runtime database used by pipeline manager.

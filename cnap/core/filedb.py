@@ -53,7 +53,14 @@ class LocalFileDatabase(FileDatabase):
     """
 
     def __init__(self, root_dir: str):
-        """Initializes the LocalFileDatabase with a given root directory."""
+        """Initializes the LocalFileDatabase with a given root directory.
+
+        This constructor initializes the LocalFileDatabase with a given root directory
+        for local file operations.
+
+        Args:
+            root_dir (str): The root directory path for local file operations.
+        """
         self._root_dir = os.path.abspath(root_dir)
 
     def get_file(self, filename: str) -> str:

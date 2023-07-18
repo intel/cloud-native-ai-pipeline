@@ -11,6 +11,7 @@ Classes:
     InferEngineManager: A class to manage inference engines.
     InferenceEngine: An abstract base class for creating custom inference engine implementations.
 """
+
 import logging
 import uuid
 import time
@@ -49,6 +50,10 @@ VALID_DEVICES = {"cpu", "gpu", "tpu"}
 class InferenceInfo:
     """Inference information class.
 
+    This class encapsulates the inference information, it can be simply encoded and decoded
+    by protobuf. A inference information should include enough information for traceability,
+    observability, etc.
+
     Attributes:
         _device (str): The device type for infer engine.
         _model_id (str): The UUID for infer model.
@@ -59,6 +64,9 @@ class InferenceInfo:
 
     def __init__(self, device: str, model_id: str) -> None:
         """Initialize an inference engine info object.
+
+        This constructor initializes an inference engine info object with device type and
+        model UUID.
 
         Args:
             device (str): The device type for infer engine.
@@ -137,6 +145,8 @@ class InferEngineManager:
     def __init__(self, db: RuntimeDatabaseBase) -> None:
         """Initialize a InferEngineManager object.
 
+        This constructor initializes a InferEngineManager object with a RuntimeDatabaseBase object.
+
         Args:
             db: The RuntimeDatabaseBase object for InferEngineManager to use.
         """
@@ -157,15 +167,10 @@ class InferEngineManager:
             model_version (str): Version of the model
 
         Returns:
-            Optional[InferenceInfo]: An InferenceInfo object if engine is found, None otherwise.
+            InferenceInfo: An InferenceInfo object if engine is found, None otherwise.
         """
         # Get all available engines from database
-        try:
-            engine_dicts = self._db.get_all_table_objects_dict(INFER_ENGINE_TABLE)
-        except ValueError as e:
-            LOG.exception(e)
-            raise
-
+        engine_dicts = self._db.get_all_table_objects_dict(INFER_ENGINE_TABLE)
 
         # Find the first engine that matches the desired framework and target\
         try:
@@ -197,6 +202,8 @@ class InferEngineManager:
     def register_engine(self, infer_info: InferenceInfo, model_info: ModelInfo) -> None:
         """Register the infer engine to database.
 
+        This method is used to register the infer engine to database.
+
         Args:
             infer_info (InferenceInfo): The InferenceInfo object to register.
             model_info (ModelInfo): The ModelInfo object to register.
@@ -219,14 +226,12 @@ class InferEngineManager:
     def unregister_engine(self, infer_info_id: str) -> None:
         """Unregister the infer engine from database.
 
+        This method is used to unregister the infer engine from database.
+
         Args:
             infer_info_id (str): The UUID of Infer Engine Info to unregister.
         """
-        try:
-            self._db.del_table_object(INFER_ENGINE_TABLE, infer_info_id)
-        except ValueError as e:
-            LOG.exception(e)
-            raise
+        self._db.del_table_object(INFER_ENGINE_TABLE, infer_info_id)
 
 class InferenceEngine(ABC):
     """An abstract base class for creating custom inference engine implementations.
@@ -239,6 +244,8 @@ class InferenceEngine(ABC):
     def verify(self) -> bool:
         """Checks if the model is valid for inference.
 
+        The method is to check if the model is valid for inference.
+
         Returns:
             bool: True if the model is valid, otherwise False.
 
@@ -250,6 +257,8 @@ class InferenceEngine(ABC):
     @abstractmethod
     def preprocess(self, frame: np.ndarray) -> np.ndarray:
         """Preprocesses the input data.
+
+        The method is to preprocess the input data before feeding it to the model.
 
         Args:
             frame (np.ndarray): The input data to preprocess.
@@ -264,6 +273,9 @@ class InferenceEngine(ABC):
 
     def predict(self, frame: np.ndarray) -> Tuple[np.ndarray, float]:
         """Performs inference using the loaded model and input data, and measures the latency.
+
+        The method is to perform inference using the loaded model and input data, and measures
+        the latency.
 
         Args:
             frame (np.ndarray): The input data to use for inference.
@@ -285,6 +297,8 @@ class InferenceEngine(ABC):
     def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
         """Postprocesses the output from the inference process.
 
+        The method is to postprocess the output from the inference process.
+
         Args:
             frame (np.ndarray): The input frame.
             outputs (dict): The output result from the inference process.
@@ -300,6 +314,8 @@ class InferenceEngine(ABC):
     @abstractmethod
     def _predict(self, preprocessed_frame: np.ndarray) -> dict:
         """Performs inference using the loaded model and preprocessed input data.
+
+        The method is to perform inference using the loaded model and preprocessed input data.
 
         Args:
             preprocessed_frame (np.ndarray): The preprocessed input data to use for inference.

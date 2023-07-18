@@ -20,6 +20,9 @@ from datetime import datetime
 class ModelMetrics:
     """A class that encapsulates the performance metrics of the inference model.
 
+    This class defines the performance metrics of the inference model, including
+    accuracy, precision, recall, F1 score and loss value.
+
     Attributes:
         _accuracy (float): The accuracy of the model.
         _precision (float): The precision of the model.
@@ -27,6 +30,7 @@ class ModelMetrics:
         _f1_score (float): The F1 score of the model.
         _loss (float): The loss value of the model.
     """
+
     def __init__(self,
                  accuracy: float,
                  precision: float,
@@ -34,6 +38,9 @@ class ModelMetrics:
                  f1_score: float,
                  loss: float):
         """Initialize a ModelMetrics object.
+
+        This constructor initializes a ModelMetrics object with the given accuracy,
+        precision, recall, F1 score and loss value.S
 
         Args:
             accuracy (float): The accuracy of the model.
@@ -84,6 +91,9 @@ class ModelMetrics:
 class ModelDetails:
     """A class that encapsulates the details of the inference model.
 
+    This class defines the details of the inference model, including
+    name, version, framework, target and data type.
+
     Attributes:
         _name (str): The name of the model.
         _version (str): The version of the model.
@@ -91,8 +101,12 @@ class ModelDetails:
         _target (str): The target of the model.
         _dtype (str): The data type of the model.
     """
+
     def __init__(self, name: str, version: str, framework: str, target: str, dtype: str):
         """Initialize a ModelDetails object.
+
+        This constructor initializes a ModelDetails object with the given name,
+        version, framework, target and data type.
 
         Args:
             name (str): The name of the model.
@@ -142,6 +156,9 @@ class ModelDetails:
 
 class ModelInfo:
     """A class for managing information about an Inference model.
+
+    This class defines the information of the inference model, including
+    ID, details, uploaded date and performance metrics.
 
     Attributes:
         _id (str): The ID of the model.
@@ -200,6 +217,9 @@ class ModelInfo:
 
 class Model:
     """A class for managing an Inference model.
+
+    This class defines the information of the inference model, including
+    model information and model binary.
 
     Attributes:
         _model_info (ModelInfo): The information of the model.

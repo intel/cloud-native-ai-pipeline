@@ -50,6 +50,8 @@ class RuntimeDatabaseBase(ABC):
     def save_table_object_dict(self, table: str, obj: str, d: dict) -> None:
         """Save a dict value for an object in a table.
 
+        This method is used to save a dict value for an object in a table.
+
         Args:
             table (str): The name of the table.
             obj (str): The name of the object.
@@ -64,6 +66,8 @@ class RuntimeDatabaseBase(ABC):
     @abstractmethod
     def get_table_object_dict(self, table: str, obj: str) -> dict:
         """Get a dict value for an object from a table.
+
+        This method is used to get a dict value for an object from a table.
 
         Args:
             table (str): The name of the table.
@@ -82,6 +86,8 @@ class RuntimeDatabaseBase(ABC):
     def get_all_table_objects_dict(self, table: str) -> dict:
         """Get all dict values from a table.
 
+        This method is used to get all dict values from a table.
+
         Args:
             table (str): The name of the table.
 
@@ -99,6 +105,8 @@ class RuntimeDatabaseBase(ABC):
     def check_table_object_exist(self, table: str, obj: str) -> bool:
         """Check whether a given object exists in a given table.
 
+        This method is used to check whether a given object exists in a given table.
+
         Args:
             table (str): The name of the table.
             obj (str): The name of the object.
@@ -115,6 +123,8 @@ class RuntimeDatabaseBase(ABC):
     @abstractmethod
     def del_table_object(self, table: str, obj: str) -> None:
         """Delete an object from a given table.
+
+        This method is used to delete an object from a given table.
 
         Args:
             table (str): The name of the table.
@@ -144,7 +154,8 @@ class RedisDB(RuntimeDatabaseBase):
     def connect(self, host: str = "127.0.0.1", port: int = 6379, db: int = 0) -> None:
         """The connect method for the runtime database of Redis backend implementation.
 
-        The general description can see base class, the differences is raises.
+        The method overrides the `connect` method defined in the `RuntimeDatabaseBase` abstract
+        base class. The main difference is raises.
 
         Raises:
             redis.exceptions.ConnectionError: If connection to the Redis server fails

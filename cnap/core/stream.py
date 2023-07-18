@@ -48,6 +48,8 @@ class StreamProvider(ABC):
     def __init__(self, name: str, pathname: str):
         """Initialize a StreamProvider object.
 
+        This constructor initializes the StreamProvider with a given name and pathname.
+
         Args:
             name (str): The name of stream provider.
             pathname (str): The path name of stream provider.
@@ -98,6 +100,8 @@ class StreamProvider(ABC):
     def verify(self) -> bool:
         """Verify the provider's measurement/quote/integrity.
 
+        This method is used to verify the provider's measurement/quote/integrity.
+
         Returns:
             bool: True if the verification success, False otherwise.
 
@@ -109,6 +113,8 @@ class StreamProvider(ABC):
     @abstractmethod
     def read_raw_frame(self) -> numpy.ndarray:
         """Get a frame from source.
+
+        This method is used to get a frame from source.
 
         Returns:
             numpy.ndarray: An numpy.ndarray object representing the raw frame.
@@ -122,6 +128,8 @@ class StreamProvider(ABC):
     def open(self) -> None:
         """Open the stream.
 
+        The method is used to open the stream.
+
         Raises:
             NotImplementedError: If the subclasses don't implement the method.
         """
@@ -130,6 +138,8 @@ class StreamProvider(ABC):
     @abstractmethod
     def close(self) -> None:
         """Close the stream.
+
+        The method is used to close the stream.
 
         Raises:
             NotImplementedError: If the subclasses don't implement the method.
@@ -156,6 +166,8 @@ class CameraSource(StreamProvider):
 
     def __init__(self, name: str, pathname: str="/dev/video0"):
         """Initialize a CameraSource object.
+
+        This constructor initializes the CameraSource with a given name and pathname.
 
         Args:
             name (str): The name of camera source stream provider.
@@ -249,6 +261,8 @@ class FileSource(StreamProvider):
 
     def __init__(self, name: str, pathname: str="classroom.mp4"):
         """Initialize a FileSource object.
+
+        This constructor initializes the FileSource with a given name and pathname.
 
         Args:
             name (str): The name of file source stream provider.
@@ -362,6 +376,8 @@ PROVIDER_TYPES: Dict[str, Type[StreamProvider]] = {
 
 def create_stream_from_type(type_name: str, name: str, pathname: str) -> StreamProvider:
     """Create StreamProvider instance according to type.
+
+    The method is used to create StreamProvider instance according to type.
 
     Args:
         type_name (str): The type of stream provider to create.

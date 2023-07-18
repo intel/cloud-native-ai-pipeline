@@ -133,6 +133,9 @@ class InferQueueClientBase(ABC):
     def infer_queue_available(self, topic: str) -> bool:
         """Determine whether the inference queue for the topic is available.
 
+        The method is used to determine whether the inference queue for the topic is available or
+        not.
+
         Args:
             topic (str): The topic name to determine.
 
@@ -149,6 +152,8 @@ class InferQueueClientBase(ABC):
     def register_infer_queue(self, topic: str):
         """Register the topic in the inference queue.
 
+        The method is used to register the topic in the inference queue.
+
         Args:
             topic (str): The topic name to register.
 
@@ -161,6 +166,8 @@ class InferQueueClientBase(ABC):
     @abstractmethod
     def unregister_infer_queue(self, topic: str):
         """Unregister the topic in the inference queue.
+
+        The method is used to unregister the topic in the inference queue.
 
         Args:
             topic (str): The topic name to unregister.
@@ -191,7 +198,8 @@ class RedisInferQueueClient(InferQueueClientBase):
     def connect(self, host: str="127.0.0.1", port: int=6379):
         """The Redis queue client implementation for connect method.
 
-        The general description can see base class, the differences is raises.
+        The method overrides the `connect` method defined in the `InferQueueClientBase` abstract
+        base class. The main defference is raises.
 
         Raises:
             redis.exceptions.ConnectionError: If connection to the Redis server fails
@@ -319,7 +327,8 @@ class KafkaInferQueueClient(InferQueueClientBase):
     def connect(self, host="127.0.0.1", port=9092):
         """The Kafka queue client implementation for connect method.
 
-        The general description can see base class, the differences is raises.
+        The method overrides the `connect` method defined in the `InferQueueClientBase` abstract
+        base class. The main defference is raises.
 
         Raises:
             kafka.errors.NoBrokersAvailable: If connection to the Kafka server fails and
