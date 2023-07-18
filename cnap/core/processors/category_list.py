@@ -1,6 +1,7 @@
-'''
-A dictionary object representing the category list of the output.
-'''
+"""A dictionary object representing the drawing category list.
+
+This dictionary object maps the category ID to the category name.
+"""
 CategoryList = {
     1: 'person',
     2: 'bicycle',

@@ -84,7 +84,7 @@ class RedisStreamBrokerClient(StreamBrokerClientBase):
         self._conn = None
 
     def connect(self, host: str="127.0.0.1", port: int=6379):
-        """Implement the connect method for the Redis stream broker client.
+        """Implement the `connect` method for the Redis stream broker client.
 
         The method overrides the `connect` method defined in `StreamBrokerClientBase`
         abstract base class.
@@ -161,7 +161,7 @@ class KafkaStreamBrokerClient(StreamBrokerClientBase):
         self._conn = None
 
     def connect(self, host="127.0.0.1", port=9092):
-        """Implement the connect method for the Kafka stream broker client.
+        """Implement the `connect` method for the Kafka stream broker client.
 
         The method overrides the `connect` method defined in `StreamBrokerClientBase`
         abstract base class.
