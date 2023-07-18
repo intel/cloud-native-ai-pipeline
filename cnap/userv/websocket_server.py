@@ -21,6 +21,8 @@ from typing import Any, Optional
 import redis.asyncio as redis
 import websockets.exceptions
 import websockets.server
+from websockets.datastructures import Headers
+from websockets.legacy.server import HTTPResponse
 
 LOG = logging.getLogger(__name__)
 
@@ -271,8 +273,17 @@ class StreamWebSocketServer:
             await redis_conn.close()
             LOG.info("stream publish task stop for sid: %s", sid)
 
-    async def _health_check(self, path, request_headers):
-        """Access `/healthz` path to check the health of websocket server."""
+    async def _health_check(self, path: str, request_headers: Headers) -> HTTPResponse:
+        """Access `/healthz` path to check the health of WebSocket server.
+
+        Args:
+            path (str): The path for the health check of WebSocket server.
+            request_headers (Headers): The request headers for the health check of WebSocket server.
+
+        Returns:
+            HTTPResponse: A HTTPResponse object representing the reponse of WebSocket server
+              for the health check.
+        """
         if path == "/healthz":
             return http.HTTPStatus.OK, [], b"OK\n"
 
