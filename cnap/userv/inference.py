@@ -1,10 +1,12 @@
-"""
-This module contains the implementation of the InferenceService class, which is a
-MicroAppBase subclass that provides functionality for running inference.
+"""A Inference Service module.
 
-The InferenceService class is responsible for connecting to a runtime database,
-loading a model, and setting up the necessary connections to a queue and a broker
-for running inference on incoming data.
+This module contains the implementation of the InferenceService and InferenceTask classes,
+which are used to run inference service.
+
+Classes:
+    InferenceService: A concrete class implementing the MicroAppBase for Inference Service,
+      provides a Restful API to run inference.
+    InferenceTask: A concrete class of MicroServiceTask for Inference task.
 """
 import logging
 import sys
@@ -26,14 +28,25 @@ LOG = logging.getLogger(__name__)
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class InferenceService(MicroAppBase):
-    """
-    Inference Service provides a Restful API to run inference.
+    """Inference Service provides a Restful API to run inference.
 
     The InferenceService class is responsible for connecting to a runtime database,
     loading a model, and setting up the necessary connections to a queue and a broker
     for running inference on incoming data.
+
+    Attributes:
+        _db (RuntimeDatabaseBase): The runtime database instance.
+        _model_provider (str): The model provider instance.
+        _model (Model): The model instance.
+        _infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
+        _infer_broker_connector (StreamBrokerClientBase): The inference broker connector instance.
+        _infer_engine_manager (InferEngineManager): The inference engine manager instance.
+        _infer_info (InferenceInfo): The inference information.
+        _inference_engine (InferenceEngine): The inference engine instance.
+        _is_stopping (bool): A boolean variable that flags if the service is stopping or not.
     """
     def __init__(self):
+        """Initialize an InferenceService object."""
         super().__init__()
         self._db = None
         self._model_provider = None
@@ -47,8 +60,10 @@ class InferenceService(MicroAppBase):
 
     @property
     def db(self) -> RuntimeDatabaseBase:
-        """
-        Property that provides the runtime database instance.
+        """The runtime database instance.
+
+        If `_db` is None, this function will create a `RuntimeDatabaseBase` object
+        and connect to runtime database.
 
         Returns:
             RuntimeDatabaseBase: An instance of the runtime database.
@@ -73,8 +88,7 @@ class InferenceService(MicroAppBase):
 
     @property
     def model_provider(self) -> str:
-        """
-        Property that provides the model provider instance.
+        """The model provider instance.
 
         Returns:
             str: The model provider instance. "Not Implemented" in the current version.
@@ -83,18 +97,15 @@ class InferenceService(MicroAppBase):
 
     @property
     def model(self) -> Model:
-        """
-        Property that provides the model instance.
-
-        Returns:
-            Model: The model instance.
-        """
+        """The model instance."""
         return self._model
 
     @property
     def infer_queue_connector(self) -> InferQueueClientBase:
-        """
-        Property that provides the inference queue connector instance.
+        """The inference queue connector instance.
+
+        If `_infer_queue_connector` is None, this function will create a `InferQueueClientBase`
+        object and connect to queue server.
 
         Returns:
             InferQueueClientBase: The inference queue connector instance.
@@ -123,8 +134,10 @@ class InferenceService(MicroAppBase):
 
     @property
     def infer_broker_connector(self) -> StreamBrokerClientBase:
-        """
-        Property that provides the inference broker connector instance.
+        """The inference broker connector instance.
+
+        If `_infer_broker_connector` is None, this function will create a `StreamBrokerClientBase`
+        object and connect to stream broker server.
 
         Returns:
             StreamBrokerClientBase: The inference broker connector instance.
@@ -153,8 +166,9 @@ class InferenceService(MicroAppBase):
 
     @property
     def infer_engine_manager(self) -> InferEngineManager:
-        """
-        Property that provides the inference engine manager instance.
+        """The inference engine manager instance.
+
+        If `_infer_engine_manager` is None, this function will create a `InferEngineManager` object.
 
         Returns:
             InferEngineManager: The inference engine manager instance.
@@ -165,8 +179,9 @@ class InferenceService(MicroAppBase):
 
     @property
     def infer_info(self) -> InferenceInfo:
-        """
-        Property that provides the inference information.
+        """The inference information.
+
+        If `_infer_info` is None, this function will create a `InferenceInfo` object.
 
         Returns:
             InferenceInfo: The inference information.
@@ -191,8 +206,9 @@ class InferenceService(MicroAppBase):
 
     @property
     def inference_engine(self) -> InferenceEngine:
-        """
-        Property that provides the inference engine instance.
+        """The inference engine instance.
+
+        If `_inference_engine` is None, this function will create a `InferenceEngine` object.
 
         Returns:
             InferenceEngine: The inference engine instance.
@@ -217,13 +233,12 @@ class InferenceService(MicroAppBase):
         return self._inference_engine
 
     def init(self):
-        """
-        Initialization
-        """
+        """Initialization."""
 
     def cleanup(self):
-        """
-        Cleanup. Sets the stopping flag and performs necessary cleanup actions.
+        """Cleanup.
+
+        Sets the stopping flag and performs necessary cleanup actions.
         """
         self._is_stopping = True
         LOG.debug("cleanup")
@@ -234,9 +249,8 @@ class InferenceService(MicroAppBase):
         if self.infer_engine_manager:
             self.infer_engine_manager.unregister_engine(self.infer_info.id)
 
-    def run(self):
-        """
-        The main execution function for the service.
+    def run(self) -> bool:
+        """The main execution function for the service.
 
         Returns:
             bool: Whether execution was successful or not.
@@ -259,11 +273,28 @@ class InferenceService(MicroAppBase):
         return True
 
 class InferenceTask(MicroServiceTask):
+    """Inference task for the inference service.
+
+    Attributes:
+        inference_engine (InferenceEngine): The inference engine instance.
+        infer_info (InferenceInfo): The inference information.
+        infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
+        infer_broker_connector (StreamBrokerClientBase): The inference broker connector instance.
+    """
 
     def __init__(self, inference_engine: InferenceEngine,
                  infer_info: InferenceInfo,
                  infer_queue_connector: InferQueueClientBase,
                  infer_broker_connector: StreamBrokerClientBase):
+        """Initialize an InferenceTask object.
+
+        Args:
+            inference_engine (InferenceEngine): The inference engine instance.
+            infer_info (InferenceInfo): The inference information.
+            infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
+            infer_broker_connector (StreamBrokerClientBase): The inference stream broker connector
+              instance.
+        """
         MicroServiceTask.__init__(self)
         self.inference_engine = inference_engine
         self.infer_info = infer_info
@@ -271,6 +302,7 @@ class InferenceTask(MicroServiceTask):
         self.infer_broker_connector = infer_broker_connector
 
     def execute(self):
+        """The task logic of inference task."""
         while not self.is_task_stopping:
 
             # 0. Create frame decryption actor
@@ -301,12 +333,11 @@ class InferenceTask(MicroServiceTask):
             self.infer_broker_connector.publish_frame(topic, frame)
 
     def stop(self):
+        """Stop the inference task."""
         MicroServiceTask.stop(self)
 
 def entry() -> None:
-    """
-    The entry of Inference Service
-    """
+    """The entry of Inference Service."""
     app = InferenceService()
 
     def signal_handler(num, _):
