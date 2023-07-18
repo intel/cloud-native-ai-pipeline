@@ -1,11 +1,13 @@
-"""
-WebSocket Server
+"""A WebSocket Server module.
 
-It subscribes to all inferred streams from the Redis broker and hosts a WebSocket server to
-publish the streams to an HTML5 based front-end SPA (Single Page Application).
+The WebSocket Server subscribes to all inferred streams from the Redis broker and hosts a WebSocket
+server to publish the streams to an HTML5 based front-end SPA (Single Page Application).
 
-It is based on asyncio and coroutine programming models since most operations
-are IO bound.
+It is based on asyncio and coroutine programming models since most operations are IO bound.
+
+Classes:
+    StreamWebSocketServer: A class for Stream WebSocket Server to publish streams via WebSocket
+      from the broker.
 """
 
 import os
@@ -28,11 +30,18 @@ MAX_RECONNECTION_TIMES = 5
 MAX_CLIENT_CONNECTIONS = 100
 
 class StreamWebSocketServer:
-    """
-    Stream WebSocket Server to publish streams via WebSocket from the broker.
+    """A class for Stream WebSocket Server to publish streams via WebSocket from the broker.
+
+    Attributes:
+        _stream_broker_redis_host (str): The host ip or hostname of stream broker Redis server.
+        _stream_broker_redis_port (int): The host port of stream broker Redis server.
+        _pipelines (dict): A dictionary object representing the stream publish tasks for every
+          pipelines.
+        _users (dict): A dictionary object representing all established WebSocket connections.
     """
 
     def __init__(self):
+        """Initialize a StreamWebSocketServer object."""
         self._stream_broker_redis_host = self._get_env(
             "STREAM_BROKER_REDIS_HOST", "127.0.0.1")
         self._stream_broker_redis_port = self._get_env(
@@ -42,8 +51,7 @@ class StreamWebSocketServer:
 
     @staticmethod
     def _get_env(key, default: Optional[Any]=None) -> Optional[Any]:
-        """
-        Get environment variable.
+        """Get environment variable.
 
         Args:
             key (str): The name of the environment variable.
@@ -60,33 +68,30 @@ class StreamWebSocketServer:
         return os.environ[key]
 
     def _add_pipeline(self, sid: str):
-        """
-        Add pipeline.
+        """Add pipeline.
 
         Args:
-            sid: the id of pipeline to add.
+            sid (str): The id of pipeline to add.
         """
         LOG.info("add pipeline: %s", sid)
         self._pipelines[sid] = asyncio.get_event_loop().create_task(
             self._stream_publish_task(sid))
 
     def _del_pipeline(self, sid: str):
-        """
-        Delete pipeline.
+        """Delete pipeline.
 
         Args:
-            sid: the id of pipeline to delete.
+            sid (str): the id of pipeline to delete.
         """
         LOG.info("remove pipeline: %s", sid)
         self._pipelines[sid].cancel()
         del self._pipelines[sid]
 
-    def _on_update(self, pipeline_list: list[str]):
-        """
-        Update pipelines.
+    def _on_update(self, pipeline_list: list):
+        """Update pipelines.
 
         Args:
-            pipeline_list: the list of pipeline ids to update.
+            pipeline_list (list): The list of pipeline ids to update.
         """
         for new_item in pipeline_list:
             if new_item not in self._pipelines:
@@ -98,12 +103,12 @@ class StreamWebSocketServer:
 
     async def _websocket_server_task(self, wsobj: websockets.server.WebSocketServerProtocol,
                                      path: str):
-        """
-        Connection handler for websocket server connection.
+        """Connection handler for websocket server connection.
 
         Args:
-            wsobj: the WebSocketServerProtocol object for websocket server connection.
-            path: the path for websocket server connection.
+            wsobj (websockets.server.WebSocketServerProtocol): The WebSocketServerProtocol object
+              for websocket server connection.
+            path (str): The path for websocket server connection.
         """
         LOG.info("WebSocket server task start: %s path: %s", str(wsobj), path)
         target = path[1:]  # skip / prefix
@@ -131,9 +136,7 @@ class StreamWebSocketServer:
             LOG.info("WebSocket server task stop.")
 
     async def _pipeline_status_monitor_task(self):
-        """
-        Pipelines status monitor task, monitor and update pipelines.
-        """
+        """Pipelines status monitor task, monitor and update pipelines."""
         LOG.info("Task pipeline status monitor task start.")
 
         try:
@@ -182,11 +185,10 @@ class StreamWebSocketServer:
             LOG.info("Task pipeline status monitor task stop.")
 
     async def _connect_subscribe(self, topic: str):
-        """
-        Connect to redis server and subscribe topic.
+        """Connect to redis server and subscribe topic.
 
         Args:
-            topic: the topic to subscribe.
+            topic (str): The topic to subscribe.
         """
         redis_conn = redis.Redis(host=self._stream_broker_redis_host,
                             port=self._stream_broker_redis_port)
@@ -200,11 +202,10 @@ class StreamWebSocketServer:
         return redis_conn, redis_pubsub
 
     async def _stream_publish_task(self, sid: str):
-        """
-        Stream publish task, subscribe result streams and publish to spa.
+        """Stream publish task, subscribe result streams and publish to spa.
 
         Args:
-            sid: the id of pipeline to publish result stream.
+            sid (str): The id of pipeline to publish result stream.
         """
         LOG.info("stream publish task start: %s", sid)
 
@@ -271,16 +272,12 @@ class StreamWebSocketServer:
             LOG.info("stream publish task stop for sid: %s", sid)
 
     async def _health_check(self, path, request_headers):
-        """
-        Access `/healthz` path to check the health of websocket server.
-        """
+        """Access `/healthz` path to check the health of websocket server."""
         if path == "/healthz":
             return http.HTTPStatus.OK, [], b"OK\n"
 
     async def _start_ws_server(self):
-        """
-        Start websocket server.
-        """
+        """Start websocket server."""
         ws_server = await websockets.server.serve(
                         self._websocket_server_task,
                         "0.0.0.0",
@@ -289,12 +286,11 @@ class StreamWebSocketServer:
         await ws_server.wait_closed()
 
     async def _shutdown(self, sigobj: signal.Signals, loop: asyncio.AbstractEventLoop):
-        """
-        Shut down websocket server.
+        """Shut down websocket server.
 
         Args:
-            sigobj: the shut down signal.
-            loop: the asyncio event loop.
+            sigobj (signal.Signals): The shut down signal.
+            loop (asyncio.AbstractEventLoop): The asyncio event loop.
         """
         LOG.info("Received exit signal %s...", sigobj.name)
         tasks = [task for task in asyncio.all_tasks() if task is not
@@ -305,9 +301,7 @@ class StreamWebSocketServer:
         loop.stop()
 
     def run(self):
-        """
-        Main entry.
-        """
+        """The main entry of WebSocket Server."""
         loop = asyncio.get_event_loop()
         signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
         for sigobj in signals:
