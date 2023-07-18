@@ -4,9 +4,9 @@ This module contains the implementation of the InferenceService and InferenceTas
 which are used to run inference service.
 
 Classes:
-    InferenceService: A concrete class implementing the MicroAppBase for Inference Service,
+    InferenceService: A concrete class implementing the MicroAppBase for inference Service,
       provides a Restful API to run inference.
-    InferenceTask: A concrete class of MicroServiceTask for Inference task.
+    InferenceTask: A concrete class of MicroServiceTask for inference task.
 """
 import logging
 import sys
@@ -28,7 +28,9 @@ LOG = logging.getLogger(__name__)
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class InferenceService(MicroAppBase):
-    """Inference Service provides a Restful API to run inference.
+    """A concrete class implementing the MicroAppBase for inference Service.
+
+    Inference Service provides a Restful API to run inference.
 
     The InferenceService class is responsible for connecting to a runtime database,
     loading a model, and setting up the necessary connections to a queue and a broker
@@ -273,7 +275,7 @@ class InferenceService(MicroAppBase):
         return True
 
 class InferenceTask(MicroServiceTask):
-    """Inference task for the inference service.
+    """A concrete class of MicroServiceTask for inference task.
 
     Attributes:
         inference_engine (InferenceEngine): The inference engine instance.

@@ -1,5 +1,11 @@
-"""
-Streaming micro service.
+"""A Streaming Service module.
+
+This module contains the implementation of the StreamingService and StreamingTask classes,
+which are used to run streaming service.
+
+Classes:
+    StreamingService: A concrete class implementing the MicroAppBase for streaming Service.
+    StreamingTask: A concrete class of MicroServiceTask for streaming task.
 """
 import logging
 import time
@@ -23,11 +29,23 @@ CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 # pylint: disable=too-many-instance-attributes
 
 class StreamingService(MicroAppBase):
-    """
+    """A concrete class implementing the MicroAppBase for Streaming Service.
+
     Streaming service, read frames from the stream provider, and process frames,
     then publish frames to inference queue.
+
+    Attributes:
+        _db (RuntimeDatabaseBase): The runtime database instance.
+        _provider (StreamProvider): The stream provider instance.
+        _infer_engine_manager (InferEngineManager): The inference engine manager instance.
+        _pipeline_manager (PipelineManager): The pipeline manager instance.
+        _infer_engine_info (Optional[InferenceInfo]): The infer engine info instance.
+        _pipeline (Pipeline): The pipeline instance.
+        _is_stopping (bool): A boolean variable that flags if the service is stopping or not.
+        _infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
     """
     def __init__(self):
+        """Initialize a StreamingService object."""
         MicroAppBase.__init__(self)
         self._db = None
         self._provider = None
@@ -40,8 +58,10 @@ class StreamingService(MicroAppBase):
 
     @property
     def db(self) -> RuntimeDatabaseBase:
-        """
-        Runtime database instance.
+        """The runtime database instance.
+
+        If `_db` is None, this function will create a `RuntimeDatabaseBase` object
+        and connect to runtime database.
 
         Returns:
             RuntimeDatabaseBase: An instance of the RuntimeDatabaseBase class.
@@ -67,8 +87,9 @@ class StreamingService(MicroAppBase):
 
     @property
     def provider(self) -> StreamProvider:
-        """
-        Provider instance.
+        """The stream provider instance.
+
+        If `_provider` is None, this function will create a `StreamProvider` object.
 
         Returns:
             StreamProvider: An instance of StreamProvider class.
@@ -100,8 +121,9 @@ class StreamingService(MicroAppBase):
 
     @property
     def infer_engine_manager(self) -> InferEngineManager:
-        """
-        Manager instance for infer engine
+        """The inference engine manager instance.
+
+        If `_infer_engine_manager` is None, this function will create a `InferEngineManager` object.
 
         Returns:
             InferEngineManager: An instance of InferEngineManager class.
@@ -112,8 +134,10 @@ class StreamingService(MicroAppBase):
 
     @property
     def infer_queue_connector(self) -> InferQueueClientBase:
-        """
-        Connector to infer queue service.
+        """The inference queue connector instance.
+
+        If `_infer_queue_connector` is None, this function will create a `InferQueueClientBase`
+        object and connect to queue server.
 
         Returns:
             InferQueueClientBase: An instance of InferQueueClientBase class.
@@ -142,8 +166,9 @@ class StreamingService(MicroAppBase):
 
     @property
     def pipeline_manager(self) -> PipelineManager:
-        """
-        Manager instance for pipeline.
+        """The pipeline manager instance.
+
+        If `_pipeline_manager` is None, this function will create a `PipelineManager` object.
 
         Returns:
             PipelineManager: An instance of PipelineManager class.
@@ -154,18 +179,14 @@ class StreamingService(MicroAppBase):
 
     @property
     def pipeline(self) -> Pipeline:
-        """
-        Pipeline instance
-
-        Returns:
-            Pipeline: An instance of Pipeline class.
-        """
+        """The pipeline instance."""
         return self._pipeline
 
     @property
     def infer_engine_info(self) -> Optional[InferenceInfo]:
-        """
-        Infer engine info instance
+        """The infer engine info instance.
+
+        If `infer_engine_info` is None, this function will search the matching inference engine.
 
         Returns:
             InferenceInfo: An instance of InferenceInfo class.
@@ -188,13 +209,12 @@ class StreamingService(MicroAppBase):
         return self._infer_engine_info
 
     def init(self):
-        """
-        Initialization
-        """
+        """Initialization."""
 
     def cleanup(self):
-        """
-        Cleanup
+        """Cleanup.
+
+        Sets the stopping flag and performs necessary cleanup actions.
         """
         self._is_stopping = True
         LOG.debug("cleanup")
@@ -205,8 +225,7 @@ class StreamingService(MicroAppBase):
             self.pipeline_manager.unregister_pipeline(self.pipeline.id)
 
     def run(self) -> bool:
-        """
-        The main logic of streaming service.
+        """The main logic of streaming service.
 
         Returns:
             A bool object that flags whether the streaming service run sunccessfully.
@@ -231,10 +250,9 @@ class StreamingService(MicroAppBase):
         return True
 
 class StreamingTask(MicroServiceTask):
-    """
-    Streaming task for the streaming service.
+    """A concrete class of MicroServiceTask for streaming task.
 
-    Args:
+    Attributes:
         provider(StreamProvider): The stream provider of streaming task.
         infer_engine_info(InferenceInfo): The inference information of streaming task.
         infer_queue_connector(InferQueueClientBase): The inference queue client of streaming task.
@@ -244,6 +262,15 @@ class StreamingTask(MicroServiceTask):
                  infer_engine_info: InferenceInfo,
                  infer_queue_connector: InferQueueClientBase,
                  pipeline_id: str):
+        """Initialize a StreamingTask object.
+
+        Args:
+            provider(StreamProvider): The stream provider of streaming task.
+            infer_engine_info(InferenceInfo): The inference information of streaming task.
+            infer_queue_connector(InferQueueClientBase): The inference queue client of streaming
+              task.
+            pipeline_id(str): The pipeline id of streaming task.
+        """
         MicroServiceTask.__init__(self)
         self.provider = provider
         self.pipeline_id = pipeline_id
@@ -251,9 +278,7 @@ class StreamingTask(MicroServiceTask):
         self.infer_queue_connector = infer_queue_connector
 
     def execute(self):
-        """
-        The task logic of streaming task.
-        """
+        """The task logic of streaming task."""
         self.provider.open()
         while not self.is_task_stopping:
 
@@ -295,17 +320,21 @@ class StreamingTask(MicroServiceTask):
         self.provider = None
 
     def stop(self):
+        """Stop the streaming task."""
         MicroServiceTask.stop(self)
         if self.provider is not None:
             self.provider.close()
 
 def entry() -> None:
-    """
-    The entry of Streaming Service
-    """
+    """The entry of Streaming Service."""
     app = StreamingService()
 
     def signal_handler(num, _):
+        """Signal handler.
+
+        Args:
+            num (int): The received signal number.
+        """
         LOG.error("signal %d", num)
         app.stop()
         sys.exit(1)
