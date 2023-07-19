@@ -45,7 +45,7 @@ class Pipeline:
 
     @property
     def id(self) -> str:
-        """The pipeline ID (string of UUID)."""
+        """str: The pipeline ID (string of UUID)."""
         if self._id is None:
             self._id = uuid.uuid1()
         return str(self._id)

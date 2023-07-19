@@ -141,7 +141,7 @@ class RedisDB(RuntimeDatabaseBase):
 
     This class implements `connect`, `save_table_object_dict`, `get_table_object_dict`,
     `get_all_table_objects_dict`, `check_table_object_exist`, `del_table_object` methods
-    defined in RuntimeDatabaseBase abstract base class for Redis in-memory datbase backend.
+    defined in `RuntimeDatabaseBase` abstract base class for Redis in-memory datbase backend.
 
     Attributes:
         _conn (redis.Redis): The Redis connection object.

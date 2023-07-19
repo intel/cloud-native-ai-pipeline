@@ -1,4 +1,4 @@
-"""A streambroker module.
+"""A Streambroker module.
 
 This module provides an object-oriented design for stream broker client to connect with
 stream broker server, publish frame to stream broker server.

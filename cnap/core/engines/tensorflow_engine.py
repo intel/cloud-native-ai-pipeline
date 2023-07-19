@@ -64,7 +64,7 @@ class TFModelConfig:
         _device (str): The device to run the model on.
         _target (str): The target task of the model.
         _output_layer (list): The output layers of the model.
-        _drawing (dict): the drawing configuration of the inference task.
+        _drawing (dict): The drawing configuration of the inference task.
     """
 
     def __init__(self, path: str, dtype: str, target: str, device: str = 'CPU'):
@@ -224,7 +224,7 @@ class TensorFlowEngine(InferenceEngine):
     """A concrete class implementing the InferenceEngine for TensorFlow framework.
 
     This class implement `verify`, `preprocess`, `postprocess`, `_predict` methods defined
-    in `InferQueueClientBase` abstract base class for TensorFlow framework.
+    in `InferenceEngine` abstract base class for TensorFlow framework.
 
     Attributes:
         _model_path (str): The inference model file path.

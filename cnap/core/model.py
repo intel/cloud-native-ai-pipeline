@@ -1,4 +1,4 @@
-"""A model module.
+"""A Model module.
 
 This module contains the definition of the ModelInfo class, which encapsulates
 all relevant information about an Inference model in a machine learning pipeline.
@@ -57,27 +57,27 @@ class ModelMetrics:
 
     @property
     def accuracy(self) -> float:
-        """The accuracy of the model."""
+        """float: The accuracy of the model."""
         return self._accuracy
 
     @property
     def precision(self) -> float:
-        """The precision of the model."""
+        """float: The precision of the model."""
         return self._precision
 
     @property
     def recall(self) -> float:
-        """The recall of the model."""
+        """float: The recall of the model."""
         return self._recall
 
     @property
     def f1_score(self) -> float:
-        """The F1 score of the model."""
+        """float: The F1 score of the model."""
         return self._f1_score
 
     @property
     def loss(self) -> float:
-        """The loss value of the model."""
+        """float: The loss value of the model."""
         return self._loss
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
@@ -123,27 +123,27 @@ class ModelDetails:
 
     @property
     def name(self) -> str:
-        """The name of the model."""
+        """str: The name of the model."""
         return self._name
 
     @property
     def version(self) -> str:
-        """The version of the model."""
+        """str: The version of the model."""
         return self._version
 
     @property
     def framework(self) -> str:
-        """The framework used to train the model."""
+        """str: The framework used to train the model."""
         return self._framework
 
     @property
     def target(self) -> str:
-        """The target of the model."""
+        """str: The target of the model."""
         return self._target
 
     @property
     def dtype(self) -> str:
-        """The data type of the model."""
+        """str: The data type of the model."""
         return self._dtype
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
@@ -185,7 +185,7 @@ class ModelInfo:
 
     @property
     def id(self) -> str:
-        """The ID of the model (string of UUID)."""
+        """str: The ID of the model (string of UUID)."""
         return self._id
 
     @id.setter
@@ -195,17 +195,17 @@ class ModelInfo:
 
     @property
     def details(self) -> ModelDetails:
-        """The details of the model."""
+        """ModelDetails: The details of the model."""
         return self._details
 
     @property
     def uploaded_date(self) -> datetime:
-        """The creation date of the model."""
+        """datetime: The creation date of the model."""
         return self._uploaded_date
 
     @property
     def metrics(self) -> ModelMetrics:
-        """The performance metrics of the model."""
+        """ModelMetrics: The performance metrics of the model."""
         return self._metrics
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
@@ -238,12 +238,12 @@ class Model:
 
     @property
     def model_info(self) -> ModelInfo:
-        """The information of the model."""
+        """ModelInfo: The information of the model."""
         return self._model_info
 
     @property
     def model_binary(self) -> bytes:
-        """The binary of the model."""
+        """bytes: The binary of the model."""
         return self._model_binary
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:

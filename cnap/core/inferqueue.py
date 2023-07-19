@@ -1,4 +1,4 @@
-"""A inferqueue module.
+"""A Inferqueue module.
 
 This module provides an object-oriented design for inference queue client to connect with
 inference queue server, publish frame to queue server, get frame from queue server, drop
@@ -119,7 +119,7 @@ class InferQueueClientBase(ABC):
 
     @property
     def buffer_len(self) -> int:
-        """The buffer length for infer queue, default 32."""
+        """int: The buffer length for infer queue, default 32."""
         if self._buffer_len is None:
             self._buffer_len = 32
         return self._buffer_len

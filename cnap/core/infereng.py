@@ -86,7 +86,7 @@ class InferenceInfo:
 
     @property
     def id(self) -> str:
-        """The UUID for Infer Engine Info."""
+        """str: The UUID for Infer Engine Info."""
         if self._id is None:
             self._id = uuid.uuid1()
         return str(self._id)
@@ -98,22 +98,22 @@ class InferenceInfo:
 
     @property
     def input_size(self) -> Tuple[int, int]:
-        """The input size tuple required by infer model."""
+        """Tuple[int, int]: The input size tuple required by infer model."""
         return self._input_size
 
     @property
     def device(self) -> str:
-        """The device type for infer engine."""
+        """str: The device type for infer engine."""
         return self._device
 
     @property
     def model_id(self) -> str:
-        """The UUID for infer model."""
+        """str: The UUID for infer model."""
         return self._model_id
 
     @property
     def queue_topic(self) -> str:
-        """The queue topic for infer engine."""
+        """str: The queue topic for infer engine."""
         if self._queue_topic is None:
             self._queue_topic = f"origin-{self.model_id}-{self.device}"
         return self._queue_topic
