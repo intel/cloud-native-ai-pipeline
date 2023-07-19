@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  scan_python:
+  codescan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install pylint
+          python3 -m pip install pylint pydocstyle
           python3 -m pip install -r ./cnap/requirements.txt
 
       - name: Analyze python code 
@@ -32,6 +32,7 @@ jobs:
           python_files=$(find . -path ./cnap/ -prune -o -name "*.py" -print)
           if [[ -n "$python_files" ]]; then
             echo "$python_files" | xargs -n 1 python3 -m pylint --rcfile=.github/pylintrc
+            echo "$python_files" | xargs -n 1 python3 -m pydocstyle --convention=google
           else
             echo "No Python files found."
           fi
