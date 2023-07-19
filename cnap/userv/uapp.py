@@ -5,9 +5,8 @@ Application template for Micro Service apps and tasks classes.
 Classes:
     MicroServiceTask: A base class for micro service task of threading based Task.
     MicroAppBase: An abstract base class for micro service app.
-
-@author: Lu Ken
 """
+
 import os
 import sys
 import logging

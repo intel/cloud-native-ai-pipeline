@@ -8,6 +8,7 @@ Classes:
       provides a Restful API to run inference.
     InferenceTask: A concrete class of MicroServiceTask for inference task.
 """
+
 import logging
 import sys
 import time
@@ -47,6 +48,7 @@ class InferenceService(MicroAppBase):
         _inference_engine (InferenceEngine): The inference engine instance.
         _is_stopping (bool): A boolean variable that flags if the service is stopping or not.
     """
+
     def __init__(self):
         """Initialize an InferenceService object."""
         super().__init__()
@@ -91,6 +93,8 @@ class InferenceService(MicroAppBase):
     @property
     def model_provider(self) -> str:
         """The model provider instance.
+
+        The method is to instantiate the model provider instance.
 
         Returns:
             str: The model provider instance. "Not Implemented" in the current version.

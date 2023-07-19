@@ -7,6 +7,7 @@ Classes:
     StreamingService: A concrete class implementing the MicroAppBase for streaming Service.
     StreamingTask: A concrete class of MicroServiceTask for streaming task.
 """
+
 import logging
 import time
 import sys
@@ -44,6 +45,7 @@ class StreamingService(MicroAppBase):
         _is_stopping (bool): A boolean variable that flags if the service is stopping or not.
         _infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
     """
+
     def __init__(self):
         """Initialize a StreamingService object."""
         MicroAppBase.__init__(self)
