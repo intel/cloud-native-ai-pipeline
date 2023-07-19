@@ -2,7 +2,7 @@
 
 ![CI Check License](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-license-check.yaml/badge.svg)
 ![CI Check Spelling](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-doclint.yaml/badge.svg)
-![CI Check Python](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-pylint.yaml/badge.svg)
+![CI Check Python](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-python-check.yaml/badge.svg)
 ![CI Check Shell](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-shell-check.yaml/badge.svg)
 ![CI Check Node](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-node-check.yaml/badge.svg)
 
