@@ -1,19 +1,14 @@
-"""
-Package for inference queue client related classes. It provides client classes for
-streaming service to connect with infer queue server and publish frame to infer
-queue server, and for inference service to connect with infer queue server and get
-frame from infer queue server and drop frames and adjust buffer size. The register
-and unregister function for queue topic is provided to determine whether the topic
-is available.
+"""A Inferqueue module.
 
-The origin frames from streamprovider will be send to infer queue server, and the
-inference service can get frame from the infer queue server to do inference. The
-infer queue provides a buffer between streaming service and inference service.
+This module provides an object-oriented design for inference queue client to connect with
+inference queue server, publish frame to queue server, get frame from queue server, drop
+frames in queue server judge the availability for the topic in queue server, register topic
+in queue server, unregister topic in queue server.
 
-The `InferQueueClientBase` is the abstract class for infer queue server client.
-The `RedisInferQueueClient` and `KafkaInferQueueClient` are subclass for Redis
-and Kafka infer queue server(some functions of `KafkaInferQueueClient` is TODO now)
-and can be extended to support other types of infer queue by implementing other subclasses.
+Classes:
+    InferQueueClientBase: An abstract base class for inference queue client.
+    RedisInferQueueClient: A concrete class implementing the InferQueueClientBase for Redis server.
+    KafkaInferQueueClient: A concrete class implementing the InferQueueClientBase for Kafka server.
 """
 
 import logging
@@ -30,166 +25,185 @@ from core.frame import Frame
 LOG = logging.getLogger(__name__)
 
 class InferQueueClientBase(ABC):
-    """
-    Abstract class for inference queue client.
+    """An abstract base class for inference queue client.
+
+    This class serves as a blueprint for subclasses that need to implement
+    `connect`, `publish_frame`, `get_frame`, `drop`, `infer_queue_available`,
+    `register_infer_queue`, `unregister_infer_queue` methods for different types
+    of queue server.
+
+    Attributes:
+        _buffer_len (int): The buffer length for inference queue.
     """
 
+    # The max reconnection times for inference queue client.
     MAX_RECONNECTION_TIMES = 5
 
     def __init__(self):
+        """Initialize a InferQueueClientBase object."""
         self._buffer_len = None
 
     @abstractmethod
     def connect(self, host: str, port: int):
-        """
-        Connect to queue server.
+        """Connect to queue server.
+
+        This method is used to connect to queue server, will attempt to reconnect
+        when a connection error occcurs.
 
         Args:
-            host: The host ip of queue server.
-            port: The port of queue server.
+            host (str): The host ip or hostname of queue server.
+            port (int): The port of queue server.
 
-        Returns: None
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
-        raise NotImplementedError("Subclasses should implement this")
+        raise NotImplementedError("Subclasses should implement connect() method.")
 
     @abstractmethod
     def publish_frame(self, topic: str, frame: Frame) -> None:
-        """
-        Publish a frame to a topic.
+        """Publish a frame to queue server for a topic.
+
+        This method is used to publish a frame to queue server, it will serialize
+        the Frame before publish a frame to the queue server.
 
         Args:
-            topic: The topic name to publish to.
-            frame: The frame to publish.
-
-        Returns: None
+            topic (str): The topic name to publish to.
+            frame (Frame): The Frame to publish.
 
         Raises:
-            ValueError: if the topic or frame is None.
-            RuntimeError: if any errors while encoding before publishing frame.
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If the topic or frame is None.
+            RuntimeError: If any errors while encoding before publishing frame.
         """
         raise NotImplementedError("Subclasses should implement publish_frame() method.")
 
     @abstractmethod
     def get_frame(self, topic: str) -> Optional[Frame]:
-        """
-        Get a frame from queue.
+        """Get a frame from queue.
+
+        This method is used to get a frame from queue server, it will deserialize
+        the Frame after get a frame from the queue server,
 
         Args:
-            topic: The topic name to get frame.
+            topic (str): The topic name to get frame.
 
         Returns:
-            Frame: The frame get from topic.
-            None: The infer queue is empty now.
+            Optional[Frame]: The frame get from topic or None if the infer queue is empty now.
 
         Raises:
-            ValueError: if the topic is None.
-            TypeError: if the type of msg getted from infer queue is not bytes.
-            RuntimeError: if any errors while decoding after getting frame.
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If the topic is None.
+            TypeError: If the type of msg getted from infer queue is not bytes.
+            RuntimeError: If any errors while decoding after getting frame.
         """
         raise NotImplementedError("Subclasses should implement get_frame() method.")
 
     @abstractmethod
     def drop(self, topic: str) -> int:
-        """
-        Drop the frame overflow the buffer.
-        The length of buffer can be adjust.
+        """Drop the frames overflow the buffer.
+
+        This method is used to drop the frames overflow the buffer, the length
+        of buffer can be adjusted.
 
         Args:
-            topic: The topic name to drop frame.
+            topic (str): The topic name to drop frames.
 
         Returns:
             int: The count of frames dropped.
 
         Raises:
-            ValueError: if the topic is None.
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If the topic is None.
         """
         raise NotImplementedError("Subclasses should implement drop() method.")
 
     @property
     def buffer_len(self) -> int:
-        """
-        Get the buffer length for infer queue, default 32.
-        """
+        """int: The buffer length for infer queue, default 32."""
         if self._buffer_len is None:
             self._buffer_len = 32
         return self._buffer_len
 
     @buffer_len.setter
     def buffer_len(self, new_buffer_len: int) -> None:
-        """
-        Set the buffer length for infer queue.
-        """
+        """Set the buffer length for infer queue."""
         self._buffer_len = new_buffer_len
 
     @abstractmethod
     def infer_queue_available(self, topic: str) -> bool:
-        """
-        Determine whether the inference queue for the topic is available.
+        """Determine whether the inference queue for the topic is available.
+
+        The method is used to determine whether the inference queue for the topic is available or
+        not.
 
         Args:
-            topic: The topic name to determine.
+            topic (str): The topic name to determine.
 
         Returns:
             bool: True if the inference queue for the topic is available, False otherwise.
 
         Raises:
-            ValueError: if the topic is None.
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If the topic is None.
         """
         raise NotImplementedError("Subclasses should implement infer_queue_available() method.")
 
     @abstractmethod
     def register_infer_queue(self, topic: str):
-        """
-        Register the topic in the inference queue.
+        """Register the topic in the inference queue.
+
+        The method is used to register the topic in the inference queue.
 
         Args:
-            topic: The topic name to register.
-
-        Returns: None
+            topic (str): The topic name to register.
 
         Raises:
-            ValueError: if the topic is None.
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If the topic is None.
         """
         raise NotImplementedError("Subclasses should implement register_infer_queue() method.")
 
     @abstractmethod
     def unregister_infer_queue(self, topic: str):
-        """
-        Unregister the topic in the inference queue.
+        """Unregister the topic in the inference queue.
+
+        The method is used to unregister the topic in the inference queue.
 
         Args:
-            topic: The topic name to unregister.
-
-        Returns: None
+            topic (str): The topic name to unregister.
 
         Raises:
-            ValueError: if the topic is None.
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If the topic is None.
         """
         raise NotImplementedError("Subclasses should implement unregister_infer_queue() method.")
 
 
 class RedisInferQueueClient(InferQueueClientBase):
-    """
-    Redis implementation for inference queue client.
+    """Redis implementation for inference queue client.
+
+    This class implement `connect`, `publish_frame`, `get_frame`, `drop`, `infer_queue_available`,
+    `register_infer_queue`, `unregister_infer_queue` methods defined in `InferQueueClientBase`
+    abstract base class for Redis queue server.
+
+    Attributes:
+        _conn (redis.Redis): The Redis connection object.
     """
 
     def __init__(self):
+        """Initialize a RedisInferQueueClient object."""
         InferQueueClientBase.__init__(self)
         self._conn = None
 
     def connect(self, host: str="127.0.0.1", port: int=6379):
-        """
-        Connect to Redis server, will attempt to reconnect when a connection error occcurs.
+        """The Redis queue client implementation for connect method.
 
-        Args:
-            host: The host hostname/ip of Redis server.
-            port: The port of Redis server.
-
-        Returns: None
+        The method overrides the `connect` method defined in the `InferQueueClientBase` abstract
+        base class. The main defference is raises.
 
         Raises:
-            redis.exceptions.ConnectionError: if connection to the Redis server fails
-                and reconnection exceeds the limit.
+            redis.exceptions.ConnectionError: If connection to the Redis server fails
+              and reconnection exceeds the limit.
         """
         self._conn = redis.Redis(host=host, port=port, db=0)
 
@@ -226,6 +240,7 @@ class RedisInferQueueClient(InferQueueClientBase):
 
 
     def publish_frame(self, topic: str, frame: Frame) -> None:
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         if frame is None:
@@ -237,6 +252,7 @@ class RedisInferQueueClient(InferQueueClientBase):
         self._conn.rpush(topic, frame_blob)
 
     def get_frame(self, topic: str) -> Optional[Frame]:
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         msg = self._conn.lpop(topic)
@@ -250,6 +266,7 @@ class RedisInferQueueClient(InferQueueClientBase):
             raise RuntimeError(e) from e
 
     def drop(self, topic: str) -> int:
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         queue_len = self._conn.llen(topic)
@@ -260,12 +277,14 @@ class RedisInferQueueClient(InferQueueClientBase):
         return drop_frame
 
     def infer_queue_available(self, topic: str) -> bool:
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         key = topic + "-available"
         return self._conn.exists(key)
 
     def register_infer_queue(self, topic: str):
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         key = topic + "-available"
@@ -277,6 +296,7 @@ class RedisInferQueueClient(InferQueueClientBase):
             self._conn.set(key, 1)
 
     def unregister_infer_queue(self, topic: str):
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         key = topic + "-available"
@@ -289,27 +309,30 @@ class RedisInferQueueClient(InferQueueClientBase):
             self._conn.delete(topic)
 
 class KafkaInferQueueClient(InferQueueClientBase):
-    """
-    Kafka implementation for inference queue client.
+    """Kafka implementation for inference queue client.
+
+    This class implement `connect`, `publish_frame`, `get_frame`, `drop`, `infer_queue_available`,
+    `register_infer_queue`, `unregister_infer_queue` methods defined in `InferQueueClientBase`
+    abstract base class for Kafka queue server.
+
+    Attributes:
+        _conn (KafkaProducer): The Kafka producer connection object.
     """
 
     def __init__(self):
+        """Initialize a KafkaInferQueueClient object."""
         InferQueueClientBase.__init__(self)
         self._conn = None
 
     def connect(self, host="127.0.0.1", port=9092):
-        """
-        Connect to kafka server, will attempt to reconnect when a NoBrokersAvailable error occcurs.
+        """The Kafka queue client implementation for connect method.
 
-        Args:
-            host: The host hostname/ip of Kafka server.
-            port: The port of Kafka server.
-
-        Returns: None
+        The method overrides the `connect` method defined in the `InferQueueClientBase` abstract
+        base class. The main defference is raises.
 
         Raises:
-            kafka.errors.NoBrokersAvailable: if connection to the Kafka server fails and
-                reconnection exceeds the limit.
+            kafka.errors.NoBrokersAvailable: If connection to the Kafka server fails and
+              reconnection exceeds the limit.
         """
         address = host + ":" + str(port)
 
@@ -342,6 +365,7 @@ class KafkaInferQueueClient(InferQueueClientBase):
             return
 
     def publish_frame(self, topic: str, frame: Frame) -> None:
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         if frame is None:
@@ -353,21 +377,26 @@ class KafkaInferQueueClient(InferQueueClientBase):
         self._conn.send(topic, frame_blob)
 
     def get_frame(self, topic: str) -> Optional[Frame]:
+        """See base class."""
         # TODO: implement the get_frame function for Kafka queue.
         return None
 
     def drop(self, topic: str) -> int:
+        """See base class."""
         # TODO: implement the drop function for Kafka queue.
         return 0
 
     def infer_queue_available(self, topic: str) -> bool:
+        """See base class."""
         # TODO: implement the infer_queue_available function for Kafka queue.
         return False
 
     def register_infer_queue(self, topic: str):
+        """See base class."""
         # TODO: implement the register_infer_queue function for Kafka queue.
         return None
 
     def unregister_infer_queue(self, topic: str):
+        """See base class."""
         # TODO: implement the unregister_infer_queue function for Kafka queue.
         return None

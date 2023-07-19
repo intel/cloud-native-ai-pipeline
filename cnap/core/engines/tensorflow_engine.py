@@ -1,6 +1,13 @@
-"""
-This module contains the TensorFlowEngine class, which is used to run inference
+"""A Tensorflow_engine module.
+
+This module contains the TensorFlowEngine and related classes, which are used to run inference
 on a TensorFlow model.
+
+Classes:
+    TFModelConfig: A Class encapsulates TensorFlow specified configuration for the model.
+    TensorFlowPreprocessor: A class for preprocessing input data for TensorFlow models.
+    TensorFlowPostprocessor: A class for postprocessing output data for TensorFlow models.
+    TensorFlowEngine: A concrete class implementing the InferenceEngine for TensorFlow framework.
 """
 import os
 from typing import Tuple
@@ -47,16 +54,34 @@ OUTPUT_LAYER_MAPPING = {
 }
 
 class TFModelConfig:
-    """
-    TensorFlow specified configuration for the model.
+    """A Class encapsulates TensorFlow specified configuration for the model.
 
-    Args:
-        path (str): Path to the model.
-        dtype (str): Data type of the model.
-        target (str): Target task of the model.
-        device (str, optional): Device to run the model on. Defaults to 'CPU'.
+    This class holds configuration data required to run a TensorFlow model.
+
+    Attributes:
+        _path (str): The path to the model.
+        _dtype (str): The data type of the model.
+        _device (str): The device to run the model on.
+        _target (str): The target task of the model.
+        _output_layer (list): The output layers of the model.
+        _drawing (dict): The drawing configuration of the inference task.
     """
+
     def __init__(self, path: str, dtype: str, target: str, device: str = 'CPU'):
+        """Initializes a TFModelConfig object.
+
+        This constructor initializes a TFModelConfig object with the given path, data type,
+        device, and target.
+
+        Args:
+            path (str): The path to the model.
+            dtype (str): The data type of the model.
+            device (str): The device to run the model on. Defaults to 'CPU'.
+            target (str): The target task of the model.
+
+        Raises:
+            ValueError: If the inference target isn't supported.
+        """
         self._path = path
         self._dtype = dtype
         self._device = device
@@ -71,86 +96,63 @@ class TFModelConfig:
 
     @property
     def path(self) -> str:
-        """
-        Get the model file path.
-
-        Returns:
-            A str object representing the model file path.
-        """
+        """str: The model file path."""
         return self._path
 
     @property
     def dtype(self) -> str:
-        """
-        Get the data type of the model.
-
-        Returns:
-            A str object representing the data type of the model.
-        """
+        """str: The data type of the model."""
         return self._dtype
 
     @property
     def device(self) -> str:
-        """
-        Get the device to run the inference on.
-
-        Returns:
-            A str object representing the device to run the inference on.
-        """
+        """str: The device to run the inference on."""
         return self._device
 
     @property
     def target(self) -> str:
-        """
-        Get the target of the inference task.
-
-        Returns:
-            A str object representing the target of the inference task.
-        """
+        """str: The target of the inference task."""
         return self._target
 
     @property
     def output_layer(self) -> list:
-        """
-        Get the output layers of the model.
-
-        Returns:
-            A list object representing the output layers of the model.
-        """
+        """list: The output layers of the model."""
         return self._output_layer
 
     @property
     def drawing(self) -> dict:
-        """
-        Get the drawing configuration of the inference task.
-
-        Returns:
-            A dict object representing the drawing configuration of the inference task.
-        """
+        """dict: The drawing configuration of the inference task."""
         return self._drawing
 
 
 class TensorFlowPreprocessor(Preprocessor):
-    """
-    A class for preprocessing input data for TensorFlow models.
+    """A class for preprocessing input data for TensorFlow models.
 
-    Args:
-        input_size (Tuple[int, int]): Expected input size of the model.
-        dtype (str): Data type of the model.
+    This class preprocesses the input data by resizing and converting to the appropriate data type.
+
+    Attributes:
+        _input_size (Tuple[int, int]): The expected input size of the model.
+        _dtype (str): The data type of the model.
     """
+
     def __init__(self, input_size: Tuple[int, int], dtype: str):
+        """Initialize a TensorFlowPreprocessor object.
+
+        This constructor initializes a TensorFlowPreprocessor object with the given input size
+        and data type.
+
+        Args:
+            input_size (Tuple[int, int]): The expected input size of the model.
+            dtype (str): The data type of the model.
+        """
         self._input_size = input_size
         self._dtype = dtype
 
     def preprocess(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Preprocess the input frame by resizing and converting to the appropriate data type.
+        """Implement the preprocess method for TensorFlow models.
 
-        Args:
-            frame: An np.ndarray object representing the input frame.
-
-        Returns:
-            An np.ndarray object representing the preprocessed frame.
+        The method overrides the `preprocess` method defined in the `Preprocessor` abstract base
+        class.
         """
         if frame.shape[2] != 3:
             raise ValueError("Input frame should have 3 channels (BGR)")
@@ -170,23 +172,31 @@ class TensorFlowPreprocessor(Preprocessor):
         return input_tensor.numpy()
 
 class TensorFlowPostprocessor(Postprocessor):
-    """
-    A class for postprocessing output data for TensorFlow models.
+    """A class for postprocessing output data for TensorFlow models.
 
-    Args:
-        target (str): Target task of the model.
-        drawing (dict): Settings for drawing the results on the output frame.
+    This class postprocesses the output data by drawing the results on the output frame.
+
+    Attributes:
+        _postprocessor (Postprocessor): A Postprocessor object representing the appropriate
+          postprocessor for the output data of TensorFlow models.
     """
+
     def __init__(self, target: str, drawing: dict):
+        """Initialize a TensorFlowPostprocessor object.
+
+        Args:
+            target (str): Target task of the model.
+            drawing (dict): Settings for drawing the results on the output frame.
+        """
         self._postprocessor = self._select_postprocessor(target, drawing)
 
     def _select_postprocessor(self, target: str, drawing: dict) -> Postprocessor:
-        """
-        Select the appropriate postprocessor for the inference task.
+        """Select the appropriate postprocessor for the inference task.
 
         Args:
-            target: A str object representing the target of the inference task.
-            drawing: A dict object representing the drawing configuration of the inference task.
+            target (str): A str object representing the target of the inference task.
+            drawing (dict): A dict object representing the drawing configuration of the
+              inference task.
 
         Returns:
             A Postprocessor object representing the appropriate postprocessor for the inference.
@@ -203,26 +213,40 @@ class TensorFlowPostprocessor(Postprocessor):
         raise ValueError(f"Unsupported inference target: {target}")
 
     def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
-        """
-        Postprocess the output data by drawing the results on the frame.
+        """Implement the postprocess method for TensorFlow models.
 
-        Args:
-            frame: An np.ndarray object representing the input frame.
-            outputs: A dict object representing the output data.
-
-        Returns:
-            An np.ndarray object representing the postprocessed frame.
+        The method overrides the `postprocess` method defined in the `Postprocessor` abstract base
+        class.
         """
         return self._postprocessor.postprocess(frame, outputs)
 
 class TensorFlowEngine(InferenceEngine):
-    """
-    TensorFlow Engine for Inference.
+    """A concrete class implementing the InferenceEngine for TensorFlow framework.
 
-    Args:
-        config (TFModelConfig): Configuration of the TensorFlow model.
+    This class implement `verify`, `preprocess`, `postprocess`, `_predict` methods defined
+    in `InferenceEngine` abstract base class for TensorFlow framework.
+
+    Attributes:
+        _model_path (str): The inference model file path.
+        _dtype (str): The data type of the inference model.
+        _drawing (dict): The drawing configuration of the inference task.
+        _output_layer (list): The output layers of the inference model.
+        _input_size (Tuple[int, int]): The expected input size of the inference model.
+        _model (dict): The dictionary representing the inference model.
+        _session (tf.compat.v1.Session): The Tensorflow Session object of the inference model.
+        _preprocessor (Preprocessor): The Preprocessor object for preprocessing the input data.
+        _postprocessor (Postprocessor): The Postprocessor object for postprocessing the output
+            data.
     """
+
     def __init__(self, config: TFModelConfig):
+        """Initialize a TensorFlowEngine object.
+
+        This constructor initializes a TensorFlowEngine object with the given configuration.
+
+        Args:
+            config (TFModelConfig): Configuration of the TensorFlow model.
+        """
         self._model_path = config.path
         self._dtype = config.dtype
         self._target = config.target
@@ -241,17 +265,18 @@ class TensorFlowEngine(InferenceEngine):
 
 
     def verify(self) -> bool:
-        """
-        Verify the TensorFlow Engine object.
+        """Implement the verify method for TensorFlow models.
 
-        Returns:
-            A boolean indicating whether verification was successful.
+        The method overrides the `verify` method defined in the `InferenceEngine` abstract base
+        class.
         """
         return True
 
     def _load_model(self) -> None:
-        """
-        Load the TensorFlow model.
+        """Load the TensorFlow model.
+
+        This method loads the TensorFlow model from the model file. The model file can be in
+        SavedModel format. frozen graph format or other supported formats.
 
         Raises:
             FileNotFoundError: If model file doesn't exist.
@@ -270,26 +295,18 @@ class TensorFlowEngine(InferenceEngine):
             raise ValueError(f"Unsupported file extension: {ext}.")
 
     def preprocess(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Preprocess the input frame by resizing and converting to the appropriate data type.
+        """Implement the preprocess method for TensorFlow models.
 
-        Args:
-            frame: An np.ndarray object representing the input frame.
-
-        Returns:
-            An np.ndarray object representing the preprocessed frame.
+        The method overrides the `preprocess` method defined in the `InferenceEngine` abstract base
+        class.
         """
         return self._preprocessor.preprocess(frame)
 
     def _predict(self, preprocessed_frame: np.ndarray) -> np.ndarray:
-        """
-        Run inference on the input data.
+        """Implement the _predict method for TensorFlow models.
 
-        Args:
-            preprocessed_frame: An np.ndarray object representing the preprocessed input frame.
-
-        Returns:
-            An np.ndarray object representing the predicted output.
+        The method overrides the `_predict` method defined in the `InferenceEngine` abstract base
+        class.
         """
         if self._session is not None:
             outputs_value = self._session.run(
@@ -303,30 +320,23 @@ class TensorFlowEngine(InferenceEngine):
         return outputs
 
     def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
-        """
-        Postprocess the output by drawing boxes and labels on the input frame.
+        """Implement the postprocess method for TensorFlow models.
 
-        Args:
-            frame: An np.ndarray object representing the input frame.
-            outputs: A dictionary object representing the output from the TensorFlow model.
-
-        Returns: An np.ndarray object representing the postprocessed frame.
+        The method overrides the `postprocess` method defined in the `InferenceEngine` abstract base
+        class.
         """
         return self._postprocessor.postprocess(frame, outputs)
 
     @property
     def input_size(self) -> Tuple[int, int]:
-        """
-        Get the input size of the TensorFlow model.
-
-        Returns:
-            A tuple object representing the input size.
-        """
+        """Tuple[int, int]: The input size of the TensorFlow model."""
         return self._input_size
 
     def _load_frozen_graph_model(self) -> None:
-        """
-        Load the frozen graph model from the .pb file.
+        """Load the frozen graph model from the .pb file.
+
+        The method loads the frozen graph model from the .pb file and creates a TensorFlow session
+        to run the inference.
 
         Raises:
             ValueError: If the input tensor is not found in the graph.
@@ -361,8 +371,10 @@ class TensorFlowEngine(InferenceEngine):
         self._session = tf.compat.v1.Session(graph=graph)
 
     def _load_saved_model(self) -> None:
-        """
-        Load the SavedModel format model.
+        """Load the SavedModel from the .h5 file.
+
+        The method loads the SavedModel from the .h5 file and creates a TensorFlow session
+        to run the inference.
         """
         loaded_model = tf.saved_model.load(self._model_path)
         serving_default = loaded_model.signatures['serving_default']
@@ -376,13 +388,12 @@ class TensorFlowEngine(InferenceEngine):
         self._model = serving_default
 
     def _configure_optimizer(self) -> None:
-        """
-        Configure the optimizer.
-        """
+        """Configure the optimizer."""
 
     def _configure_environment(self) -> None:
-        """
-        Configure the environment based on the data type.
+        """Configure the environment based on the data type.
+
+        The method configures the environment based on the data type of the model.
 
         Raises:
             ValueError: If data type is not supported.

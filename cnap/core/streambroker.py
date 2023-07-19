@@ -1,16 +1,14 @@
-"""
-Package for stream broker client related classes. It provides client classes to
-connect with stream broker server and publish frame to stream broker server.
+"""A Streambroker module.
 
-The origin frames from streamprovider were inferenced by inferengine, then will
-be published to stream broker, and then websocket server will fetch frame from
-stream broker for next step action such as displaying on stream dashboard or
-trigger Faas actions.
+This module provides an object-oriented design for stream broker client to connect with
+stream broker server, publish frame to stream broker server.
 
-The `StreamBrokerClientBase` is the abstract class for stream broker client.
-The `RedisStreamBrokerClient` and `KafkaStreamBrokerClient` are subclass for
-Redis and Kafka stream broker server and can be extended to support other types
-of stream broker by implementing other subclasses.
+Classes:
+    StreamBrokerClientBase: An abstract base class for stream broker client.
+    RedisStreamBrokerClient: A concrete class implementing the StreamBrokerClientBase
+      for Redis server.
+    KafkaStreamBrokerClient: A concrete class implementing the StreamBrokerClientBase
+      for Kafka server.
 """
 
 import logging
@@ -29,67 +27,77 @@ from core.frame import Frame
 LOG = logging.getLogger(__name__)
 
 class StreamBrokerClientBase(ABC):
+    """An abstract base class for stream broker client.
 
-    """
-    The Abstract class for stream broker client.
+    This class serves as a blueprint for subclasses that need to implement
+    `connect`, `publish_frame` methods for different types of stream broker
+    server.
     """
 
+    # The max reconnection times for stream broker client.
     MAX_RECONNECTION_TIMES = 5
 
     @abstractmethod
-    def connect(self, host: str, port: int) -> bool:
-        """
-        Connect to broker server.
+    def connect(self, host: str, port: int):
+        """Connect to broker server.
+
+        This method is used to connect to stream broker server, will attempt to reconnect
+        when a connection error occcurs.
 
         Args:
-            host: The host ip of broker server.
-            port: The port of broker server.
+            host (str): The host ip or hostname of broker server.
+            port (str): The port of broker server.
 
-        Returns:
-            bool: True if the connection is successful, False otherwise.
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement connect() method.")
 
     @abstractmethod
     def publish_frame(self, topic: str, frame: Frame) -> None:
-        """
-        Publish a frame to a topic.
+        """Publish a frame to stream broker server for a topic.
 
         Args:
-            topic: The topic name to publish to.
-            frame: The frame to publish.
-
-        Returns: None
+            topic (str): The topic name to publish to.
+            frame (Frame): The Frame to publish.
 
         Raises:
-            ValueError: if the topic or frame is None.
-            RuntimeError: if any errors while encoding before publishing frame.
+            NotImplementedError: If the subclasses don't implement the method.
+            ValueError: If the topic or frame is None.
+            RuntimeError: If any errors while encoding before publishing frame.
         """
         raise NotImplementedError("Subclasses should implement publish_frame() method")
 
 
 class RedisStreamBrokerClient(StreamBrokerClientBase):
+    """Redis implementation for stream broker client.
 
-    """
-    Redis implementation for stream broker client.
+    This class implement `connect`, `publish_frame` methods defined in
+    `StreamBrokerClientBase` abstract base class for Redis stream broker.
+
+    Attributes:
+        _conn (redis.Redis): The Redis connection object.
     """
 
     def __init__(self):
+        """Initialize a RedisStreamBrokerClient object.
+
+        This constructor initializes the RedisStreamBrokerClient object with a
+        Redis connection object.
+        """
         self._conn = None
 
     def connect(self, host: str="127.0.0.1", port: int=6379):
-        """
-        Connect to Redis server, will attempt to reconnect when a connection error occcurs.
+        """Implement the `connect` method for the Redis stream broker client.
 
-        Args:
-            host: The host hostname/ip of Redis server.
-            port: The port of Redis server.
-
-        Returns: None
+        The method overrides the `connect` method defined in `StreamBrokerClientBase`
+        abstract base class.
+        If connection to the Redis server fails and reconnection exceeds the limit,
+        raise ConnectionError.
 
         Raises:
-            redis.exceptions.ConnectionError: if connection to the Redis server fails
-                and reconnection exceeds the limit.
+            redis.exceptions.ConnectionError: If connection to the Redis server fails
+              and reconnection exceeds the limit.
         """
         self._conn = redis.Redis(host=host, port=port, db=0)
 
@@ -125,6 +133,7 @@ class RedisStreamBrokerClient(StreamBrokerClientBase):
             return
 
     def publish_frame(self, topic: str, frame: Frame) -> None:
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         if frame is None:
@@ -142,27 +151,34 @@ class RedisStreamBrokerClient(StreamBrokerClientBase):
 
 
 class KafkaStreamBrokerClient(StreamBrokerClientBase):
+    """Kafka implementation for stream broker client.
 
-    """
-    Kafka implementation for stream broker client.
+    This class implement `connect`, `publish_frame` methods defined in
+    `StreamBrokerClientBase` abstract base class for Kafka stream broker.
+
+    Attributes:
+        _conn (KafkaProducer): The Kafka connection object.
     """
 
     def __init__(self):
+        """Initialize a KafkaStreamBrokerClient object.
+
+        This constructor initializes the KafkaStreamBrokerClient object with a
+        Kafka connection object.
+        """
         self._conn = None
 
     def connect(self, host="127.0.0.1", port=9092):
-        """
-        Connect to kafka server, will attempt to reconnect when a NoBrokersAvailable error occcurs.
+        """Implement the `connect` method for the Kafka stream broker client.
 
-        Args:
-            host: The host hostname/ip of Kafka server.
-            port: The port of Kafka server.
-
-        Returns: None
+        The method overrides the `connect` method defined in `StreamBrokerClientBase`
+        abstract base class.
+        If connection to the Kafka server fails and reconnection exceeds the limit,
+        raise NoBrokersAvailable error.
 
         Raises:
             kafka.errors.NoBrokersAvailable: if connection to the Kafka server fails and
-                reconnection exceeds the limit.
+              reconnection exceeds the limit.
         """
         address = host + ":" + str(port)
 
@@ -195,6 +211,7 @@ class KafkaStreamBrokerClient(StreamBrokerClientBase):
             return
 
     def publish_frame(self, topic: str, frame: Frame) -> None:
+        """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         if frame is None:

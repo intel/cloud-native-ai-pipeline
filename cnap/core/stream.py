@@ -1,15 +1,14 @@
-"""
+"""A Stream module.
+
 This module provides an object-oriented design for Stream provider to provide stream input.
-It implement an abstract base class `StreamProvider` and two concrete stream provider classes
-`CameraSource` and `FileSource`. It also provides a `StreamProcessor` class to process stream
-and provides a `create_stream_from_type` function to create StreamProvider instance according
-to type.
 
-`StreamProvider` serves as a blueprint for custom stream provider implementations, while
-`CameraSource` provides an implementation to provide stream input from camera, and `FileSource`
-provides an implementation to provide stream input from video file.
+Classes:
+    StreamProvider: An abstract base class for creating custom stream provider implementations.
+    CameraSource: A concrete class implementing the StreamProvider for camera source.
+    FileSource: A concrete class implementing the StreamProvider for file source.
 
-These classes can be easily extended or modified to accommodate new stream provider.
+functinos:
+    create_stream_from_type: Create StreamProvider instance according to type.
 """
 
 import os
@@ -28,8 +27,18 @@ from core.filedb import FileDatabase
 LOG = logging.getLogger(__name__)
 
 class StreamProvider(ABC):
-    """
-    Abstract base class for creating custom stream provider implementations.
+    """An abstract base class for creating custom stream provider implementations.
+
+    The class serves as a blueprint for subclasses that need to implement `verify`,
+    `read_raw_frame`, `open`, `close` methods for different types of stream providers.
+
+    Attributes:
+        _name (str): The name of stream provider.
+        _pathname (str): The path name of stream provider.
+        _raw_size (Tuple[int, int]): The raw size (width, height) of frame captured from stream.
+        _raw_fps (int): The raw FPS from source.
+        _seq (int): The sequence of stream provider.
+        _target_fps (int): The target FPS.
     """
 
     DEFAULT_WIDTH = 320
@@ -37,12 +46,13 @@ class StreamProvider(ABC):
     DEFAULT_FPS = 15
 
     def __init__(self, name: str, pathname: str):
-        """
-        Initialize a StreamProvider object.
+        """Initialize a StreamProvider object.
+
+        This constructor initializes the StreamProvider with a given name and pathname.
 
         Args:
-            name: The name of stream provider.
-            pathname: The path name of stream provider.
+            name (str): The name of stream provider.
+            pathname (str): The path name of stream provider.
         """
         self._name = name
         self._pathname = pathname
@@ -53,15 +63,14 @@ class StreamProvider(ABC):
 
     @property
     def name(self) -> str:
-        """
-        Get the stream Name.
-        """
+        """str: The name of stream provider."""
         return self._name
 
     @property
     def pathname(self) -> str:
-        """
-        Get the stream Path Name, for example:
+        """str: The path name of stream provider.
+
+        For example:
         - Camera: "/dev/video0"
         - File: "SampleVideo.mp4"
         """
@@ -69,71 +78,76 @@ class StreamProvider(ABC):
 
     @property
     def raw_size(self) -> Tuple[int, int]:
-        """
-        Get the raw size (width, height) of frame captured from stream.
-        """
+        """Tuple[int, int]: The raw size (width, height) of frame captured from stream."""
         return self._raw_size
 
     @property
     def raw_fps(self) -> int:
-        """
-        Get the raw FPS from source.
-        """
+        """int: The raw FPS from source."""
         return self._raw_fps
 
     @property
     def target_fps(self) -> int:
-        """
-        Get the target FPS.
-        """
+        """int: The target FPS."""
         return self._target_fps
 
     @target_fps.setter
     def target_fps(self, new_val: int) -> None:
-        """
-        Set the target FPS.
-        """
+        """Set the target FPS."""
         self._target_fps = new_val
 
     @abstractmethod
     def verify(self) -> bool:
-        """
-        Verify the provider's measurement/quote/integrity.
+        """Verify the provider's measurement/quote/integrity.
+
+        This method is used to verify the provider's measurement/quote/integrity.
 
         Returns:
             bool: True if the verification success, False otherwise.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement verify() method.")
 
     @abstractmethod
     def read_raw_frame(self) -> numpy.ndarray:
-        """
-        Get a frame from source.
+        """Get a frame from source.
+
+        This method is used to get a frame from source.
 
         Returns:
             numpy.ndarray: An numpy.ndarray object representing the raw frame.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement read_raw_frame() method.")
 
     @abstractmethod
     def open(self) -> None:
-        """
-        Open the stream.
+        """Open the stream.
 
-        Return: None
+        The method is used to open the stream.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement open() method.")
 
     @abstractmethod
     def close(self) -> None:
-        """
-        Close the stream.
+        """Close the stream.
 
-        Return: None
+        The method is used to close the stream.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement close() method.")
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        """The Iterator for StreamProvider class."""
         yield 'name', self.name
         yield 'pathname', self.pathname
         yield 'size', self.raw_size
@@ -141,24 +155,29 @@ class StreamProvider(ABC):
 
 
 class CameraSource(StreamProvider):
-    """
-    Camera Source stream provider implementation for providing stream input from camera.
+    """A concrete class implementing the StreamProvider for camera source.
+
+    This class implement `verify`, `read_raw_frame`, `open`, `close` methods defined
+    in `StreamProvider` abstract base class for providing stream input from camera.
+
+    Attributes:
+        _device_obj (cv2.VideoCapture): The OpenCV VideoCapture object.
     """
 
     def __init__(self, name: str, pathname: str="/dev/video0"):
-        """
-        Initialize a CameraSource object.
+        """Initialize a CameraSource object.
+
+        This constructor initializes the CameraSource with a given name and pathname.
 
         Args:
-            name: The name of camera source stream provider.
-            pathname: The path name of camera source stream provider.
+            name (str): The name of camera source stream provider.
+            pathname (str): The path name of camera source stream provider.
         """
         StreamProvider.__init__(self, name, pathname)
         self._device_obj = None
 
     def _dev_num(self) -> int:
-        """
-        Get the number of device node.
+        """Get the number of device node.
 
         For example, it should be 0 for /dev/video0, and 1 for /dev/video1
 
@@ -166,8 +185,8 @@ class CameraSource(StreamProvider):
             int: The number of device node.
 
         Raises:
-            ValueError: if the stream path is None or is not a valid video device node.
-            FileNotFoundError: if the camera's device node not exists.
+            ValueError: If the stream path is None or is not a valid video device node.
+            FileNotFoundError: If the camera's device node not exists.
         """
         if self.pathname is None:
             raise ValueError("Stream path name is None")
@@ -180,24 +199,27 @@ class CameraSource(StreamProvider):
         return int(re.search(r'\d+', self.pathname).group())
 
     def verify(self) -> bool:
+        """See base class."""
         return True
 
     def read_raw_frame(self) -> numpy.ndarray:
+        """See base class."""
         ret, raw = self._device_obj.read()
         if ret:
             return raw
         return None
 
     def open(self):
-        """
-        Open the stream for camera source stream provider.
+        """Open the stream for camera source stream provider.
 
-        Return: None
+        The method override the `open` method defined in `StreamProvider` abstract base class.
+        If the device node is not valid, or failed to open the camera, the method will raise
+        ValueError or FileNotFoundError or IOError.
 
         Raises:
-            ValueError: if the dev_num getted from path name is not valid.
-            FileNotFoundError: if the path name for camera is not found.
-            IOError: if failed to open the camera.
+            ValueError: If the dev_num getted from path name is not valid.
+            FileNotFoundError: If the path name for camera is not found.
+            IOError: If failed to open the camera.
         """
         try:
             dev_num = self._dev_num()
@@ -216,24 +238,35 @@ class CameraSource(StreamProvider):
         self._device_obj.set(cv2.CAP_PROP_FPS, self.raw_fps)
 
     def close(self) -> None:
+        """See base class."""
         if self._device_obj is not None:
             self._device_obj.release()
 
 
 class FileSource(StreamProvider):
-    """
-    File source stream provider implementation for providing stream input from video file.
+    """A concrete class implementing the StreamProvider for file source.
+
+    This class implement `verify`, `read_raw_frame`, `open`, `close` methods defined
+    in `StreamProvider` abstract base class for providing stream input from video file.
+
+    Attributes:
+        _file_db (FileDatabase): The file database of file source stream provider.
+        _file_object (cv2.VideoCapture): The OpenCV VideoCapture object.
+        _file_path (str): The video file path of file source stream provider.
+        _frame_counter (int): The count of frames that have been read.
+        _max_frame (int): The max frame count of file source stream provider.
     """
 
     DEFAULT_TARGET_FPS = 25
 
     def __init__(self, name: str, pathname: str="classroom.mp4"):
-        """
-        Initialize a FileSource object.
+        """Initialize a FileSource object.
+
+        This constructor initializes the FileSource with a given name and pathname.
 
         Args:
-            name: The name of file source stream provider.
-            pathname: The path name of file source stream provider.
+            name (str): The name of file source stream provider.
+            pathname (str): The path name of file source stream provider.
         """
         StreamProvider.__init__(self, name, pathname)
         self._file_db = None
@@ -243,17 +276,19 @@ class FileSource(StreamProvider):
         self._max_frame = 0
 
     def verify(self) -> bool:
+        """See base class."""
         return True
 
     def open(self):
-        """
-        Open the stream for file source stream provider.
+        """Open the stream for file source stream provider.
 
-        Return: None
+        The method overrides the `open` method defined in `StreamProvider` abstract base class.
+        If the file path is not valid, or failed to open the file, the method will raise
+        FileNotFoundError or TypeError.
 
         Raises:
-            FileNotFoundError: if the path name for video file is not found.
-            TypeError: if failed to create the VideoCapture object.
+            FileNotFoundError: If the path name for video file is not found.
+            TypeError: If failed to create the VideoCapture object.
         """
         LOG.debug("Open file source: %s", self._file_path)
         try:
@@ -268,11 +303,13 @@ class FileSource(StreamProvider):
         self._max_frame = self._file_object.get(cv2.CAP_PROP_FRAME_COUNT)
 
     def close(self) -> None:
+        """See base class."""
         LOG.debug("Close file source")
         if self._file_object is not None:
             self._file_object.release()
 
     def read_raw_frame(self) -> numpy.ndarray:
+        """See base class."""
         ret, raw = self._file_object.read()
         if not ret:
             LOG.error("Failed to read video file.")
@@ -289,49 +326,44 @@ class FileSource(StreamProvider):
 
     @property
     def file_db(self) -> FileDatabase:
-        """
-        Get the file database.
-        """
+        """FileDatabase: The file database of file source stream provider."""
         return self._file_db
 
     @file_db.setter
     def file_db(self, new_val: FileDatabase) -> None:
-        """
-        Set the file database.
-        """
+        """Set the file database for file source stream provider."""
         self._file_db = new_val
 
     @property
     def target_fps(self) -> int:
-        """
-        Get the target FPS.
-        """
+        """int: The target FPS of file source stream provider."""
         return self.DEFAULT_TARGET_FPS
 
 class StreamProcessor:
-    """
-    The class to process stream.
+    """The class to process stream.
+
+    Attributes:
+        _provider (StreamProvider): The stream provider to process.
     """
 
     def __init__(self, provider: StreamProvider):
-        """
-        Initialize a StreamProcessor object.
+        """Initialize a StreamProcessor object.
 
         Args:
-            provider(StreamProvider): The stream provider to process.
+            provider (StreamProvider): The stream provider to process.
         """
         self._provider = provider
 
     @property
     def provider(self) -> StreamProvider:
-        """
-        Get the provider instance.
-        """
+        """StreamProvider: The provider instance."""
         return self._provider
 
     def prepare(self) -> None:
-        """
-        Prepare the stream processor like verifying stream provider or registering the pipeline.
+        """Prepare the stream processor.
+
+        This function is used to prepare the stream processor, like verifying stream
+        provider or registering the pipeline.
         """
         if not self._provider.verify():
             LOG.error("Failed to verify the provider")
@@ -343,19 +375,20 @@ PROVIDER_TYPES: Dict[str, Type[StreamProvider]] = {
 }
 
 def create_stream_from_type(type_name: str, name: str, pathname: str) -> StreamProvider:
-    """
-    Create StreamProvider instance according to type.
+    """Create StreamProvider instance according to type.
+
+    The method is used to create StreamProvider instance according to type.
 
     Args:
-        type_name: The type of stream provider to create.
-        name: The stream name of stream provider to create.
-        pathname: The path name of stream provider to create.
+        type_name (str): The type of stream provider to create.
+        name (str): The stream name of stream provider to create.
+        pathname (str): The path name of stream provider to create.
 
     Returns:
         StreamProvider: The created stream provider.
 
     Raises:
-        ValueError: if the provider source type is invalid.
+        ValueError: If the provider source type is invalid.
     """
     if type_name not in PROVIDER_TYPES:
         LOG.error("Invalid provider source type")

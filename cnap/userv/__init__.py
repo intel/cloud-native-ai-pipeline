@@ -1,3 +1,5 @@
-"""
-The micro service's packages for entry function of individual micro services.
+"""The user micro service.
+
+The package contains the user micro service, which is responsible for
+handling user requests and responses.
 """

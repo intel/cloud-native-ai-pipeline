@@ -1,9 +1,16 @@
-"""
+"""A Model module.
+
 This module contains the definition of the ModelInfo class, which encapsulates
 all relevant information about an Inference model in a machine learning pipeline.
 
 In addition, ModelInfo instances can be easily serialized to dictionaries
 for further processing or storage, by using Python's built-in `dict()` function.
+
+Classes:
+    ModelMetrics: A class that encapsulates the performance metrics of the inference model.
+    ModelDetails: A class that encapsulates the details of the inference model.
+    ModelInfo: A class for managing information about an Inference model.
+    Model: A class for managing an Inference model.
 """
 
 import uuid
@@ -11,17 +18,29 @@ from typing import Iterator, Tuple, Any
 from datetime import datetime
 
 class ModelMetrics:
+    """A class that encapsulates the performance metrics of the inference model.
+
+    This class defines the performance metrics of the inference model, including
+    accuracy, precision, recall, F1 score and loss value.
+
+    Attributes:
+        _accuracy (float): The accuracy of the model.
+        _precision (float): The precision of the model.
+        _recall (float): The recall of the model.
+        _f1_score (float): The F1 score of the model.
+        _loss (float): The loss value of the model.
     """
-    A class that encapsulates the performance metrics of the inference model.
-    """
+
     def __init__(self,
                  accuracy: float,
                  precision: float,
                  recall: float,
                  f1_score: float,
                  loss: float):
-        """
-        Initialize a ModelMetrics object.
+        """Initialize a ModelMetrics object.
+
+        This constructor initializes a ModelMetrics object with the given accuracy,
+        precision, recall, F1 score and loss value.S
 
         Args:
             accuracy (float): The accuracy of the model.
@@ -38,30 +57,31 @@ class ModelMetrics:
 
     @property
     def accuracy(self) -> float:
-        """Get the accuracy of the model."""
+        """float: The accuracy of the model."""
         return self._accuracy
 
     @property
     def precision(self) -> float:
-        """Get the precision of the model."""
+        """float: The precision of the model."""
         return self._precision
 
     @property
     def recall(self) -> float:
-        """Get the recall of the model."""
+        """float: The recall of the model."""
         return self._recall
 
     @property
     def f1_score(self) -> float:
-        """Get the F1 score of the model."""
+        """float: The F1 score of the model."""
         return self._f1_score
 
     @property
     def loss(self) -> float:
-        """Get the loss value of the model."""
+        """float: The loss value of the model."""
         return self._loss
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        """The Iterator for ModelMetrics class."""
         yield 'accuracy', self._accuracy
         yield 'precision', self._precision
         yield 'recall', self._recall
@@ -69,12 +89,24 @@ class ModelMetrics:
         yield 'loss', self._loss
 
 class ModelDetails:
+    """A class that encapsulates the details of the inference model.
+
+    This class defines the details of the inference model, including
+    name, version, framework, target and data type.
+
+    Attributes:
+        _name (str): The name of the model.
+        _version (str): The version of the model.
+        _framework (str): The framework used to train the model.
+        _target (str): The target of the model.
+        _dtype (str): The data type of the model.
     """
-    A class that encapsulates the details of the inference model.
-    """
+
     def __init__(self, name: str, version: str, framework: str, target: str, dtype: str):
-        """
-        Initialize a ModelDetails object.
+        """Initialize a ModelDetails object.
+
+        This constructor initializes a ModelDetails object with the given name,
+        version, framework, target and data type.
 
         Args:
             name (str): The name of the model.
@@ -91,30 +123,31 @@ class ModelDetails:
 
     @property
     def name(self) -> str:
-        """Get the name of the model."""
+        """str: The name of the model."""
         return self._name
 
     @property
     def version(self) -> str:
-        """Get the version of the model."""
+        """str: The version of the model."""
         return self._version
 
     @property
     def framework(self) -> str:
-        """Get the framework used to train the model."""
+        """str: The framework used to train the model."""
         return self._framework
 
     @property
     def target(self) -> str:
-        """Get the target of the model."""
+        """str: The target of the model."""
         return self._target
 
     @property
     def dtype(self) -> str:
-        """Get the data type of the model."""
+        """str: The data type of the model."""
         return self._dtype
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        """The Iterator for ModelDetails class."""
         yield 'name', self._name
         yield 'version', self._version
         yield 'framework', self._framework
@@ -122,16 +155,23 @@ class ModelDetails:
         yield 'dtype', self._dtype
 
 class ModelInfo:
-    """
-    Class for managing information about an Inference model.
+    """A class for managing information about an Inference model.
+
+    This class defines the information of the inference model, including
+    ID, details, uploaded date and performance metrics.
+
+    Attributes:
+        _id (str): The ID of the model.
+        _details (ModelDetails): The details of the model.
+        _uploaded_date (datetime): The uploaded date of the model.
+        _metrics (ModelMetrics): The performance metrics of the model.
     """
 
     def __init__(self,
                  details: ModelDetails,
                  uploaded_date: datetime,
                  metrics: ModelMetrics):
-        """
-        Initialize a ModelInfo object.
+        """Initialize a ModelInfo object.
 
         Args:
             details (ModelDetails): The details of the model.
@@ -145,47 +185,49 @@ class ModelInfo:
 
     @property
     def id(self) -> str:
-        """
-        Get the ID of the model (string of UUID).
-        """
+        """str: The ID of the model (string of UUID)."""
         return self._id
 
     @id.setter
     def id(self, new_str: str) -> None:
-        """
-        Set the ID of the model (string of UUID).
-        """
+        """Set the ID of the model (string of UUID)."""
         self._id = str(uuid.UUID(new_str))
 
     @property
     def details(self) -> ModelDetails:
-        """Get the details of the model."""
+        """ModelDetails: The details of the model."""
         return self._details
 
     @property
     def uploaded_date(self) -> datetime:
-        """Get the creation date of the model."""
+        """datetime: The creation date of the model."""
         return self._uploaded_date
 
     @property
     def metrics(self) -> ModelMetrics:
-        """Get the performance metrics of the model."""
+        """ModelMetrics: The performance metrics of the model."""
         return self._metrics
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        """The Iterator for ModelInfo class."""
         yield 'id', self.id
         yield 'details', dict(self._details)
         yield 'uploaded_date', self._uploaded_date
         yield 'metrics', dict(self._metrics)
 
 class Model:
-    """
-    Class for managing an Inference model.
+    """A class for managing an Inference model.
+
+    This class defines the information of the inference model, including
+    model information and model binary.
+
+    Attributes:
+        _model_info (ModelInfo): The information of the model.
+        _model_binary (bytes): The binary of the model.
     """
 
     def __init__(self, model_info: ModelInfo, model_binary: bytes):
-        """
-        Initialize a Model object.
+        """Initialize a Model object.
 
         Args:
             model_info (ModelInfo): The information of the model.
@@ -196,14 +238,15 @@ class Model:
 
     @property
     def model_info(self) -> ModelInfo:
-        """Get the information of the model."""
+        """ModelInfo: The information of the model."""
         return self._model_info
 
     @property
     def model_binary(self) -> bytes:
-        """Get the binary of the model."""
+        """bytes: The binary of the model."""
         return self._model_binary
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        """The Iterator for Model class."""
         yield 'model_info', dict(self._model_info)
         yield 'model_binary', self._model_binary

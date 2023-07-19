@@ -1,16 +1,14 @@
-"""
+"""A Postprocessor module.
+
 This module provides an object-oriented design for postprocessing the outputs of
-machine learning models. It implements an abstract base class `Postprocessor` and
-two concrete postprocessing classes `ObjectDetectionPostprocessor` and
-`FaceRecognitionPostprocessor`.
+machine learning models.
 
-`Postprocessor` serves as a blueprint for custom postprocessing implementations,
-while `ObjectDetectionPostprocessor` and `FaceRecognitionPostprocessor` handle
-specific postprocessing tasks such as drawing bounding boxes for object detection
-and facial landmarks for face recognition, respectively.
-
-These classes can be easily extended or modified to accommodate new postprocessing
-strategies and support various machine learning tasks.
+Classes:
+    Postprocessor: An abstract base class for creating custom postprocessing implementations.
+    ObjectDetectionPostprocessor: A concrete class implementing the Postprocessor for object
+      detection model outputs.
+    FaceRecognitionPostprocessor: A concrete class implementing the Postprocessor for face
+      recognition model outputs.
 """
 
 from abc import ABC, abstractmethod
@@ -21,42 +19,60 @@ import cv2
 # pylint: disable=no-member
 
 class Postprocessor(ABC):
-    """
-    Abstract base class for creating custom postprocessing implementations.
+    """An abstract base class for creating custom postprocessing implementations.
+
+    This class serves as a blueprint for subclasses that need to implement
+    `postprocess` method for different types of postprocessing tasks.
     """
 
     @abstractmethod
     def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
-        """
-        Postprocess the output by applying specific operations on the input frame.
+        """Postprocess the output by applying specific operations on the input frame.
 
         Args:
-            frame: An np.ndarray object representing the input frame.
-            outputs: A dictionary object representing the output from the model.
+            frame (np.ndarray): An np.ndarray object representing the input frame.
+            outputs (dict): A dictionary object representing the output from the model.
 
-        Returns: An np.ndarray object representing the postprocessed frame.
+        Returns:
+            np.ndarray: An np.ndarray object representing the postprocessed frame.
+
+        Raises:
+            NotImplementedError: If the subclasses don't implement the method.
+            KeyError: If missing key in outputs.
+            RuntimeError: If any errors during postprocessing.
         """
         raise NotImplementedError("Subclasses should implement the postprocess() method.")
 
 class ObjectDetectionPostprocessor(Postprocessor):
-    """
-    A class for postprocessing object detection model outputs.
+    """A concrete class implementing the Postprocessor for object detection model outputs.
+
+    This class implement `postprocess` method defined in `Postprocessor` abstract base class
+    for object detection model outputs.
+
+    Attributes:
+        _drawing (dict): A dict object representing the drawing configuration.
     """
 
     def __init__(self, drawing: dict):
+        """Initialize a ObjectDetectionPostprocessor object.
+
+        Args:
+            drawing (dict): A dict object representing the drawing configuration.
+
+        Raises:
+            TypeError: If the drawing argument is not a dictionary.
+        """
         if not isinstance(drawing, dict):
             raise TypeError("The 'drawing' argument must be a dictionary.")
         self._drawing = drawing
 
     def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
-        """
-        Postprocess the output by drawing boxes and labels on the input frame for object detection.
+        """Implement the postprocess method for object detection model outputs.
 
-        Args:
-        - frame: An np.ndarray object representing the input frame.
-        - outputs: A dictionary object representing the output from the TensorFlow model.
-
-        Returns: An np.ndarray object representing the postprocessed frame.
+        The method overrides the `postprocess` method defined in `Postprocessor`
+        abstract base class.
+        Postprocess the output by drawing boxes and labels on the input frame for
+        object detection.
         """
         try:
             if self._drawing.get('draw_boxes'):
@@ -75,24 +91,35 @@ class ObjectDetectionPostprocessor(Postprocessor):
             raise RuntimeError(f"Error during postprocessing: {str(e)}") from e
 
 class FaceRecognitionPostprocessor(Postprocessor):
-    """
-    A class for postprocessing face recognition model outputs.
+    """A concrete class implementing the Postprocessor for face recognition model outputs.
+
+    This class implement `postprocess` method defined in `Postprocessor` abstract base class
+    for face recognition model outputs.
+
+    Attributes:
+        _drawing (dict): A dict object representing the drawing configuration.
     """
 
     def __init__(self, drawing: dict):
+        """Initialize a FaceRecognitionPostprocessor object.
+
+        Args:
+            drawing (dict): A dict object representing the drawing configuration.
+
+        Raises:
+            TypeError: If the drawing argument is not a dictionary.
+        """
         if not isinstance(drawing, dict):
             raise TypeError("The 'drawing' argument must be a dictionary.")
         self._drawing = drawing
 
     def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
-        """
-        Postprocess the output by drawing facial landmarks on the input frame for face recognition.
+        """Implement the postprocess method for face recognition model outputs.
 
-        Args:
-        - frame: An np.ndarray object representing the input frame.
-        - outputs: A dictionary object representing the output from the TensorFlow model.
-
-        Returns: An np.ndarray object representing the postprocessed frame.
+        The method overrides the `postprocess` method defined in `Postprocessor`
+        abstract base class.
+        Postprocess the output by drawing boxes and labels on the input frame for
+        object detection.
         """
         try:
             if self._drawing.get('draw_landmarks'):
