@@ -113,7 +113,7 @@ class StreamingService(MicroAppBase):
                 file_db_type = self.get_env("FILE_DB_TYPE", "local")
                 if file_db_type == "local":
                     self._provider.file_db = LocalFileDatabase(os.path.join(
-                            CURR_DIR, "../../sample-videos"))
+                            CURR_DIR, "../../demo/sample-videos"))
                 else:
                     # TODO: support other file database
                     LOG.error("Not supported file database type: %s", file_db_type)
