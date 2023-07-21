@@ -35,4 +35,18 @@ It is extended for the following uses:
 
 ![](docs/cnap-uses.png)
 
+## 3. Building
+
+The provided [build script](tools/docker_image_manager.sh) simplifies the process of building Docker images for our microservices. For instance, to build all Docker images, use the following command:
+
+```bash
+./tools/docker_image_manager.sh -a build -r <your-registry>
+```
+
+The `-a` argument specifies the action(either `build`, `publish`, `save` or `all`), and `-r` is the prefix string for your docker registry
+
+You can get more detail options and arguments for `docker_image_manager.sh` via `./tools/docker_image_manager.sh -h`
+
+The Dockerfile is under the directories in [container](container/)
+
 **Note**: This is pre-release/prototype software and, as such, it may be substantially modified as updated versions are made available. Also, the authors make no assurance that it will ever develop or make generally available a production-ready version.
