@@ -20,8 +20,13 @@ from core.infereng import InferenceEngine
 from core.processors.preprocessor import Preprocessor
 from core.processors.postprocessor import Postprocessor, \
     FaceRecognitionPostprocessor, ObjectDetectionPostprocessor
+from core.metrics import MetricsManager, MetricType
 
 # pylint: disable=no-member
+
+metrics_manager = MetricsManager()
+metrics_manager.create_metric(MetricType.HISTOGRAM, 'predict_latency', 'Latency of predictions')
+metrics_manager.create_metric(MetricType.GAUGE, 'fps', 'Frames per second')
 
 OUTPUT_LAYER_MAPPING = {
     'object-detection': {
@@ -302,6 +307,7 @@ class TensorFlowEngine(InferenceEngine):
         """
         return self._preprocessor.preprocess(frame)
 
+    @metrics_manager.latency_decorator('predict_latency')
     def _predict(self, preprocessed_frame: np.ndarray) -> np.ndarray:
         """Implement the _predict method for TensorFlow models.
 
