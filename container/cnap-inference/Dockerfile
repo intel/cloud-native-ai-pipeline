@@ -41,9 +41,11 @@ ENV PYTHONPATH="/cnap:${PYTHONPATH}"
 RUN /opt/intel/oneapi/tensorflow/latest/bin/pip install ${pip_mirror} \
     --upgrade --no-cache-dir pip \
     && /opt/intel/oneapi/tensorflow/latest/bin/pip install ${pip_mirror} \
-    --no-cache-dir redis>=4.3.0 kafka-python websockets opencv-python
+    --no-cache-dir redis>=4.3.0 kafka-python websockets opencv-python prometheus_client
 
 RUN date > /build-date.cnap-inference.txt
+
+EXPOSE 8000
 
 USER appuser
 
