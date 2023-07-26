@@ -15,6 +15,8 @@ import time
 import signal
 import os
 
+from prometheus_client import start_http_server
+
 from userv.uapp import MicroAppBase, MicroServiceTask
 from core.rtdb import RedisDB, RuntimeDatabaseBase
 from core.infereng import InferEngineManager, InferenceInfo, InferenceEngine
@@ -275,6 +277,7 @@ class InferenceService(MicroAppBase):
         task = InferenceTask(self.inference_engine, self.infer_info,
                              self.infer_queue_connector, self.infer_broker_connector)
         task.start()
+        start_http_server(8000)
 
         return True
 

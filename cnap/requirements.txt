@@ -3,6 +3,7 @@ flask_cors
 kafka-python
 numpy
 opencv-python
+prometheus_client
 protobuf
 redis
 tensorflow
