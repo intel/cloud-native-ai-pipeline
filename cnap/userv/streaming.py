@@ -283,6 +283,7 @@ class StreamingTask(MicroServiceTask):
         """The task logic of streaming task."""
         self.provider.open()
         while not self.is_task_stopping:
+            start_time = time.time()
 
             # 0. Create frame encryptor
             encrypt_actor = QATFrameCipher()
@@ -310,12 +311,15 @@ class StreamingTask(MicroServiceTask):
             self.infer_queue_connector.publish_frame(
                 self.infer_engine_info.queue_topic, frame)
 
+            end_time = time.time()
+            processing_time = end_time - start_time
+
             # 6. Prepare next loop
             if isinstance(self.provider, FileSource):
                 if self.provider.target_fps != -1:
-                    time.sleep(float(1/self.provider.target_fps))
+                    time.sleep(max(float(1/self.provider.target_fps) - processing_time, 0))
                 else:
-                    time.sleep(float(1/self.provider.raw_fps))
+                    time.sleep(max(float(1/self.provider.raw_fps) - processing_time, 0))
             LOG.debug("Frame[%d] ts=%d", frame.sequence,
                       frame.timestamp_new_frame)
         self.provider.close()
