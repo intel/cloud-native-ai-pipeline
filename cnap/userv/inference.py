@@ -358,6 +358,54 @@ class InferenceTask(MicroServiceTask):
         self.infer_start_time = 0.0
         self.fps_time_window = fps_time_window
 
+    def calculate_fps(self, frame):
+        """Calculate infer/drop FPS and export metrics."""
+        now = time.time()
+        if self.infer_start_time == 0.0:
+            self.infer_start_time = now
+            return
+
+        elapsed_time = now - self.infer_start_time
+        pipeline_id = frame.pipeline_id
+
+        self.update_frame_counts(pipeline_id, self.drop_frame_count[pipeline_id])
+        self.export_fps_metrics(pipeline_id, elapsed_time)
+
+        if elapsed_time > self.fps_time_window:
+            self.reset_frame_counts()
+
+    def update_frame_counts(self, pipeline_id, drop_count):
+        """Update the frame counts for inference and drop."""
+        if pipeline_id not in self.infer_frame_count:
+            self.infer_frame_count[pipeline_id] = 0
+        if pipeline_id not in self.drop_frame_count:
+            self.drop_frame_count[pipeline_id] = 0
+
+        self.infer_frame_count[pipeline_id] += 1
+        self.drop_frame_count[pipeline_id] += drop_count
+        self.infer_frame_count_sum += 1
+        self.drop_frame_count_sum += drop_count
+
+    def export_fps_metrics(self, pipeline_id, elapsed_time):
+        """Export the calculated FPS metrics."""
+        infer_fps_pipeline = round(self.infer_frame_count[pipeline_id] / elapsed_time)
+        self.pipeline_manager.set_infer_fps(pipeline_id, self.infer_info.id, infer_fps_pipeline)
+
+        infer_fps_sum = round(self.infer_frame_count_sum / elapsed_time)
+        drop_fps_sum = round(self.drop_frame_count_sum / elapsed_time)
+
+        metrics_manager.set_gauge('infer_fps', infer_fps_sum)
+        metrics_manager.set_gauge('drop_fps', drop_fps_sum)
+
+    def reset_frame_counts(self):
+        """Reset the frame counts for the next calculation window."""
+        
+        for pipeline in list(self.infer_frame_count.keys()):
+            self.infer_frame_count[pipeline] = 0
+            self.drop_frame_count[pipeline] = 0
+        self.infer_frame_count_sum = 0
+        self.drop_frame_count_sum = 0
+
     def execute(self):
         """The task logic of inference task."""
         while not self.is_task_stopping:
