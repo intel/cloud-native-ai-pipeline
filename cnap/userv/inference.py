@@ -20,7 +20,7 @@ from prometheus_client import start_http_server
 from userv.uapp import MicroAppBase, MicroServiceTask
 from core.rtdb import RedisDB, RuntimeDatabaseBase
 from core.infereng import InferEngineManager, InferenceInfo, InferenceEngine
-from core.frame import QATFrameCipher
+from core.frame import QATFrameCipher, Frame
 from core.inferqueue import RedisInferQueueClient, KafkaInferQueueClient, InferQueueClientBase
 from core.streambroker import StreamBrokerClientBase, RedisStreamBrokerClient, \
     KafkaStreamBrokerClient
@@ -358,8 +358,13 @@ class InferenceTask(MicroServiceTask):
         self.infer_start_time = 0.0
         self.fps_time_window = fps_time_window
 
-    def calculate_fps(self, frame):
-        """Calculate infer/drop FPS and export metrics."""
+    def calculate_fps(self, frame: Frame, drop_count: int) -> None:
+        """Calculate infer/drop FPS and export metrics.
+
+        Args:
+            frame (Frame): The frame being inferred when calculating FPS.
+            drop_count (int): The count of dropped frames when calculating FPS.
+        """
         now = time.time()
         if self.infer_start_time == 0.0:
             self.infer_start_time = now
@@ -368,14 +373,20 @@ class InferenceTask(MicroServiceTask):
         elapsed_time = now - self.infer_start_time
         pipeline_id = frame.pipeline_id
 
-        self.update_frame_counts(pipeline_id, self.drop_frame_count[pipeline_id])
+        self.update_frame_counts(pipeline_id, drop_count)
         self.export_fps_metrics(pipeline_id, elapsed_time)
 
         if elapsed_time > self.fps_time_window:
+            self.infer_start_time = now
             self.reset_frame_counts()
 
-    def update_frame_counts(self, pipeline_id, drop_count):
-        """Update the frame counts for inference and drop."""
+    def update_frame_counts(self, pipeline_id: str, drop_count: int) -> None:
+        """Update the frame counts for inference and drop.
+
+        Args:
+            pipeline_id (str): The id of pipeline to update the frame counts.
+            drop_count (int): The count of dropped frames when updating the frame counts.
+        """
         if pipeline_id not in self.infer_frame_count:
             self.infer_frame_count[pipeline_id] = 0
         if pipeline_id not in self.drop_frame_count:
@@ -386,8 +397,13 @@ class InferenceTask(MicroServiceTask):
         self.infer_frame_count_sum += 1
         self.drop_frame_count_sum += drop_count
 
-    def export_fps_metrics(self, pipeline_id, elapsed_time):
-        """Export the calculated FPS metrics."""
+    def export_fps_metrics(self, pipeline_id: str, elapsed_time: float) -> None:
+        """Export the calculated FPS metrics and save FPS of pipeline to Pipeline-table.
+
+        Args:
+            pipeline_id (str): The id of pipeline to save FPS to Pipeline-table.
+            elapsed_time (float): The elapsed time to calculate FPS.
+        """
         infer_fps_pipeline = round(self.infer_frame_count[pipeline_id] / elapsed_time)
         self.pipeline_manager.set_infer_fps(pipeline_id, self.infer_info.id, infer_fps_pipeline)
 
@@ -397,9 +413,8 @@ class InferenceTask(MicroServiceTask):
         metrics_manager.set_gauge('infer_fps', infer_fps_sum)
         metrics_manager.set_gauge('drop_fps', drop_fps_sum)
 
-    def reset_frame_counts(self):
+    def reset_frame_counts(self) -> None:
         """Reset the frame counts for the next calculation window."""
-        
         for pipeline in list(self.infer_frame_count.keys()):
             self.infer_frame_count[pipeline] = 0
             self.drop_frame_count[pipeline] = 0
@@ -438,42 +453,7 @@ class InferenceTask(MicroServiceTask):
             self.infer_broker_connector.publish_frame(topic, frame)
 
             # 7. Calculate infer/drop FPS and export metrics
-            now = time.time()
-            if self.infer_start_time == 0.0:
-                self.infer_start_time = now
-                continue
-
-            elapsed_time = now - self.infer_start_time
-            pipeline_id = frame.pipeline_id
-
-            if pipeline_id not in self.infer_frame_count:
-                self.infer_frame_count[pipeline_id] = 0
-            if pipeline_id not in self.drop_frame_count:
-                self.drop_frame_count[pipeline_id] = 0
-
-            self.infer_frame_count[pipeline_id] += 1
-            self.drop_frame_count[pipeline_id] += drop_count
-            self.infer_frame_count_sum += 1
-            self.drop_frame_count_sum += drop_count
-
-            infer_fps_pipeline = round(self.infer_frame_count[pipeline_id] / elapsed_time)
-            # drop_fps_pipeline = round(self.drop_frame_count[pipeline_id] / elapsed_time)
-
-            self.pipeline_manager.set_infer_fps(pipeline_id, self.infer_info.id, infer_fps_pipeline)
-
-            infer_fps_sum = round(self.infer_frame_count_sum / elapsed_time)
-            drop_fps_sum = round(self.drop_frame_count_sum / elapsed_time)
-
-            metrics_manager.set_gauge('infer_fps', infer_fps_sum)
-            metrics_manager.set_gauge('drop_fps', drop_fps_sum)
-
-            if elapsed_time > self.fps_time_window:
-                self.infer_start_time = now
-                for pipeline in list(self.infer_frame_count.keys()):
-                    self.infer_frame_count[pipeline] = 0
-                    self.drop_frame_count[pipeline] = 0
-                self.infer_frame_count_sum = 0
-                self.drop_frame_count_sum = 0
+            self.calculate_fps(frame, drop_count)
 
     def stop(self):
         """Stop the inference task."""
