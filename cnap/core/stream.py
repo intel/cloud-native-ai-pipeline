@@ -339,6 +339,13 @@ class FileSource(StreamProvider):
         """int: The target FPS of file source stream provider."""
         return self.DEFAULT_TARGET_FPS
 
+    def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        """The Iterator for FileSource class."""
+        yield 'name', self.name
+        yield 'pathname', self.pathname
+        yield 'size', self.raw_size
+        yield 'fps', self.target_fps if self.target_fps != -1 else self.raw_fps
+
 class StreamProcessor:
     """The class to process stream.
 

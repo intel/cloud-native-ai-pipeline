@@ -26,7 +26,6 @@ from core.metrics import MetricsManager, MetricType
 
 metrics_manager = MetricsManager()
 metrics_manager.create_metric(MetricType.HISTOGRAM, 'predict_latency', 'Latency of predictions')
-metrics_manager.create_metric(MetricType.GAUGE, 'fps', 'Frames per second')
 
 OUTPUT_LAYER_MAPPING = {
     'object-detection': {

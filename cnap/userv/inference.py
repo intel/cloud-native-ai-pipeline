@@ -20,15 +20,21 @@ from prometheus_client import start_http_server
 from userv.uapp import MicroAppBase, MicroServiceTask
 from core.rtdb import RedisDB, RuntimeDatabaseBase
 from core.infereng import InferEngineManager, InferenceInfo, InferenceEngine
-from core.frame import QATFrameCipher
+from core.frame import QATFrameCipher, Frame
 from core.inferqueue import RedisInferQueueClient, KafkaInferQueueClient, InferQueueClientBase
 from core.streambroker import StreamBrokerClientBase, RedisStreamBrokerClient, \
     KafkaStreamBrokerClient
 from core.model import Model, ModelMetrics, ModelDetails, ModelInfo
 from core.engines.tensorflow_engine import TFModelConfig, TensorFlowEngine
+from core.metrics import MetricsManager, MetricType
+from core.pipeline import PipelineManager
 
 LOG = logging.getLogger(__name__)
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+
+metrics_manager = MetricsManager()
+metrics_manager.create_metric(MetricType.GAUGE, 'infer_fps', 'Inferred frames per second')
+metrics_manager.create_metric(MetricType.GAUGE, 'drop_fps', 'Dropped frames per second')
 
 class InferenceService(MicroAppBase):
     """A concrete class implementing the MicroAppBase for inference Service.
@@ -49,6 +55,7 @@ class InferenceService(MicroAppBase):
         _infer_info (InferenceInfo): The inference information.
         _inference_engine (InferenceEngine): The inference engine instance.
         _is_stopping (bool): A boolean variable that flags if the service is stopping or not.
+        _pipeline_manager (PipelineManager): The pipeline manager instance.
     """
 
     def __init__(self):
@@ -63,6 +70,7 @@ class InferenceService(MicroAppBase):
         self._infer_info = None
         self._inference_engine = None
         self._is_stopping = False
+        self._pipeline_manager = None
 
     @property
     def db(self) -> RuntimeDatabaseBase:
@@ -240,6 +248,19 @@ class InferenceService(MicroAppBase):
 
         return self._inference_engine
 
+    @property
+    def pipeline_manager(self) -> PipelineManager:
+        """The pipeline manager instance.
+
+        If `_pipeline_manager` is None, this function will create a `PipelineManager` object.
+
+        Returns:
+            PipelineManager: An instance of PipelineManager class.
+        """
+        if self._pipeline_manager is None:
+            self._pipeline_manager = PipelineManager(self.db)
+        return self._pipeline_manager
+
     def init(self):
         """Initialization."""
 
@@ -275,7 +296,8 @@ class InferenceService(MicroAppBase):
                                                    self.model.model_info)
 
         task = InferenceTask(self.inference_engine, self.infer_info,
-                             self.infer_queue_connector, self.infer_broker_connector)
+                             self.infer_queue_connector, self.infer_broker_connector,
+                             self.pipeline_manager, self.get_env("FPS_TIME_WINDOW", 60.0))
         task.start()
         start_http_server(8000)
 
@@ -289,12 +311,22 @@ class InferenceTask(MicroServiceTask):
         infer_info (InferenceInfo): The inference information.
         infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
         infer_broker_connector (StreamBrokerClientBase): The inference broker connector instance.
+        pipeline_manager (PipelineManager): The pipeline manager instance.
+        infer_frame_count (dict): A dictonary that saves the inference frame counts for every
+          pipeline.
+        drop_frame_count (dict): A dictonary that saves the drop frame counts for every pipeline.
+        infer_frame_count_sum (int): The sum of inference frame counts.
+        drop_frame_count_sum (int): The sum of drop frame counts.
+        infer_start_time (float): The start time of inference/drop frame counting.
+        fps_time_window (float): The time interval of a inference/drop fps calculation window.
     """
 
     def __init__(self, inference_engine: InferenceEngine,
                  infer_info: InferenceInfo,
                  infer_queue_connector: InferQueueClientBase,
-                 infer_broker_connector: StreamBrokerClientBase):
+                 infer_broker_connector: StreamBrokerClientBase,
+                 pipeline_manager: PipelineManager,
+                 fps_time_window: float):
         """Initialize an InferenceTask object.
 
         Args:
@@ -303,12 +335,91 @@ class InferenceTask(MicroServiceTask):
             infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
             infer_broker_connector (StreamBrokerClientBase): The inference stream broker connector
               instance.
+            pipeline_manager (PipelineManager): The pipeline manager instance.
+            infer_frame_count (dict): A dictonary that saves the inference frame counts for every
+              pipeline.
+            drop_frame_count (dict): A dictonary that saves the drop frame counts for every
+              pipeline.
+            infer_frame_count_sum (int): The sum of inference frame counts.
+            drop_frame_count_sum (int): The sum of drop frame counts.
+            infer_start_time (float): The start time of inference/drop frame counting.
+            fps_time_window (float): The time interval of a inference/drop fps calculation window.
         """
         MicroServiceTask.__init__(self)
         self.inference_engine = inference_engine
         self.infer_info = infer_info
         self.infer_queue_connector = infer_queue_connector
         self.infer_broker_connector = infer_broker_connector
+        self.pipeline_manager = pipeline_manager
+        self.infer_frame_count = {}
+        self.drop_frame_count = {}
+        self.infer_frame_count_sum = 0
+        self.drop_frame_count_sum = 0
+        self.infer_start_time = 0.0
+        self.fps_time_window = fps_time_window
+
+    def calculate_fps(self, frame: Frame, drop_count: int) -> None:
+        """Calculate infer/drop FPS and export metrics.
+
+        Args:
+            frame (Frame): The frame being inferred when calculating FPS.
+            drop_count (int): The count of dropped frames when calculating FPS.
+        """
+        now = time.time()
+        if self.infer_start_time == 0.0:
+            self.infer_start_time = now
+            return
+
+        elapsed_time = now - self.infer_start_time
+        pipeline_id = frame.pipeline_id
+
+        self.update_frame_counts(pipeline_id, drop_count)
+        self.export_fps_metrics(pipeline_id, elapsed_time)
+
+        if elapsed_time > self.fps_time_window:
+            self.infer_start_time = now
+            self.reset_frame_counts()
+
+    def update_frame_counts(self, pipeline_id: str, drop_count: int) -> None:
+        """Update the frame counts for inference and drop.
+
+        Args:
+            pipeline_id (str): The id of pipeline to update the frame counts.
+            drop_count (int): The count of dropped frames when updating the frame counts.
+        """
+        if pipeline_id not in self.infer_frame_count:
+            self.infer_frame_count[pipeline_id] = 0
+        if pipeline_id not in self.drop_frame_count:
+            self.drop_frame_count[pipeline_id] = 0
+
+        self.infer_frame_count[pipeline_id] += 1
+        self.drop_frame_count[pipeline_id] += drop_count
+        self.infer_frame_count_sum += 1
+        self.drop_frame_count_sum += drop_count
+
+    def export_fps_metrics(self, pipeline_id: str, elapsed_time: float) -> None:
+        """Export the calculated FPS metrics and save FPS of pipeline to Pipeline-table.
+
+        Args:
+            pipeline_id (str): The id of pipeline to save FPS to Pipeline-table.
+            elapsed_time (float): The elapsed time to calculate FPS.
+        """
+        infer_fps_pipeline = round(self.infer_frame_count[pipeline_id] / elapsed_time)
+        self.pipeline_manager.set_infer_fps(pipeline_id, self.infer_info.id, infer_fps_pipeline)
+
+        infer_fps_sum = round(self.infer_frame_count_sum / elapsed_time)
+        drop_fps_sum = round(self.drop_frame_count_sum / elapsed_time)
+
+        metrics_manager.set_gauge('infer_fps', infer_fps_sum)
+        metrics_manager.set_gauge('drop_fps', drop_fps_sum)
+
+    def reset_frame_counts(self) -> None:
+        """Reset the frame counts for the next calculation window."""
+        for pipeline in list(self.infer_frame_count.keys()):
+            self.infer_frame_count[pipeline] = 0
+            self.drop_frame_count[pipeline] = 0
+        self.infer_frame_count_sum = 0
+        self.drop_frame_count_sum = 0
 
     def execute(self):
         """The task logic of inference task."""
@@ -322,7 +433,7 @@ class InferenceTask(MicroServiceTask):
                 self.infer_info.queue_topic)
             if frame is None:
                 continue
-            self.infer_queue_connector.drop(self.infer_info.queue_topic)
+            drop_count = self.infer_queue_connector.drop(self.infer_info.queue_topic)
             topic = f"result-{frame.pipeline_id}"
 
             # 2. Decrypt frame
@@ -340,6 +451,9 @@ class InferenceTask(MicroServiceTask):
 
             # 6. publish the inference result
             self.infer_broker_connector.publish_frame(topic, frame)
+
+            # 7. Calculate infer/drop FPS and export metrics
+            self.calculate_fps(frame, drop_count)
 
     def stop(self):
         """Stop the inference task."""

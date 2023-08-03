@@ -112,7 +112,7 @@ class PipelineService:
                 'model_name': inference_dicts[infer_id]['model']['details']['name'],
                 'stream_name': pipeline_dict['provider']['name'],
                 'input_fps': pipeline_dict['provider']['fps'],
-                'infer_fps': 25
+                'infer_fps': sum(pipeline_dict['infer_fps'].values())
             }
             pipelines.append(pipeline)
 
