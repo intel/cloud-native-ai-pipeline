@@ -1,5 +1,10 @@
-import pytest
-from cnap.core import streambroker
+"""Tests for the stream broker.
+
+This module contains the tests for the stream broker.
+
+Functions:
+    test_stream_broker: Tests the functionality of the stream broker.
+"""
 
 def test_stream_broker():
     """Tests the functionality of the stream broker.
@@ -14,4 +19,3 @@ def test_stream_broker():
     """
     # Add your specific tests for the stream broker here
     assert True
-

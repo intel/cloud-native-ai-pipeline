@@ -1,5 +1,10 @@
-import pytest
-from cnap.core import model
+"""Tests for the model module.
+
+This module contains the tests for the model module.
+
+Functions:
+    test_model_handling: Tests the handling of models.
+"""
 
 def test_model_handling():
     """Tests the handling of models.
@@ -14,4 +19,3 @@ def test_model_handling():
     """
     # Add your specific tests for model handling here
     assert True
-

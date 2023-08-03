@@ -1,10 +1,16 @@
-import pytest
-from cnap.userv import pipeline_server
+"""Tests for the pipeline server.
+
+This module contains the tests for the pipeline server.
+
+Functions:
+    test_pipeline_server_management: Tests the management of pipelines within the server.
+"""
 
 def test_pipeline_server_management():
     """Tests the management of pipelines within the server.
 
-    This test checks functionalities such as pipeline creation, modification, deletion, and execution.
+    This test checks functionalities such as pipeline creation, modification, deletion, and
+    execution.
 
     Args:
         None
@@ -14,4 +20,3 @@ def test_pipeline_server_management():
     """
     # Add your specific tests for pipeline server management here
     assert True
-

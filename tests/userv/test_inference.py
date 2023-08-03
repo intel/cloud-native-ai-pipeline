@@ -1,5 +1,10 @@
-import pytest
-from cnap.userv import inference
+"""Tests for the inference operations.
+
+This module contains the tests for the inference operations.
+
+Functions:
+    test_inference_operations: Tests the basic operations related to inference.
+"""
 
 def test_inference_operations():
     """Tests the basic operations related to inference.
@@ -14,4 +19,3 @@ def test_inference_operations():
     """
     # Add your specific tests for inference operations here
     assert True
-

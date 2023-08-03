@@ -1,5 +1,10 @@
-import pytest
-from cnap.core import inferqueue
+"""Tests for the inference queue module.
+
+This module contains the tests for the inference queue module.
+
+Functions:
+    test_inference_queue: Tests the functionality of the inference queue.
+"""
 
 def test_inference_queue():
     """Tests the functionality of the inference queue.
@@ -14,4 +19,3 @@ def test_inference_queue():
     """
     # Add your specific tests for the inference queue here
     assert True
-

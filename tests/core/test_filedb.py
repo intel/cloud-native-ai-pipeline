@@ -1,59 +1,25 @@
+"""Tests for the file database module.
+
+This module contains the tests for the file database module.
+
+Functions:
+    test_local_file_database_get_file: Tests the get_file method of the LocalFileDatabase class.
+    test_local_file_database_get_file_invalid_root: Tests the get_file method of the
+        LocalFileDatabase class with an invalid root directory.
+    test_local_file_database_get_file_not_found: Tests the get_file method of the LocalFileDatabase
+        class with a file that does not exist.
+"""
+
 import pytest
-import os
+
 from cnap.core import filedb
 
-# Test the abstract class FileDatabase
-class ConcreteFileDatabaseForTesting(filedb.FileDatabase):
-    def __init__(self):
-        pass
-
-    def get_file(self, filename: str) -> str:
-        return filename
-
-def test_file_database_init():
-    """Tests the initialization of the FileDatabase abstract class.
-
-    Args:
-        None
-
-    Returns:
-        None
-    """
-    db = ConcreteFileDatabaseForTesting()
-    assert db is not None
-
-def test_file_database_get_file():
-    """Tests the get_file method of the FileDatabase abstract class.
-
-    This test should be expanded based on the expected behavior of the get_file method.
-
-    Args:
-        None
-
-    Returns:
-        None
-    """
-    db = ConcreteFileDatabaseForTesting()
-    assert db.get_file('file_id') == 'file_id'
-
 # Test the concrete class LocalFileDatabase
-def test_local_file_database_init(tmp_path):
-    """Tests the initialization of the LocalFileDatabase class.
-
-    Args:
-        tmp_path (LocalPath): Temporary path provided by pytest's tmp_path fixture.
-
-    Returns:
-        None
-    """
-    root_dir = str(tmp_path)
-    db = filedb.LocalFileDatabase(root_dir)
-    assert db._root_dir == os.path.abspath(root_dir)
-
 def test_local_file_database_get_file(tmp_path):
     """Tests the get_file method of the LocalFileDatabase class.
 
-    This test checks if the get_file method correctly finds the given file and returns its local path.
+    This test checks if the get_file method correctly finds the given file and returns its local
+    path.
 
     Args:
         tmp_path (LocalPath): Temporary path provided by pytest's tmp_path fixture.

@@ -1,5 +1,10 @@
-import pytest
-from cnap.core import metrics
+"""Tests for the metrics framework.
+
+This module contains the tests for the metrics framework.
+
+Functions:
+    test_metrics_framework: Tests the functionality of the metrics framework.
+"""
 
 def test_metrics_framework():
     """Tests the functionality of the metrics framework.
@@ -14,4 +19,3 @@ def test_metrics_framework():
     """
     # Add your specific tests for the metrics framework here
     assert True
-
