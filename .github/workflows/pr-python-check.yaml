@@ -6,9 +6,11 @@ on:
     - main
     paths:
     - 'cnap/**/*.py'
+    - 'tests/**/*.py'
   pull_request:
     paths:
     - 'cnap/**/*.py'
+    - 'tests/**/*.py'
   workflow_dispatch:
 
 jobs:
@@ -24,15 +26,34 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install pylint pydocstyle
           python3 -m pip install -r ./cnap/requirements.txt
+          python3 -m pip install -r ./cnap/requirements-test.txt
 
       - name: Analyze python code 
         run: |
           set -ex
           export PYTHONPATH=$PWD/cnap:$PYTHONPATH
-          python_files=$(find . -path ./cnap/ -prune -o -name "*.py" -print)
+          python_files=$(find ./cnap -name "*.py" -print)
           if [[ -n "$python_files" ]]; then
             echo "$python_files" | xargs -n 1 python3 -m pylint --rcfile=.github/pylintrc
             echo "$python_files" | xargs -n 1 python3 -m pydocstyle --convention=google
           else
-            echo "No Python files found."
+            echo "No python files found."
           fi
+
+      - name: Analyze python test code
+        run: |
+          set -ex
+          export PYTHONPATH=$PWD/cnap:$PYTHONPATH
+          test_files=$(find ./tests -name "*.py" -print)
+          if [[ -n "$test_files" ]]; then
+            echo "$test_files" | xargs -n 1 python3 -m pylint --rcfile=.github/pylintrc
+            echo "$test_files" | xargs -n 1 python3 -m pydocstyle --convention=google
+          else
+            echo "No python test files found."
+          fi
+
+      - name: Run unit tests
+        run: |
+          set -ex
+          export PYTHONPATH=$PWD/cnap:$PYTHONPATH
+          python3 -m pytest tests

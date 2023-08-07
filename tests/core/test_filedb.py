@@ -14,7 +14,6 @@ import pytest
 
 from cnap.core import filedb
 
-# Test the concrete class LocalFileDatabase
 def test_local_file_database_get_file(tmp_path):
     """Tests the get_file method of the LocalFileDatabase class.
 
