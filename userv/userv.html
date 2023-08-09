@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>userv package &mdash; Cloud Native AI Pipeline  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="userv" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Cloud Native AI Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../core/modules.html">core</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">userv</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">userv package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-userv.inference">userv.inference module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-userv.pipeline_server">userv.pipeline_server module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-userv.streaming">userv.streaming module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-userv.uapp">userv.uapp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-userv.websocket_server">userv.websocket_server module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-userv">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Cloud Native AI Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">userv</a></li>
+      <li class="breadcrumb-item active">userv package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/userv/userv.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="userv-package">
+<h1>userv package<a class="headerlink" href="#userv-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-userv.inference">
+<span id="userv-inference-module"></span><h2>userv.inference module<a class="headerlink" href="#module-userv.inference" title="Permalink to this headline">¶</a></h2>
+<p>A Inference Service module.</p>
+<p>This module contains the implementation of the InferenceService and InferenceTask classes,
+which are used to run inference service.</p>
+<dl>
+<dt>Classes:</dt><dd><dl class="simple">
+<dt>InferenceService: A concrete class implementing the MicroAppBase for inference Service,</dt><dd><p>provides a Restful API to run inference.</p>
+</dd>
+</dl>
+<p>InferenceTask: A concrete class of MicroServiceTask for inference task.</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.inference.InferenceService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.inference.</span></span><span class="sig-name descname"><span class="pre">InferenceService</span></span><a class="headerlink" href="#userv.inference.InferenceService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#userv.uapp.MicroAppBase" title="userv.uapp.MicroAppBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">userv.uapp.MicroAppBase</span></code></a></p>
+<p>A concrete class implementing the MicroAppBase for inference Service.</p>
+<p>Inference Service provides a Restful API to run inference.</p>
+<p>The InferenceService class is responsible for connecting to a runtime database,
+loading a model, and setting up the necessary connections to a queue and a broker
+for running inference on incoming data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_db</strong> (<a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase"><em>RuntimeDatabaseBase</em></a>) – The runtime database instance.</p></li>
+<li><p><strong>_model_provider</strong> (<em>str</em>) – The model provider instance.</p></li>
+<li><p><strong>_model</strong> (<a class="reference internal" href="../core/core.html#core.model.Model" title="core.model.Model"><em>Model</em></a>) – The model instance.</p></li>
+<li><p><strong>_infer_queue_connector</strong> (<a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><em>InferQueueClientBase</em></a>) – The inference queue connector instance.</p></li>
+<li><p><strong>_infer_broker_connector</strong> (<a class="reference internal" href="../core/core.html#core.streambroker.StreamBrokerClientBase" title="core.streambroker.StreamBrokerClientBase"><em>StreamBrokerClientBase</em></a>) – The inference broker connector instance.</p></li>
+<li><p><strong>_infer_engine_manager</strong> (<a class="reference internal" href="../core/core.html#core.infereng.InferEngineManager" title="core.infereng.InferEngineManager"><em>InferEngineManager</em></a>) – The inference engine manager instance.</p></li>
+<li><p><strong>_infer_info</strong> (<a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><em>InferenceInfo</em></a>) – The inference information.</p></li>
+<li><p><strong>_inference_engine</strong> (<a class="reference internal" href="../core/core.html#core.infereng.InferenceEngine" title="core.infereng.InferenceEngine"><em>InferenceEngine</em></a>) – The inference engine instance.</p></li>
+<li><p><strong>_is_stopping</strong> (<em>bool</em>) – A boolean variable that flags if the service is stopping or not.</p></li>
+<li><p><strong>_pipeline_manager</strong> (<a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager"><em>PipelineManager</em></a>) – The pipeline manager instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.inference.InferenceService.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanup.</p>
+<p>Sets the stopping flag and performs necessary cleanup actions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.db">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">db</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase"><span class="pre">core.rtdb.RuntimeDatabaseBase</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.db" title="Permalink to this definition">¶</a></dt>
+<dd><p>The runtime database instance.</p>
+<p>If <cite>_db</cite> is None, this function will create a <cite>RuntimeDatabaseBase</cite> object
+and connect to runtime database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of the runtime database.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase">RuntimeDatabaseBase</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – If the runtime database type is not supported.</p></li>
+<li><p><strong>redis.exceptions.ConnectionError</strong> – If connection to the Redis server fails.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.infer_broker_connector">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infer_broker_connector</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.streambroker.StreamBrokerClientBase" title="core.streambroker.StreamBrokerClientBase"><span class="pre">core.streambroker.StreamBrokerClientBase</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.infer_broker_connector" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inference broker connector instance.</p>
+<p>If <cite>_infer_broker_connector</cite> is None, this function will create a <cite>StreamBrokerClientBase</cite>
+object and connect to stream broker server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The inference broker connector instance.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.streambroker.StreamBrokerClientBase" title="core.streambroker.StreamBrokerClientBase">StreamBrokerClientBase</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – If the runtime database type is not supported.</p></li>
+<li><p><strong>redis.exceptions.ConnectionError</strong> – If connection to the Redis server fails.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.infer_engine_manager">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infer_engine_manager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.infereng.InferEngineManager" title="core.infereng.InferEngineManager"><span class="pre">core.infereng.InferEngineManager</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.infer_engine_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inference engine manager instance.</p>
+<p>If <cite>_infer_engine_manager</cite> is None, this function will create a <cite>InferEngineManager</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The inference engine manager instance.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.infereng.InferEngineManager" title="core.infereng.InferEngineManager">InferEngineManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.infer_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infer_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><span class="pre">core.infereng.InferenceInfo</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.infer_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inference information.</p>
+<p>If <cite>_infer_info</cite> is None, this function will create a <cite>InferenceInfo</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The inference information.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo">InferenceInfo</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.infer_queue_connector">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infer_queue_connector</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><span class="pre">core.inferqueue.InferQueueClientBase</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.infer_queue_connector" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inference queue connector instance.</p>
+<p>If <cite>_infer_queue_connector</cite> is None, this function will create a <cite>InferQueueClientBase</cite>
+object and connect to queue server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The inference queue connector instance.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase">InferQueueClientBase</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – If the runtime database type is not supported.</p></li>
+<li><p><strong>redis.exceptions.ConnectionError</strong> – If connection to the Redis server fails.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.inference_engine">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inference_engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.infereng.InferenceEngine" title="core.infereng.InferenceEngine"><span class="pre">core.infereng.InferenceEngine</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.inference_engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inference engine instance.</p>
+<p>If <cite>_inference_engine</cite> is None, this function will create a <cite>InferenceEngine</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The inference engine instance.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.infereng.InferenceEngine" title="core.infereng.InferenceEngine">InferenceEngine</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If the framework is not supported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.inference.InferenceService.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialization.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.model">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.model.Model" title="core.model.Model"><span class="pre">core.model.Model</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>The model instance.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.model_provider">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#userv.inference.InferenceService.model_provider" title="Permalink to this definition">¶</a></dt>
+<dd><p>The model provider instance.</p>
+<p>The method is to instantiate the model provider instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The model provider instance. “Not Implemented” in the current version.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.pipeline_manager">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pipeline_manager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager"><span class="pre">core.pipeline.PipelineManager</span></a></em><a class="headerlink" href="#userv.inference.InferenceService.pipeline_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pipeline manager instance.</p>
+<p>If <cite>_pipeline_manager</cite> is None, this function will create a <cite>PipelineManager</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of PipelineManager class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager">PipelineManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceService.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#userv.inference.InferenceService.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main execution function for the service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Whether execution was successful or not.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.inference.InferenceTask">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.inference.</span></span><span class="sig-name descname"><span class="pre">InferenceTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inference_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.infereng.InferenceEngine" title="core.infereng.InferenceEngine"><span class="pre">core.infereng.InferenceEngine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><span class="pre">core.infereng.InferenceInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_queue_connector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><span class="pre">core.inferqueue.InferQueueClientBase</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_broker_connector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.streambroker.StreamBrokerClientBase" title="core.streambroker.StreamBrokerClientBase"><span class="pre">core.streambroker.StreamBrokerClientBase</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager"><span class="pre">core.pipeline.PipelineManager</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps_time_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#userv.inference.InferenceTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#userv.uapp.MicroServiceTask" title="userv.uapp.MicroServiceTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">userv.uapp.MicroServiceTask</span></code></a></p>
+<p>A concrete class of MicroServiceTask for inference task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inference_engine</strong> (<a class="reference internal" href="../core/core.html#core.infereng.InferenceEngine" title="core.infereng.InferenceEngine"><em>InferenceEngine</em></a>) – The inference engine instance.</p></li>
+<li><p><strong>infer_info</strong> (<a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><em>InferenceInfo</em></a>) – The inference information.</p></li>
+<li><p><strong>infer_queue_connector</strong> (<a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><em>InferQueueClientBase</em></a>) – The inference queue connector instance.</p></li>
+<li><p><strong>infer_broker_connector</strong> (<a class="reference internal" href="../core/core.html#core.streambroker.StreamBrokerClientBase" title="core.streambroker.StreamBrokerClientBase"><em>StreamBrokerClientBase</em></a>) – The inference broker connector instance.</p></li>
+<li><p><strong>pipeline_manager</strong> (<a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager"><em>PipelineManager</em></a>) – The pipeline manager instance.</p></li>
+<li><p><strong>infer_frame_count</strong> (<em>dict</em>) – A dictonary that saves the inference frame counts for every
+pipeline.</p></li>
+<li><p><strong>drop_frame_count</strong> (<em>dict</em>) – A dictonary that saves the drop frame counts for every pipeline.</p></li>
+<li><p><strong>infer_frame_count_sum</strong> (<em>int</em>) – The sum of inference frame counts.</p></li>
+<li><p><strong>drop_frame_count_sum</strong> (<em>int</em>) – The sum of drop frame counts.</p></li>
+<li><p><strong>infer_start_time</strong> (<em>float</em>) – The start time of inference/drop frame counting.</p></li>
+<li><p><strong>fps_time_window</strong> (<em>float</em>) – The time interval of a inference/drop fps calculation window.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceTask.calculate_fps">
+<span class="sig-name descname"><span class="pre">calculate_fps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.frame.Frame" title="core.frame.Frame"><span class="pre">core.frame.Frame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#userv.inference.InferenceTask.calculate_fps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate infer/drop FPS and export metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>Frame</em>) – The frame being inferred when calculating FPS.</p></li>
+<li><p><strong>drop_count</strong> (<em>int</em>) – The count of dropped frames when calculating FPS.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceTask.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.inference.InferenceTask.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>The task logic of inference task.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceTask.export_fps_metrics">
+<span class="sig-name descname"><span class="pre">export_fps_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elapsed_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#userv.inference.InferenceTask.export_fps_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the calculated FPS metrics and save FPS of pipeline to Pipeline-table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pipeline_id</strong> (<em>str</em>) – The id of pipeline to save FPS to Pipeline-table.</p></li>
+<li><p><strong>elapsed_time</strong> (<em>float</em>) – The elapsed time to calculate FPS.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceTask.reset_frame_counts">
+<span class="sig-name descname"><span class="pre">reset_frame_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#userv.inference.InferenceTask.reset_frame_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the frame counts for the next calculation window.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceTask.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.inference.InferenceTask.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the inference task.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.inference.InferenceTask.update_frame_counts">
+<span class="sig-name descname"><span class="pre">update_frame_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#userv.inference.InferenceTask.update_frame_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the frame counts for inference and drop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pipeline_id</strong> (<em>str</em>) – The id of pipeline to update the frame counts.</p></li>
+<li><p><strong>drop_count</strong> (<em>int</em>) – The count of dropped frames when updating the frame counts.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="userv.inference.entry">
+<span class="sig-prename descclassname"><span class="pre">userv.inference.</span></span><span class="sig-name descname"><span class="pre">entry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#userv.inference.entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>The entry of Inference Service.</p>
+</dd></dl>
+
+</section>
+<section id="module-userv.pipeline_server">
+<span id="userv-pipeline-server-module"></span><h2>userv.pipeline_server module<a class="headerlink" href="#module-userv.pipeline_server" title="Permalink to this headline">¶</a></h2>
+<p>A Pipeline Sever module.</p>
+<p>Pipeline Server provides a Restful API to get pipeline data.</p>
+<dl class="simple">
+<dt>Classes:</dt><dd><p>PipelineService: A class for pipeline server services to get pipeline data.</p>
+</dd>
+<dt>functinos:</dt><dd><p>_get_env: A function to get environment variable.
+api_get_pipelines: Restful API for getting pipeline data.
+health_check: Health check endpoint.</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.pipeline_server.PipelineService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.pipeline_server.</span></span><span class="sig-name descname"><span class="pre">PipelineService</span></span><a class="headerlink" href="#userv.pipeline_server.PipelineService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for pipeline server services to get pipeline data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>_db</strong> (<a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase"><em>RuntimeDatabaseBase</em></a>) – The RuntimeDatabaseBase object for PipelineService to use.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="userv.pipeline_server.PipelineService.INFER_ENGINE_TABLE">
+<span class="sig-name descname"><span class="pre">INFER_ENGINE_TABLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'InferEngine-table'</span></em><a class="headerlink" href="#userv.pipeline_server.PipelineService.INFER_ENGINE_TABLE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="userv.pipeline_server.PipelineService.PIPELINE_TABLE">
+<span class="sig-name descname"><span class="pre">PIPELINE_TABLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Pipeline-table'</span></em><a class="headerlink" href="#userv.pipeline_server.PipelineService.PIPELINE_TABLE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.pipeline_server.PipelineService.db">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">db</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase"><span class="pre">core.rtdb.RuntimeDatabaseBase</span></a></em><a class="headerlink" href="#userv.pipeline_server.PipelineService.db" title="Permalink to this definition">¶</a></dt>
+<dd><p>The runtime database.</p>
+<p>If <cite>_db</cite> is None, this function will create a <cite>RuntimeDatabaseBase</cite> object
+and connect to runtime database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of the RuntimeDatabaseBase class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase">RuntimeDatabaseBase</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – If the runtime database type is not supported.</p></li>
+<li><p><strong>redis.exceptions.ConnectionError</strong> – If connection to the Redis server fails.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.pipeline_server.PipelineService.inst">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inst</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.pipeline_server.PipelineService.inst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Singleton instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of the PipelineService class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#userv.pipeline_server.PipelineService" title="userv.pipeline_server.PipelineService">PipelineService</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.pipeline_server.PipelineService.pipelines">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pipelines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#userv.pipeline_server.PipelineService.pipelines" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pipeline list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of pipeline dictionaries.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the pipeline table does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="userv.pipeline_server.api_get_pipelines">
+<span class="sig-prename descclassname"><span class="pre">userv.pipeline_server.</span></span><span class="sig-name descname"><span class="pre">api_get_pipelines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">flask.wrappers.Response</span></span></span><a class="headerlink" href="#userv.pipeline_server.api_get_pipelines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restful API for getting pipeline data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Flask response object with JSON data and status.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="userv.pipeline_server.health_check">
+<span class="sig-prename descclassname"><span class="pre">userv.pipeline_server.</span></span><span class="sig-name descname"><span class="pre">health_check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">flask.wrappers.Response</span></span></span><a class="headerlink" href="#userv.pipeline_server.health_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Health check endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Flask response object with message and status.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-userv.streaming">
+<span id="userv-streaming-module"></span><h2>userv.streaming module<a class="headerlink" href="#module-userv.streaming" title="Permalink to this headline">¶</a></h2>
+<p>A Streaming Service module.</p>
+<p>This module contains the implementation of the StreamingService and StreamingTask classes,
+which are used to run streaming service.</p>
+<dl class="simple">
+<dt>Classes:</dt><dd><p>StreamingService: A concrete class implementing the MicroAppBase for streaming Service.
+StreamingTask: A concrete class of MicroServiceTask for streaming task.</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.streaming.</span></span><span class="sig-name descname"><span class="pre">StreamingService</span></span><a class="headerlink" href="#userv.streaming.StreamingService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#userv.uapp.MicroAppBase" title="userv.uapp.MicroAppBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">userv.uapp.MicroAppBase</span></code></a></p>
+<p>A concrete class implementing the MicroAppBase for Streaming Service.</p>
+<p>Streaming service, read frames from the stream provider, and process frames,
+then publish frames to inference queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_db</strong> (<a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase"><em>RuntimeDatabaseBase</em></a>) – The runtime database instance.</p></li>
+<li><p><strong>_provider</strong> (<a class="reference internal" href="../core/core.html#core.stream.StreamProvider" title="core.stream.StreamProvider"><em>StreamProvider</em></a>) – The stream provider instance.</p></li>
+<li><p><strong>_infer_engine_manager</strong> (<a class="reference internal" href="../core/core.html#core.infereng.InferEngineManager" title="core.infereng.InferEngineManager"><em>InferEngineManager</em></a>) – The inference engine manager instance.</p></li>
+<li><p><strong>_pipeline_manager</strong> (<a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager"><em>PipelineManager</em></a>) – The pipeline manager instance.</p></li>
+<li><p><strong>_infer_engine_info</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><em>InferenceInfo</em></a><em>]</em>) – The infer engine info instance.</p></li>
+<li><p><strong>_pipeline</strong> (<a class="reference internal" href="../core/core.html#core.pipeline.Pipeline" title="core.pipeline.Pipeline"><em>Pipeline</em></a>) – The pipeline instance.</p></li>
+<li><p><strong>_is_stopping</strong> (<em>bool</em>) – A boolean variable that flags if the service is stopping or not.</p></li>
+<li><p><strong>_infer_queue_connector</strong> (<a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><em>InferQueueClientBase</em></a>) – The inference queue connector instance.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.streaming.StreamingService.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanup.</p>
+<p>Sets the stopping flag and performs necessary cleanup actions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.db">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">db</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase"><span class="pre">core.rtdb.RuntimeDatabaseBase</span></a></em><a class="headerlink" href="#userv.streaming.StreamingService.db" title="Permalink to this definition">¶</a></dt>
+<dd><p>The runtime database instance.</p>
+<p>If <cite>_db</cite> is None, this function will create a <cite>RuntimeDatabaseBase</cite> object
+and connect to runtime database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of the RuntimeDatabaseBase class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.rtdb.RuntimeDatabaseBase" title="core.rtdb.RuntimeDatabaseBase">RuntimeDatabaseBase</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – If the runtime database type is not supported yet.</p></li>
+<li><p><strong>redis.exceptions.ConnectionError</strong> – If connection to the Redis server fails
+    and reconnection exceeds the limit.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.infer_engine_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infer_engine_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><span class="pre">core.infereng.InferenceInfo</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#userv.streaming.StreamingService.infer_engine_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>The infer engine info instance.</p>
+<p>If <cite>infer_engine_info</cite> is None, this function will search the matching inference engine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of InferenceInfo class.
+None: The requested inference engine was not found.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo">InferenceInfo</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.infer_engine_manager">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infer_engine_manager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.infereng.InferEngineManager" title="core.infereng.InferEngineManager"><span class="pre">core.infereng.InferEngineManager</span></a></em><a class="headerlink" href="#userv.streaming.StreamingService.infer_engine_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inference engine manager instance.</p>
+<p>If <cite>_infer_engine_manager</cite> is None, this function will create a <cite>InferEngineManager</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of InferEngineManager class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.infereng.InferEngineManager" title="core.infereng.InferEngineManager">InferEngineManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.infer_queue_connector">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infer_queue_connector</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><span class="pre">core.inferqueue.InferQueueClientBase</span></a></em><a class="headerlink" href="#userv.streaming.StreamingService.infer_queue_connector" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inference queue connector instance.</p>
+<p>If <cite>_infer_queue_connector</cite> is None, this function will create a <cite>InferQueueClientBase</cite>
+object and connect to queue server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of InferQueueClientBase class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase">InferQueueClientBase</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – If the queue type is not supported.</p></li>
+<li><p><strong>redis.exceptions.ConnectionError</strong> – If connection to the Redis server fails
+    and reconnection exceeds the limit.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.streaming.StreamingService.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialization.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.pipeline">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pipeline</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.pipeline.Pipeline" title="core.pipeline.Pipeline"><span class="pre">core.pipeline.Pipeline</span></a></em><a class="headerlink" href="#userv.streaming.StreamingService.pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pipeline instance.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.pipeline_manager">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pipeline_manager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager"><span class="pre">core.pipeline.PipelineManager</span></a></em><a class="headerlink" href="#userv.streaming.StreamingService.pipeline_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pipeline manager instance.</p>
+<p>If <cite>_pipeline_manager</cite> is None, this function will create a <cite>PipelineManager</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of PipelineManager class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.pipeline.PipelineManager" title="core.pipeline.PipelineManager">PipelineManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.provider">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../core/core.html#core.stream.StreamProvider" title="core.stream.StreamProvider"><span class="pre">core.stream.StreamProvider</span></a></em><a class="headerlink" href="#userv.streaming.StreamingService.provider" title="Permalink to this definition">¶</a></dt>
+<dd><p>The stream provider instance.</p>
+<p>If <cite>_provider</cite> is None, this function will create a <cite>StreamProvider</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of StreamProvider class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../core/core.html#core.stream.StreamProvider" title="core.stream.StreamProvider">StreamProvider</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – If the file database type is not supported.</p></li>
+<li><p><strong>ValueError</strong> – If the provider type is invalid.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.streaming.StreamingService.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#userv.streaming.StreamingService.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main logic of streaming service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A bool object that flags whether the streaming service run sunccessfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.streaming.StreamingTask">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.streaming.</span></span><span class="sig-name descname"><span class="pre">StreamingTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.stream.StreamProvider" title="core.stream.StreamProvider"><span class="pre">core.stream.StreamProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_engine_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><span class="pre">core.infereng.InferenceInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_queue_connector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><span class="pre">core.inferqueue.InferQueueClientBase</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#userv.streaming.StreamingTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#userv.uapp.MicroServiceTask" title="userv.uapp.MicroServiceTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">userv.uapp.MicroServiceTask</span></code></a></p>
+<p>A concrete class of MicroServiceTask for streaming task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>provider</strong> (<a class="reference internal" href="../core/core.html#core.stream.StreamProvider" title="core.stream.StreamProvider"><em>StreamProvider</em></a>) – The stream provider of streaming task.</p></li>
+<li><p><strong>infer_engine_info</strong> (<a class="reference internal" href="../core/core.html#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><em>InferenceInfo</em></a>) – The inference information of streaming task.</p></li>
+<li><p><strong>infer_queue_connector</strong> (<a class="reference internal" href="../core/core.html#core.inferqueue.InferQueueClientBase" title="core.inferqueue.InferQueueClientBase"><em>InferQueueClientBase</em></a>) – The inference queue client of streaming task.</p></li>
+<li><p><strong>pipeline_id</strong> (<em>str</em>) – The pipeline id of streaming task.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.streaming.StreamingTask.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.streaming.StreamingTask.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>The task logic of streaming task.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.streaming.StreamingTask.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.streaming.StreamingTask.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the streaming task.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="userv.streaming.entry">
+<span class="sig-prename descclassname"><span class="pre">userv.streaming.</span></span><span class="sig-name descname"><span class="pre">entry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#userv.streaming.entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>The entry of Streaming Service.</p>
+</dd></dl>
+
+</section>
+<section id="module-userv.uapp">
+<span id="userv-uapp-module"></span><h2>userv.uapp module<a class="headerlink" href="#module-userv.uapp" title="Permalink to this headline">¶</a></h2>
+<p>A Uapp module.</p>
+<p>Application template for Micro Service apps and tasks classes.</p>
+<dl class="simple">
+<dt>Classes:</dt><dd><p>MicroServiceTask: A base class for micro service task of threading based Task.
+MicroAppBase: An abstract base class for micro service app.</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.uapp.MicroAppBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.uapp.</span></span><span class="sig-name descname"><span class="pre">MicroAppBase</span></span><a class="headerlink" href="#userv.uapp.MicroAppBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>An abstract base class for micro service app.</p>
+<p>A cloud native application should accept the parameters from environment
+variable. There might be one or more tasks. Accept the interrupt for
+kubernetes lifecycle management, etc.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroAppBase.cleanup">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroAppBase.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If the subclasses don’t implement the method.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroAppBase.get_env">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#userv.uapp.MicroAppBase.get_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get environment variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – The name of the environment variable.</p></li>
+<li><p><strong>default</strong> (<em>Optional[Any]</em>) – The default value to return if the environment variable
+does not exist.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The value of the environment variable or the default value.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroAppBase.init">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroAppBase.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialization entry for an application instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If the subclasses don’t implement the method.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroAppBase.run">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroAppBase.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application main logic provided by inherited class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If the subclasses don’t implement the method.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroAppBase.run_and_wait_task">
+<span class="sig-name descname"><span class="pre">run_and_wait_task</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroAppBase.run_and_wait_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run and wait all tasks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroAppBase.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroAppBase.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop an application instance.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.uapp.</span></span><span class="sig-name descname"><span class="pre">MicroServiceTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_asyncio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroServiceTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></p>
+<p>A base class for micro service task of threading based Task.</p>
+<p>In general, a cloud native app may consists several threading tasks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_is_asyncio</strong> (<em>bool</em>) – A boolean variable that flags if the task is asyncio or not.</p></li>
+<li><p><strong>_exec_func</strong> (<em>Callable</em>) – The execute function of the micro service task.</p></li>
+<li><p><strong>_event_loop</strong> (<em>asyncio.AbstractEventLoop</em>) – The event loop of the asyncio tasks.</p></li>
+<li><p><strong>_is_task_stopping</strong> (<em>bool</em>) – A boolean variable that flags if the task is stopping or not.</p></li>
+<li><p><strong>_name</strong> (<em>str</em>) – The name of the micro service task.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroServiceTask.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>The task logic of micro service task.</p>
+<p>Inherited class should implement customized task logic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If the subclasses don’t implement the method.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask.is_task_stopping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_task_stopping</span></span><a class="headerlink" href="#userv.uapp.MicroServiceTask.is_task_stopping" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean variable that flags if the task is stopping or not.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#userv.uapp.MicroServiceTask.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the micro service task.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroServiceTask.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main entry for a task.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroServiceTask.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop a running task.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask.stop_all_tasks">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop_all_tasks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroServiceTask.stop_all_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops all tasks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.uapp.MicroServiceTask.wait_all_tasks_end">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_all_tasks_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.uapp.MicroServiceTask.wait_all_tasks_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait all task end.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-userv.websocket_server">
+<span id="userv-websocket-server-module"></span><h2>userv.websocket_server module<a class="headerlink" href="#module-userv.websocket_server" title="Permalink to this headline">¶</a></h2>
+<p>A WebSocket Server module.</p>
+<p>The WebSocket Server subscribes to all inferred streams from the Redis broker and hosts a WebSocket
+server to publish the streams to an HTML5 based front-end SPA (Single Page Application).</p>
+<p>It is based on asyncio and coroutine programming models since most operations are IO bound.</p>
+<dl class="simple">
+<dt>Classes:</dt><dd><dl class="simple">
+<dt>StreamWebSocketServer: A class for Stream WebSocket Server to publish streams via WebSocket</dt><dd><p>from the broker.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="userv.websocket_server.StreamWebSocketServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">userv.websocket_server.</span></span><span class="sig-name descname"><span class="pre">StreamWebSocketServer</span></span><a class="headerlink" href="#userv.websocket_server.StreamWebSocketServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for Stream WebSocket Server to publish streams via WebSocket from the broker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_stream_broker_redis_host</strong> (<em>str</em>) – The host ip or hostname of stream broker Redis server.</p></li>
+<li><p><strong>_stream_broker_redis_port</strong> (<em>int</em>) – The host port of stream broker Redis server.</p></li>
+<li><p><strong>_pipelines</strong> (<em>dict</em>) – A dictionary object representing the stream publish tasks for every
+pipelines.</p></li>
+<li><p><strong>_users</strong> (<em>dict</em>) – A dictionary object representing all established WebSocket connections.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="userv.websocket_server.StreamWebSocketServer.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userv.websocket_server.StreamWebSocketServer.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main entry of WebSocket Server.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-userv">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-userv" title="Permalink to this headline">¶</a></h2>
+<p>The user micro service.</p>
+<p>The package contains the user micro service, which is responsible for
+handling user requests and responses.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="userv" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Intel CSE CSS Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
