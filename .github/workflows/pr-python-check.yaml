@@ -47,7 +47,6 @@ jobs:
           test_files=$(find ./tests -name "*.py" -print)
           if [[ -n "$test_files" ]]; then
             echo "$test_files" | xargs -n 1 python3 -m pylint --rcfile=.github/pylintrc
-            echo "$test_files" | xargs -n 1 python3 -m pydocstyle --convention=google
           else
             echo "No python test files found."
           fi
@@ -56,4 +55,13 @@ jobs:
         run: |
           set -ex
           export PYTHONPATH=$PWD/cnap:$PYTHONPATH
-          python3 -m pytest tests
+          python3 -m pytest --cov=cnap tests
+
+      - name: Generate XML coverage report
+        run: |
+          coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml

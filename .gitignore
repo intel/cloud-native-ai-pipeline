@@ -3,3 +3,5 @@
 __pycache__/
 dictionary.dic
 node_modules/
+.coverage
+
