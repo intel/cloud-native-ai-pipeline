@@ -57,11 +57,6 @@ jobs:
           export PYTHONPATH=$PWD/cnap:$PYTHONPATH
           python3 -m pytest --cov=cnap tests
 
-      - name: Generate XML coverage report
+      - name: Display detailed coverage report
         run: |
-          coverage xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
+          coverage report -m
