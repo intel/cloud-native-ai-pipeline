@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "redis-exporter.fullname" . }}
+  labels:
+    {{- include "redis-exporter.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "redis-exporter.selectorLabels" . | nindent 4 }}
+  endpoints:
+  - port: http
+    interval: 15s
