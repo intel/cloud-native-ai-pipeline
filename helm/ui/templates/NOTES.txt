@@ -1,0 +1,1 @@
+The spa service deployed, you can access the spa by visiting the `http://<node_ip>:{{ .Values.service.nodePort }}` in your browser.

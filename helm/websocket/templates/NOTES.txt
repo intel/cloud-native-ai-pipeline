@@ -1,0 +1,1 @@
+Deployed websocket server, you can run `helm test {{ include "websocket.fullname" . }}` to test if the deployment succeeded.
