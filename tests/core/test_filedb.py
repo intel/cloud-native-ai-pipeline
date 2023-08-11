@@ -22,9 +22,6 @@ def test_local_file_database_get_file(tmp_path):
 
     Args:
         tmp_path (LocalPath): Temporary path provided by pytest's tmp_path fixture.
-
-    Returns:
-        None
     """
     # Create a temporary file for testing
     filename = 'test_file.txt'
@@ -36,28 +33,14 @@ def test_local_file_database_get_file(tmp_path):
     assert db.get_file(filename) == str(file_path)
 
 def test_local_file_database_get_file_invalid_root():
-    """Tests the get_file method of the LocalFileDatabase class with an invalid root directory.
-
-    Args:
-        None
-
-    Returns:
-        None
-    """
+    """Tests the get_file method of the LocalFileDatabase class with an invalid root directory."""
     root_dir = '/invalid/path'
     db = filedb.LocalFileDatabase(root_dir)
     with pytest.raises(FileNotFoundError):
         db.get_file('filename')
 
 def test_local_file_database_get_file_not_found(tmp_path):
-    """Tests the get_file method of the LocalFileDatabase class with a file not found.
-
-    Args:
-        tmp_path (LocalPath): Temporary path provided by pytest's tmp_path fixture.
-
-    Returns:
-        None
-    """
+    """Tests the get_file method of the LocalFileDatabase class with a file not found."""
     root_dir = str(tmp_path)
     db = filedb.LocalFileDatabase(root_dir)
     with pytest.raises(FileNotFoundError):

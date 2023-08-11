@@ -43,7 +43,7 @@ from cnap.core import rtdb
 # pylint: disable=redefined-outer-name
 
 REDIS_HOST = '0.0.0.0'
-REDIS_PORT = 8000
+REDIS_PORT = 8808
 
 my_redis_server = factories.redis_proc(host=REDIS_HOST, port=REDIS_PORT)
 my_redis_client = factories.redisdb('my_redis_server')
@@ -67,9 +67,6 @@ def rtdb_connect(my_redis_client):
 def data_config():
     """Fixture for test data configurations.
 
-    Args:
-        None
-
     Returns:
         dict: A dict for test configurations.
     """
@@ -87,9 +84,6 @@ def test_redis_runtime_database_connect(my_redis_client, rtdb_connect):
         my_redis_client (Callable): Temporary redis client provided by pytest-redis's redisdb
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
-
-    Returns:
-        None
     """
     assert my_redis_client.info()['connected_clients'] == 2
 
@@ -99,9 +93,6 @@ def test_redis_runtime_database_connect_failed(my_redis_client):
     Args:
         my_redis_client (Callable): Temporary redis client provided by pytest-redis's redisdb
           fixture.
-
-    Returns:
-        None
     """
     REDIS_PORT_WRONG = 8001
     db = rtdb.RedisDB()
@@ -119,9 +110,6 @@ def test_redis_runtime_database_save_table_object_dict(my_redis_client, rtdb_con
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     rtdb_connect.save_table_object_dict(data_config['table'], data_config['obj'],
                                         data_config['dict'])
@@ -137,9 +125,6 @@ def test_redis_runtime_database_save_table_object_dict_failed(my_redis_client, r
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
 
     with pytest.raises(TypeError):
@@ -156,9 +141,6 @@ def test_redis_runtime_database_get_table_object_dict(my_redis_client, rtdb_conn
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     my_redis_client.hset(data_config['table'], data_config['obj'], json.dumps(data_config['dict']))
     assert rtdb_connect.get_table_object_dict(data_config['table'], data_config['obj']) \
@@ -176,9 +158,6 @@ def test_redis_runtime_database_get_table_object_dict_not_found(my_redis_client,
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     assert rtdb_connect.get_table_object_dict(data_config['table'], data_config['obj']) == {}
 
@@ -194,9 +173,6 @@ def test_redis_runtime_database_get_table_object_dict_json_decode_error(my_redis
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     my_redis_client.hset(data_config['table'], data_config['obj'], data_config['dict'])
     assert rtdb_connect.get_table_object_dict(data_config['table'], data_config['obj']) == {}
@@ -211,9 +187,6 @@ def test_redis_runtime_database_get_all_table_object_dict(my_redis_client, rtdb_
         my_redis_client (Callable): Temporary redis client provided by pytest-redis's redisdb
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
-
-    Returns:
-        None
     """
     table = 'test-table'
     obj0 = 'test-obj0'
@@ -237,9 +210,6 @@ def test_redis_runtime_database_get_all_table_object_dict_not_found(my_redis_cli
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     assert rtdb_connect.get_all_table_objects_dict(data_config['table']) == {}
 
@@ -255,9 +225,6 @@ def test_redis_runtime_database_get_all_table_object_dict_json_decode_error(
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     my_redis_client.hset(data_config['table'], data_config['obj'], data_config['dict'])
     assert rtdb_connect.get_all_table_objects_dict(data_config['table']) == {}
@@ -274,9 +241,6 @@ def test_redis_runtime_database_check_table_object_exist(my_redis_client, rtdb_c
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     my_redis_client.hset(data_config['table'], data_config['obj'], json.dumps(data_config['dict']))
     assert rtdb_connect.check_table_object_exist(data_config['table'], data_config['obj']) is True
@@ -292,9 +256,6 @@ def test_redis_runtime_database_del_table_object(my_redis_client, rtdb_connect, 
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     my_redis_client.hset(data_config['table'], data_config['obj'], json.dumps(data_config['dict']))
     rtdb_connect.del_table_object(data_config['table'], data_config['obj'])
@@ -308,9 +269,6 @@ def test_invalid_table_param(my_redis_client, rtdb_connect, data_config):
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     data_config['table'] = None
 
@@ -334,9 +292,6 @@ def test_invalid_obj_param(my_redis_client, rtdb_connect, data_config):
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
         data_config (dict): Fixture for test data configurations.
-
-    Returns:
-        None
     """
     data_config['obj'] = None
 

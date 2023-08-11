@@ -11,12 +11,6 @@ def test_pipeline_server_management():
 
     This test checks functionalities such as pipeline creation, modification, deletion, and
     execution.
-
-    Args:
-        None
-
-    Returns:
-        None
     """
     # Add your specific tests for pipeline server management here
     assert True

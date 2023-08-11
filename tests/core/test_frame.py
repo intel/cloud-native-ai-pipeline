@@ -51,9 +51,6 @@ TEST_FRAME_TIMESTAMP_SETTER = 1.1
 def img():
     """Fixture for raw image.
 
-    Args:
-        None
-
     Returns:
         numpy.ndarray: The raw image for test.
     """
@@ -64,9 +61,6 @@ def img():
 def filesource():
     """Fixture for Frame.
 
-    Args:
-        None
-
     Returns:
         StreamProvider: A `StreamProvider` object instantiated as `FileSource`.
     """
@@ -75,9 +69,6 @@ def filesource():
 @pytest.fixture
 def frame_instance(filesource, img):
     """Fixture for file source stream provider.
-
-    Args:
-        None
 
     Returns:
         StreamProvider: A `StreamProvider` object instantiated as `FileSource`.
@@ -89,9 +80,6 @@ def frame_instance(filesource, img):
 @pytest.fixture(scope="session")
 def expected_blob(img):
     """Fixture for expected blob bytes.
-
-    Args:
-        None
 
     Returns:
         bytes: The expected blob bytes for test.
@@ -113,9 +101,6 @@ def assert_frame_equal(frame1: frame.Frame, frame2: frame.Frame):
     Args:
         frame1 (Frame): The Frame to assert.
         frame2 (Frame): The Frame to assert.
-
-    Returns:
-        None
     """
     assert frame1.pipeline_id == frame2.pipeline_id
     assert frame1.sequence == frame2.sequence
@@ -128,9 +113,6 @@ def test_frame_pipeline_id_setter(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     frame_instance.pipeline_id = TEST_PIPELINE_ID_SETTER
     assert frame_instance.pipeline_id == TEST_PIPELINE_ID_SETTER
@@ -140,9 +122,6 @@ def test_frame_pipeline_timestamp_new_frame_setter(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     frame_instance.timestamp_new_frame = TEST_FRAME_TIMESTAMP_SETTER
     assert frame_instance.timestamp_new_frame == TEST_FRAME_TIMESTAMP_SETTER
@@ -152,9 +131,6 @@ def test_frame_pipeline_raw_setter(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     raw_setter = cv2.imread(os.path.join(CURR_DIR, "../../docs/cnap_uses.png"))
     frame_instance.raw = raw_setter
@@ -165,9 +141,6 @@ def test_frame_pipeline_timestamp_infer_start_setter(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     frame_instance.timestamp_infer_start = TEST_FRAME_TIMESTAMP_SETTER
     assert frame_instance.timestamp_infer_start == TEST_FRAME_TIMESTAMP_SETTER
@@ -180,9 +153,6 @@ def test_frame_to_blob(frame_instance, expected_blob):
     Args:
         frame_instance (Frame): Fixture for Frame.
         expected_blob (bytes): Fixture for expected blob bytes.
-
-    Returns:
-        None
     """
     blob = frame_instance.to_blob()
     assert blob == expected_blob
@@ -192,9 +162,6 @@ def test_frame_to_blob_failed(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     frame_instance = frame.Frame(filesource, TEST_PIPELINE_ID, 0x5fffffffffff00000000, img)
     with pytest.raises(RuntimeError):
@@ -208,9 +175,6 @@ def test_frame_from_blob(frame_instance, expected_blob):
     Args:
         frame_instance (Frame): Fixture for Frame.
         expected_blob (bytes): Fixture for expected blob bytes.
-
-    Returns:
-        None
     """
     restored_frame = frame.Frame.from_blob(expected_blob)
     assert_frame_equal(restored_frame, frame_instance)
@@ -220,19 +184,12 @@ def test_frame_from_blob_invalid_blob(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     with pytest.raises(TypeError):
         frame.Frame.from_blob(frame_instance)
 
 def test_frame_from_blob_failed():
-    """Tests the from_blob method of Frame class when deserializing fails.
-
-    Returns:
-        None
-    """
+    """Tests the from_blob method of Frame class when deserializing fails."""
     with pytest.raises(RuntimeError):
         frame.Frame.from_blob(b'0000000000000000000')
 
@@ -240,9 +197,6 @@ def test_frame_get_sequence():
     """Tests the get_sequence method of Frame class.
 
     This test checks if the get_sequence method can increase and reset the sequence correctly.
-
-    Returns:
-        None
     """
     assert frame.Frame.get_sequence() == frame.Frame.get_sequence() - 1
     frame.Frame.last_sequence = 0x7fffffffffff0001
@@ -255,9 +209,6 @@ def test_frame_normalize(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     frame_instance.normalize((TRAGET_WIDTH, TRAGET_HEIGHT))
     assert frame_instance.raw.shape == (TRAGET_WIDTH, TRAGET_HEIGHT, 3)
@@ -267,9 +218,6 @@ def test_frame_normalize_invalid_target_size(frame_instance):
 
     Args:
         frame_instance (Frame): Fixture for Frame.
-
-    Returns:
-        None
     """
     with pytest.raises(ValueError):
         frame_instance.normalize((-1, TRAGET_HEIGHT))
