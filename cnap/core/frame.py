@@ -156,6 +156,9 @@ class Frame:
             # Get the frame shape info
             if len(self._raw.shape) == 3:
                 height, width, channel = self._raw.shape
+            elif len(self._raw.shape) == 2:
+                height, width = self._raw.shape
+                channel = 1
             else:
                 height, width, channel = 1, len(self._raw), 1
 
