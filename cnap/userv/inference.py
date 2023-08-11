@@ -35,6 +35,8 @@ CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 metrics_manager = MetricsManager()
 metrics_manager.create_metric(MetricType.GAUGE, 'infer_fps', 'Inferred frames per second')
 metrics_manager.create_metric(MetricType.GAUGE, 'drop_fps', 'Dropped frames per second')
+metrics_manager.create_metric(MetricType.HISTOGRAM, 'streaming_to_inference_latency', 'Latency \
+between frame generation in streaming service and inference completion in inference service')
 
 class InferenceService(MicroAppBase):
     """A concrete class implementing the MicroAppBase for inference Service.
@@ -445,6 +447,13 @@ class InferenceTask(MicroServiceTask):
             # 4. Run inference on the frame
             prediction, _ = self.inference_engine.predict(frame.raw)
             frame.raw = prediction
+
+            time_after_predict = time.time()
+            streaming_to_inference_latency = time_after_predict - frame.timestamp_new_frame
+            metrics_manager.observe_histogram('streaming_to_inference_latency',
+                                              streaming_to_inference_latency)
+            LOG.info("Latency between frame generation in streaming service and inference " +
+                     "completion in inference service: %fms", streaming_to_inference_latency * 1000)
 
             # 5. encode the inference result
             #_, jpeg = cv2.imencode('.jpg', prediction)
