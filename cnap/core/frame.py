@@ -173,10 +173,8 @@ class Frame:
             frame_msg.ts_infer_start = self._ts_infer_start
 
             serialized_data = frame_msg.SerializeToString()
-            # TODO: zlib, gzip or QATZip to accelerate the compression
-            compressed_data = serialized_data
 
-            return compressed_data
+            return serialized_data
         except Exception as e:
             raise RuntimeError(f"Error during encoding frame: {str(e)}") from e
 
@@ -199,10 +197,9 @@ class Frame:
         if not isinstance(blob, bytes):
             raise TypeError("The 'blob' argument must be a bytes object.")
         try:
-            # TODO: zlib, gzip or QATZip to accelerate the decompression
-            decompressed_data = blob
+
             frame_msg = frame_pb2.FrameMessage()
-            frame_msg.ParseFromString(decompressed_data)
+            frame_msg.ParseFromString(blob)
 
             raw_shape = (frame_msg.raw_height, frame_msg.raw_width, frame_msg.raw_channels)
             raw_frame = np.frombuffer(frame_msg.raw, dtype=np.uint8).reshape(raw_shape)

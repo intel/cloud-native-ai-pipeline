@@ -20,7 +20,6 @@ import redis
 from kafka import KafkaProducer
 import kafka.errors
 
-from core.frame import Frame
 
 LOG = logging.getLogger(__name__)
 
@@ -60,7 +59,7 @@ class InferQueueClientBase(ABC):
         raise NotImplementedError("Subclasses should implement connect() method.")
 
     @abstractmethod
-    def publish_frame(self, topic: str, frame: Frame) -> None:
+    def publish_frame(self, topic: str, frame: bytes) -> None:
         """Publish a frame to queue server for a topic.
 
         This method is used to publish a frame to queue server, it will serialize
@@ -68,17 +67,16 @@ class InferQueueClientBase(ABC):
 
         Args:
             topic (str): The topic name to publish to.
-            frame (Frame): The Frame to publish.
+            frame (bytes): The frame to publish.
 
         Raises:
             NotImplementedError: If the subclasses don't implement the method.
             ValueError: If the topic or frame is None.
-            RuntimeError: If any errors while encoding before publishing frame.
         """
         raise NotImplementedError("Subclasses should implement publish_frame() method.")
 
     @abstractmethod
-    def get_frame(self, topic: str) -> Optional[Frame]:
+    def get_frame(self, topic: str) -> Optional[bytes]:
         """Get a frame from queue.
 
         This method is used to get a frame from queue server, it will deserialize
@@ -88,13 +86,11 @@ class InferQueueClientBase(ABC):
             topic (str): The topic name to get frame.
 
         Returns:
-            Optional[Frame]: The frame get from topic or None if the infer queue is empty now.
+            Optional[bytes]: The frame get from topic or None if the infer queue is empty now.
 
         Raises:
             NotImplementedError: If the subclasses don't implement the method.
             ValueError: If the topic is None.
-            TypeError: If the type of msg getted from infer queue is not bytes.
-            RuntimeError: If any errors while decoding after getting frame.
         """
         raise NotImplementedError("Subclasses should implement get_frame() method.")
 
@@ -238,32 +234,22 @@ class RedisInferQueueClient(InferQueueClientBase):
             # If no connection error occurs, return directly.
             return
 
-
-    def publish_frame(self, topic: str, frame: Frame) -> None:
+    def publish_frame(self, topic: str, frame: bytes) -> None:
         """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         if frame is None:
             raise ValueError("frame can not be None")
-        try:
-            frame_blob = frame.to_blob()
-        except RuntimeError as e:
-            raise RuntimeError(e) from e
-        self._conn.rpush(topic, frame_blob)
+        self._conn.rpush(topic, frame)
 
-    def get_frame(self, topic: str) -> Optional[Frame]:
+    def get_frame(self, topic: str) -> Optional[bytes]:
         """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         msg = self._conn.lpop(topic)
         if msg is None:
             return None
-        try:
-            return Frame.from_blob(msg)
-        except TypeError as e:
-            raise TypeError(e) from e
-        except RuntimeError as e:
-            raise RuntimeError(e) from e
+        return msg
 
     def drop(self, topic: str) -> int:
         """See base class."""
@@ -364,19 +350,15 @@ class KafkaInferQueueClient(InferQueueClientBase):
             # If no NoBrokersAvailable occurs, return directly.
             return
 
-    def publish_frame(self, topic: str, frame: Frame) -> None:
+    def publish_frame(self, topic: str, frame: bytes) -> None:
         """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         if frame is None:
             raise ValueError("frame can not be None")
-        try:
-            frame_blob = frame.to_blob()
-        except RuntimeError as e:
-            raise RuntimeError(e) from e
-        self._conn.send(topic, frame_blob)
+        self._conn.send(topic, frame)
 
-    def get_frame(self, topic: str) -> Optional[Frame]:
+    def get_frame(self, topic: str) -> Optional[bytes]:
         """See base class."""
         # TODO: implement the get_frame function for Kafka queue.
         return None
