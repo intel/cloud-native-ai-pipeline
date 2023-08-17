@@ -2,28 +2,37 @@
 
 set -e
 
-# Define the directory containing the helm charts
+# Define the configurations
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 helm_dir="$script_dir/../helm"
+repository_url=""
+image_tag=""
 
 # Automatically detect the helm charts
 mapfile -t charts < <(find "$helm_dir" -maxdepth 1 -type d -exec basename {} \; | grep -v "^helm$")
 
 # Function to install a helm chart
 install_chart() {
+    local chart_name=$1
+    local helm_args=()
+
+    # Check if repository and tag values are set
+    [[ -n "$repository_url" ]] && helm_args+=("--set" "image.repository=$repository_url")
+    [[ -n "$image_tag" ]] && helm_args+=("--set" "image.tag=$image_tag")
+
     echo "------------------------------------------"
-    echo "INSTALLING CHART: $1"
+    echo "INSTALLING CHART: $chart_name"
     echo "------------------------------------------"
-    helm install "$1" "$helm_dir"/"$1" || {
+    helm install "$chart_name" "$helm_dir"/"$chart_name" "${helm_args[@]}" || {
         echo "ERROR: Installation of $1 chart failed. Attempting to clean up."
         echo "------------------------------------------"
-        helm uninstall "$1" || {
-            echo "ERROR: Cleanup of $1 chart also failed."
+        helm uninstall "$chart_name" || {
+            echo "ERROR: Cleanup of $chart_name chart also failed."
             echo "------------------------------------------"
         }
         return 1
     }
-    echo "SUCCESS: Installation of $1 chart complete."
+    echo "SUCCESS: Installation of $chart_name chart complete."
     echo "------------------------------------------"
 }
 
@@ -83,6 +92,7 @@ list_charts() {
         echo "- $chart"
     done
     echo "------------------------------------------"
+    exit 0
 }
 
 # Function to print help info
@@ -93,7 +103,17 @@ print_help() {
     echo "-h          Display this help and exit."
     echo "-l          List all available charts."
     echo "-i          Install specified chart(s), or all charts if no chart is specified."
+    echo "            When using -i, you can optionally set the image repository and tag:"
+    echo "            -r <repository_url>   Set the image repository (only valid with -i)."
+    echo "            -g <image_tag>       Set the image tag (only valid with -i)."
     echo "-u          Uninstall specified chart(s), or all charts if no chart is specified."
+    echo ""
+    echo "Examples:"
+    echo "./helm-manager.sh -i <chart_name>"
+    echo "./helm-manager.sh -i -r <repository_url> -g <image_tag>"
+    echo "./helm-manager.sh -i <chart_name> -r <repository_url> -g <image_tag>"
+    echo "./helm-manager.sh -u <chart_name>"
+    echo "./helm-manager.sh -u"
     exit 0
 }
 
@@ -102,48 +122,78 @@ if [ $# -eq 0 ]; then
     print_help
 fi
 
-# Parse command-line options
-while getopts "hliu" opt; do
-    case ${opt} in
-        h)
+install_charts=()
+uninstall_charts=()
+
+# Process all arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h)
             print_help
             ;;
-        l)
+        -l)
             list_charts
             ;;
-        i)
+        -i)
             install_opt=true
+            shift
+            while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+                install_charts+=("$1")
+                shift
+            done
             ;;
-        u)
+        -u)
             uninstall_opt=true
+            shift
+            while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+                uninstall_charts+=("$1")
+                shift
+            done
             ;;
-        \?)
-            echo "Invalid option: -${OPTARG}. Use -h for help."
+        -r)
+            if [[ "$install_opt" = true ]]; then
+                repository_url=$2
+                shift 2
+            else
+                echo "Error: -r option is only valid when -i is set."
+                exit 1
+            fi
+            ;;
+        -g)
+            if [[ "$install_opt" = true ]]; then
+                image_tag=$2
+                shift 2
+            else
+                echo "Error: -g option is only valid when -i is set."
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Invalid option or chart name: $1. Use -h for help."
             exit 1
             ;;
     esac
 done
-shift $((OPTIND -1))
 
-# Process remaining arguments (chart names)
-for arg in "$@"; do
-    if [[ "${charts[*]}" =~ ${arg} ]]; then
-        if [[ "${install_opt}" = true ]]; then
-            install_chart "${arg}"
-        elif [[ "${uninstall_opt}" = true ]]; then
-            uninstall_chart "${arg}"
-        fi
+# Process installation and uninstallation based on the provided charts
+if [[ "$install_opt" = true ]]; then
+    if [ ${#install_charts[@]} -eq 0 ]; then
+        for chart in "${charts[@]}"; do
+            install_chart "$chart"
+        done
     else
-        echo "Invalid chart name: ${arg}. Use -h for help."
-        exit 1
+        for chart in "${install_charts[@]}"; do
+            install_chart "$chart"
+        done
     fi
-done
+fi
 
-# If no charts specified, install/uninstall all
-if [ -z "$1" ]; then
-    if [[ "${install_opt}" = true ]]; then
-        install_all_charts
-    elif [[ "${uninstall_opt}" = true ]]; then
+if [[ "$uninstall_opt" = true ]]; then
+    if [ ${#uninstall_charts[@]} -eq 0 ]; then
         uninstall_all_charts
+    else
+        for chart in "${uninstall_charts[@]}"; do
+            uninstall_chart "$chart"
+        done
     fi
 fi
