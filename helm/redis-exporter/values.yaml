@@ -4,8 +4,8 @@
 
 replicaCount: 1
 
-image:
-  repository: oliver006/redis_exporter
+redisExpertor:
+  repository: docker.io/oliver006
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "v1.51.0"
