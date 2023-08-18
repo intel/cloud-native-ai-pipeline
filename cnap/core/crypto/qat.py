@@ -10,13 +10,15 @@ Classes:
 import ctypes
 import logging
 import time
-from core.qat_params import QzSession, QzSessionParamsCommon, QzSessionParamsDeflate
+
+from core.crypto.qat_params import QzSession, QzSessionParamsCommon, QzSessionParamsDeflate
+from core.crypto.zip import ZipBase
 
 LOG = logging.getLogger(__name__)
 qziplib = ctypes.cdll.LoadLibrary("libqatzip.so")
 
 
-class QATZip:
+class QATZip(ZipBase):
     """A class that use QAT to accelerate frame compression and decompression..
 
     Attributes:
@@ -144,19 +146,7 @@ class QATZip:
             raise RuntimeError(f"Close the QATzip session failed with status: {ret}.")
 
     def compress(self, src: bytes) -> bytes:
-        """Use QAT to accelerate frame compression.
-
-        Args:
-            src (bytes): Frame that need to be compressed.
-
-        Returns:
-            bytes: Compressed Frame.
-        
-        Raises:
-            OverflowError: If compression integer overflow occurs.
-            ValueError: If the compression input length is invalid.
-            RuntimeError: If any error occurs during compression.
-        """
+        """See base class."""
         dst_sz = qziplib.qzMaxCompressedLength(len(src), ctypes.byref(self._session))
         if dst_sz == 0:
             LOG.error("Compression integer overflow happens.")
@@ -192,17 +182,7 @@ class QATZip:
         return bytes(dst_bytes_array.raw[:dst_len.value])
 
     def decompress(self, src: bytes) -> bytes:
-        """Use QAT to accelerate frame decompression.
-
-        Args:
-            src (bytes): Frame that need to be decompressed.
-
-        Returns:
-            bytes: Decompressed Frame.
-        
-        Raises:
-            RuntimeError: If any error occurs during decompression. 
-        """
+        """See base class."""
         #preprocessing: Convert src/dst to ctypes
         dst_sz =  len(src) * self.EXPANSION_RATIO[0]
 

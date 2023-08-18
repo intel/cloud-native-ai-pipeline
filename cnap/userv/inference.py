@@ -17,7 +17,6 @@ import os
 
 from prometheus_client import start_http_server
 
-from userv.uapp import MicroAppBase, MicroServiceTask
 from core.rtdb import RedisDB, RuntimeDatabaseBase
 from core.infereng import InferEngineManager, InferenceInfo, InferenceEngine
 from core.frame import QATFrameCipher, Frame
@@ -28,6 +27,10 @@ from core.model import Model, ModelMetrics, ModelDetails, ModelInfo
 from core.engines.tensorflow_engine import TFModelConfig, TensorFlowEngine
 from core.metrics import MetricsManager, MetricType
 from core.pipeline import PipelineManager
+from core.crypto.qat import QATZip
+from core.crypto.zip import CPUZip, ZipBase
+from userv.uapp import MicroAppBase, MicroServiceTask
+
 
 LOG = logging.getLogger(__name__)
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -58,6 +61,7 @@ class InferenceService(MicroAppBase):
         _inference_engine (InferenceEngine): The inference engine instance.
         _is_stopping (bool): A boolean variable that flags if the service is stopping or not.
         _pipeline_manager (PipelineManager): The pipeline manager instance.
+        _zip_tool (ZipBase): The zip tool instance.
     """
 
     def __init__(self):
@@ -73,6 +77,7 @@ class InferenceService(MicroAppBase):
         self._inference_engine = None
         self._is_stopping = False
         self._pipeline_manager = None
+        self._zip_tool = None
 
     @property
     def db(self) -> RuntimeDatabaseBase:
@@ -263,6 +268,35 @@ class InferenceService(MicroAppBase):
             self._pipeline_manager = PipelineManager(self.db)
         return self._pipeline_manager
 
+    @property
+    def zip_tool(self) -> ZipBase:
+        """The zip tool instance.
+        
+        If `_zip_tool` is None, this function will create a `ZipBase` object.
+        
+        Returns:
+            ZipBase: The zip tool instance.
+
+        Raises:
+            NotImplementedError: If the runtime database type is not supported.
+            qat.exceptions.RuntimeError: If QAT initialize fails.
+        """
+        if self._zip_tool is None:
+            zip_enable = self.get_env("ZIP_ENABLE","false")
+            if zip_enable == "true":
+                zip_tool = self.get_env("ZIP_TOOL","CPU")
+                if zip_tool == "QAT":
+                    self._zip_tool  = QATZip()
+                elif zip_tool == "CPU":
+                    self._zip_tool = CPUZip()
+                else:
+                    LOG.error("Not support zip tools type: %s", zip_tool)
+                    raise NotImplementedError(f"zip tools type {zip_tool} \
+                                          not supported yet.")
+            else:
+                LOG.warning("The ZIP_ENABLE is false, confirm if zip is required.")
+        return self._zip_tool
+
     def init(self):
         """Initialization."""
 
@@ -299,7 +333,8 @@ class InferenceService(MicroAppBase):
 
         task = InferenceTask(self.inference_engine, self.infer_info,
                              self.infer_queue_connector, self.infer_broker_connector,
-                             self.pipeline_manager, self.get_env("FPS_TIME_WINDOW", 60.0))
+                             self.pipeline_manager, self.get_env("FPS_TIME_WINDOW", 60.0),
+                             self.zip_tool)
         task.start()
         start_http_server(8000)
 
@@ -321,6 +356,7 @@ class InferenceTask(MicroServiceTask):
         drop_frame_count_sum (int): The sum of drop frame counts.
         infer_start_time (float): The start time of inference/drop frame counting.
         fps_time_window (float): The time interval of a inference/drop fps calculation window.
+        zip_tool(ZipBase): The zip tool.
     """
 
     def __init__(self, inference_engine: InferenceEngine,
@@ -328,7 +364,8 @@ class InferenceTask(MicroServiceTask):
                  infer_queue_connector: InferQueueClientBase,
                  infer_broker_connector: StreamBrokerClientBase,
                  pipeline_manager: PipelineManager,
-                 fps_time_window: float):
+                 fps_time_window: float,
+                 zip_tool: ZipBase):
         """Initialize an InferenceTask object.
 
         Args:
@@ -346,6 +383,7 @@ class InferenceTask(MicroServiceTask):
             drop_frame_count_sum (int): The sum of drop frame counts.
             infer_start_time (float): The start time of inference/drop frame counting.
             fps_time_window (float): The time interval of a inference/drop fps calculation window.
+            zip_tool(ZipBase): The zip tool.
         """
         MicroServiceTask.__init__(self)
         self.inference_engine = inference_engine
@@ -359,6 +397,7 @@ class InferenceTask(MicroServiceTask):
         self.drop_frame_count_sum = 0
         self.infer_start_time = 0.0
         self.fps_time_window = fps_time_window
+        self.zip_tool = zip_tool
 
     def calculate_fps(self, frame: Frame, drop_count: int) -> None:
         """Calculate infer/drop FPS and export metrics.
@@ -423,6 +462,32 @@ class InferenceTask(MicroServiceTask):
         self.infer_frame_count_sum = 0
         self.drop_frame_count_sum = 0
 
+    def process_frame(self, frame: bytes) -> Frame:
+        """Process the frame.
+
+        Args:
+            frame (bytes): frame get from the infer queue. 
+
+        Returns:
+            Frame: deserialized frame.
+
+        Raises:
+            TypeError: If the type of frame is not bytes.
+            RuntimeError: If any errors while decoding or decompressing.
+        """
+        try:
+            #decompress if zip is enable
+            if self.zip_tool is not None:
+                decompressed_data = self.zip_tool.decompress(src = frame)
+            else:
+                decompressed_data = frame
+            #deserialize
+            return Frame.from_blob(decompressed_data)
+        except TypeError as e:
+            raise TypeError(e) from e
+        except RuntimeError as e:
+            raise RuntimeError(e) from e
+
     def execute(self):
         """The task logic of inference task."""
         while not self.is_task_stopping:
@@ -430,11 +495,12 @@ class InferenceTask(MicroServiceTask):
             # 0. Create frame decryption actor
             decrypt_actor = QATFrameCipher()
 
-            # 1. Get a frame from the infer queue
+            # 1. Get a frame from the infer queue and process the frame
             frame = self.infer_queue_connector.get_frame(
                 self.infer_info.queue_topic)
             if frame is None:
                 continue
+            frame = self.process_frame(frame)
             drop_count = self.infer_queue_connector.drop(self.infer_info.queue_topic)
             topic = f"result-{frame.pipeline_id}"
 
@@ -467,6 +533,8 @@ class InferenceTask(MicroServiceTask):
     def stop(self):
         """Stop the inference task."""
         MicroServiceTask.stop(self)
+        if self.zip_tool is not None:
+            del self.zip_tool
 
 def entry() -> None:
     """The entry of Inference Service."""

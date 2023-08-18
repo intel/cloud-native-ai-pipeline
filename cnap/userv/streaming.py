@@ -15,6 +15,7 @@ import signal
 import os
 from typing import Optional
 
+
 from core.rtdb import RedisDB, RuntimeDatabaseBase
 from core.pipeline import Pipeline, PipelineManager
 from core.infereng import InferEngineManager, InferenceInfo
@@ -22,7 +23,10 @@ from core.stream import StreamProvider, create_stream_from_type, FileSource
 from core.filedb import LocalFileDatabase
 from core.frame import Frame, QATFrameCipher
 from core.inferqueue import RedisInferQueueClient, KafkaInferQueueClient, InferQueueClientBase
+from core.crypto.qat import QATZip
+from core.crypto.zip import CPUZip, ZipBase
 from userv.uapp import MicroAppBase, MicroServiceTask
+
 
 LOG = logging.getLogger(__name__)
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +48,7 @@ class StreamingService(MicroAppBase):
         _pipeline (Pipeline): The pipeline instance.
         _is_stopping (bool): A boolean variable that flags if the service is stopping or not.
         _infer_queue_connector (InferQueueClientBase): The inference queue connector instance.
+        _zip_tool (ZipBase): The zip tool instance.
     """
 
     def __init__(self):
@@ -57,6 +62,7 @@ class StreamingService(MicroAppBase):
         self._pipeline = None
         self._is_stopping = False
         self._infer_queue_connector = None
+        self._zip_tool = None
 
     @property
     def db(self) -> RuntimeDatabaseBase:
@@ -210,6 +216,35 @@ class StreamingService(MicroAppBase):
                 return None
         return self._infer_engine_info
 
+    @property
+    def zip_tool(self) -> ZipBase:
+        """The zip tool instance.
+        
+        If `_zip_tool` is None, this function will create a `ZipBase` object.
+        
+        Returns:
+            ZipBase: The zip tool instance.
+
+        Raises:
+            NotImplementedError: If the runtime database type is not supported.
+            qat.exceptions.RuntimeError: If QAT initialize fails.
+        """
+        if self._zip_tool is None:
+            zip_enable = self.get_env("ZIP_ENABLE","false")
+            if zip_enable == "true":
+                zip_tool = self.get_env("ZIP_TOOL","CPU")
+                if zip_tool == "QAT":
+                    self._zip_tool  = QATZip()
+                elif zip_tool == "CPU":
+                    self._zip_tool = CPUZip()
+                else:
+                    LOG.error("Not support zip tools type: %s", zip_tool)
+                    raise NotImplementedError(f"zip tools type {zip_tool} \
+                                          not supported yet.")
+            else:
+                LOG.warning("The ZIP_ENABLE is false, confirm if zip is required.")
+        return self._zip_tool
+
     def init(self):
         """Initialization."""
 
@@ -246,7 +281,8 @@ class StreamingService(MicroAppBase):
         self.pipeline_manager.register_pipeline(self._pipeline)
 
         task = StreamingTask(self.provider, self.infer_engine_info,
-                             self.infer_queue_connector, self._pipeline.id)
+                             self.infer_queue_connector, self._pipeline.id,
+                             self.zip_tool)
         task.start()
 
         return True
@@ -259,11 +295,14 @@ class StreamingTask(MicroServiceTask):
         infer_engine_info(InferenceInfo): The inference information of streaming task.
         infer_queue_connector(InferQueueClientBase): The inference queue client of streaming task.
         pipeline_id(str): The pipeline id of streaming task.
+        zip_tool(ZipBase): The zip tool.
     """
+
     def __init__(self, provider: StreamProvider,
                  infer_engine_info: InferenceInfo,
                  infer_queue_connector: InferQueueClientBase,
-                 pipeline_id: str):
+                 pipeline_id: str,
+                 zip_tool: ZipBase):
         """Initialize a StreamingTask object.
 
         Args:
@@ -272,12 +311,44 @@ class StreamingTask(MicroServiceTask):
             infer_queue_connector(InferQueueClientBase): The inference queue client of streaming
               task.
             pipeline_id(str): The pipeline id of streaming task.
+            zip_tool(ZipBase): The zip tool.
         """
         MicroServiceTask.__init__(self)
         self.provider = provider
         self.pipeline_id = pipeline_id
         self.infer_engine_info = infer_engine_info
         self.infer_queue_connector = infer_queue_connector
+        self.zip_tool = zip_tool
+
+    def process_frame(self, frame: Frame) -> bytes:
+        """Process the frame.
+
+        Args:
+            frame (Frame): The Frame need to publish. 
+
+        Returns:
+            bytes: serialized frame.
+
+        Raises:
+            OverflowError: If compression integer overflow occurs.
+            ValueError: If the frame length is invalid for compression.
+            RuntimeError: If any errors while encoding or compressing.
+        """
+        try:
+            #serialize
+            serialized_data = frame.to_blob()
+            #compress if zip is enable
+            if self.zip_tool is not None:
+                compressed_data = self.zip_tool.compress(src=serialized_data)
+            else:
+                compressed_data = serialized_data
+            return compressed_data
+        except OverflowError as e:
+            raise OverflowError(e) from e
+        except ValueError as e:
+            raise ValueError(e) from e
+        except RuntimeError as e:
+            raise RuntimeError(e) from e
 
     def execute(self):
         """The task logic of streaming task."""
@@ -307,9 +378,10 @@ class StreamingTask(MicroServiceTask):
                           stop publishing frames.")
                 break
 
-            # 5. publish the infer queue
+            # 5. preprocess the frame and publish the infer queue
+            frame_data = self.process_frame(frame)
             self.infer_queue_connector.publish_frame(
-                self.infer_engine_info.queue_topic, frame)
+                self.infer_engine_info.queue_topic, frame_data)
 
             end_time = time.time()
             processing_time = end_time - start_time
@@ -330,6 +402,8 @@ class StreamingTask(MicroServiceTask):
         MicroServiceTask.stop(self)
         if self.provider is not None:
             self.provider.close()
+        if self.zip_tool is not None:
+            del self.zip_tool
 
 def entry() -> None:
     """The entry of Streaming Service."""
