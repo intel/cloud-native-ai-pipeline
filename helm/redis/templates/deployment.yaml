@@ -32,8 +32,8 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.redisImage.repository }}/redis:{{ .Values.redisImage.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.redisImage.pullPolicy }}
           command: ["redis-server"]
           args: ["/etc/redis.conf"]
           volumeMounts:
