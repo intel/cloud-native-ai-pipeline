@@ -6,7 +6,8 @@ metadata:
     {{- include "redis-exporter.labels" . | nindent 4 }}
 spec:
   selector:
-    {{- include "redis-exporter.selectorLabels" . | nindent 4 }}
+    matchLabels:
+      {{- include "redis-exporter.selectorLabels" . | nindent 6 }}
   endpoints:
   - port: http
     interval: 15s
