@@ -79,7 +79,7 @@
     </el-col>
     <el-col :span="4">
       <div class="grid-content" >
-        <vue-echarts class="bar" :option="state2.overviewOption" ref="chart" style="height: 90%; width: 90%;"/>
+        <vue-echarts class="line" :option="getOption()" ref="chart" style="height: 90%; width: 90%;"/>
       </div>
     </el-col>
   </el-row>
@@ -89,6 +89,7 @@
 import { onMounted, reactive } from 'vue';
 import StreamView from './StreamView.vue';
 import { VueEcharts } from 'vue3-echarts';
+import type { EChartsOption } from 'echarts';
 
 const props = defineProps({
   pipeline_id: {
@@ -114,18 +115,61 @@ const props = defineProps({
   stream_url: {
     type: String,
     default: 'dummy url'
+  },
+  now_time: {
+    type: String,
+    default: ""
   }
 });
 
 const state = reactive({
-      overviewOption: {},
-      dataCenterTime: []
-    })
-
-const state2 = reactive({
   overviewOption: {},
   dataCenterTime: []
 })
+
+const max_points = 5;
+
+const data_source : Array<[string, number, number]>= [];
+
+function getOption() : EChartsOption {
+  data_source.push([props.now_time, props.infer_fps, Math.max(props.input_fps - props.infer_fps, 0)]);
+  if (data_source.length > max_points) {
+    data_source.splice(0, 1);
+  }
+
+  return {
+    legend: {},
+    tooltip: {},
+    dataset: {
+        dimensions:  ['product', 'Infer FPS', 'Drop FPS'],
+        source: data_source
+    },
+    color: ['#007bff', '#dc3545', '#007bff'],
+    xAxis: {
+        type: 'category',
+        axisTick: {
+            show: false
+        },
+    },
+    yAxis: {
+        show: true,
+        axisTick: {
+            show: false
+        },
+        axisLine: {
+            show: false
+        },
+        splitLine: {
+            show: true
+        },
+    },
+    series: [
+        {type: 'line'},
+        {type: 'line'},
+        {type: 'line'}
+    ]
+  }
+}
 
 onMounted(() => {
   state.overviewOption = {
@@ -162,45 +206,6 @@ onMounted(() => {
             {type: 'bar'},
             {type: 'bar'},
             {type: 'bar'}
-        ]
-    }
-
-  state2.overviewOption = {
-        legend: {},
-        tooltip: {},
-        dataset: {
-            dimensions:  ['product', 'Infer FPS', 'Drop FPS'],
-            source: [
-                ['1:00', 43.3, 85.8],
-                ['2:00', 83.1, 73.4],
-                ['3:00', 86.4, 65.2],
-                ['4:00', 72.4, 53.9],
-                ['5:00', 72.4, 53.9],
-          ]
-        },
-        color: ['#20c997', '#007bff', '#dc3545'],
-        xAxis: {
-            type: 'category',
-            axisTick: {
-                show: false
-            },
-        },
-        yAxis: {
-            show: true,
-            axisTick: {
-                show: false
-            },
-            axisLine: {
-                show: false
-            },
-            splitLine: {
-                show: true
-            },
-        },
-        series: [
-            {type: 'line'},
-            {type: 'line'},
-            {type: 'line'}
         ]
     }
 })

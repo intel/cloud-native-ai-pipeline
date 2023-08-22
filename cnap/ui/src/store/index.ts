@@ -3,12 +3,13 @@ import { App } from 'vue'
 import { Pipeline } from '../api/ppdb_api';
 import axios  from "axios";
 
-const store = createStore<{pipelines:Pipeline[], stream_urls:string[],
+const store = createStore<{pipelines:Pipeline[], stream_urls:string[], now_time:string,
         pipeline_db_server:string, websocket_server:string}>({
   state() {
     return {
       pipelines: [],
       stream_urls: [],
+      now_time: "",
       // To prevent accidentally leaking env variables to the client, only variables prefixed
       // with `VITE_` are exposed to Vite-processed code.
       pipeline_db_server: 'http://' + get_env('VITE_PPDB_SERVER_HOST', window.location.hostname)
@@ -21,12 +22,14 @@ const store = createStore<{pipelines:Pipeline[], stream_urls:string[],
     updatePipelines(state, payload) {
       state.pipelines = payload.pipelines
       state.stream_urls = payload.urls
+      state.now_time = payload.now_time
       state.pipeline_db_server = payload.db_server
       state.websocket_server = payload.ws_server
     },
     cleanPipelines(state, payload) {
       state.pipelines = []
       state.stream_urls = []
+      state.now_time = ""
       state.pipeline_db_server = payload.db_server
       state.websocket_server = payload.ws_server
     }
@@ -45,13 +48,27 @@ export const refreshPipeline = async (pipeline_db_url:string, ws_server_url:stri
     for (let pipeline of res.data) {
       urls.push(ws_server_url + "/" + pipeline.pipeline_id);
     }
+
+    let date = new Date(Date.parse(new Date().toString()));
+    let now_time = format_time(date);
+
     store.commit('updatePipelines',
       {'db_server': pipeline_db_url, 'ws_server': ws_server_url,
-        'pipelines': res.data, 'urls': urls});
+        'pipelines': res.data, 'urls': urls, 'now_time': now_time});
   } catch (error) {
     console.log(error);
     store.commit('cleanPipelines', {'db_server': pipeline_db_url, 'ws_server': ws_server_url});
   }
+}
+
+function format_time(date: Date) {
+  let hour = date.getHours();
+  let hour_string = hour >= 10 ? String(hour) : "0" + String(hour);
+  let minute = date.getMinutes();
+  let minute_string = minute >= 10 ? String(minute) : "0" + String(minute);
+  let second = date.getSeconds();
+  let second_string = second >= 10 ? String(second) : "0" + String(second);
+  return hour_string + ":" + minute_string + ":" + second_string;
 }
 
 function get_env(key:string, default_vaule:any = null) {

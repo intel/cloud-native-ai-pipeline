@@ -12,6 +12,7 @@
                 :input_fps="store.state.pipelines[index].input_fps"
                 :infer_fps="store.state.pipelines[index].infer_fps"
                 :stream_url="store.state.stream_urls[index]"
+                :now_time="store.state.now_time"
                 />
             </div>
           </el-card>
