@@ -36,7 +36,7 @@ const store = useStore();
 
 onMounted(() => {
   console.log("Pipeline View: onMounted");
-  refreshPipeline(store.state.pipeline_db_server, store.state.websocket_server);
+  refreshPipeline();
 })
 
 onUnmounted(() => {

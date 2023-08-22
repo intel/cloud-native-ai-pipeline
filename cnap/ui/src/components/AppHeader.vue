@@ -11,6 +11,9 @@
     <el-menu-item index="/Pipelines" route="/pipelines">
       <h3>Pipelines</h3>
     </el-menu-item>
+    <el-menu-item index="/Grafana" route="/grafana">
+      <h3>Grafana</h3>
+    </el-menu-item>
     <div class="flex-grow" />
     <el-menu-item class="app-logo" @click="dialogConfigVisible=true">
       <h2>Cloud-Native AI Pipeline</h2>
@@ -28,7 +31,7 @@
           <el-input v-model="form.websocket_server" autocomplete="off" />
         </el-form-item>
         <el-form-item label="Grafana" :label-width="formLabelWidth"  >
-          <el-input v-model="form.grafana_server" autocomplete="off" :disabled="true"/>
+          <el-input v-model="form.grafana_server" autocomplete="off" />
         </el-form-item>
       </el-form>
 
@@ -57,7 +60,7 @@ const formLabelWidth = '120px'
 const form = reactive({
   pipeline_db_server: store.state.pipeline_db_server,
   websocket_server: store.state.websocket_server,
-  grafana_server: '',
+  grafana_server: store.state.grafana_server,
 })
 
 const handleClose = () => {
@@ -65,7 +68,8 @@ const handleClose = () => {
   dialogConfigVisible.value = false;
   console.log("Pipeline DB Server: %s", String(form.pipeline_db_server));
   console.log("Websocket Server: %s", String(form.websocket_server));
-  refreshPipeline(form.pipeline_db_server, form.websocket_server);
+  console.log("Grafana Server: %s", String(form.grafana_server));
+  refreshPipeline(form.pipeline_db_server, form.websocket_server, form.grafana_server);
 }
 </script>
 
