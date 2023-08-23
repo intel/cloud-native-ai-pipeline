@@ -277,7 +277,7 @@
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "builder",
-          "expr": "sum by(container) (infer_fps)",
+          "expr": "sum(infer_fps)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -363,7 +363,7 @@
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "builder",
-          "expr": "sum(drop_fps)",
+          "expr": "sum by(container) (drop_fps)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"

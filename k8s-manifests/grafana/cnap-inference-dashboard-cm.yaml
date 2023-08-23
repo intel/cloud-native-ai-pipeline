@@ -32,7 +32,7 @@ data:
       "liveNow": false,
       "panels": [
         {
-          "datasource": "$datasource",
+          "datasource": "${DS_PROMETHEUS}",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -106,7 +106,7 @@ data:
           },
           "targets": [
             {
-              "datasource": "$datasource",
+              "datasource": "${DS_PROMETHEUS}",
               "editorMode": "builder",
               "expr": "infer_fps",
               "legendFormat": "__auto",
@@ -118,7 +118,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": "$datasource",
+          "datasource": "${DS_PROMETHEUS}",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -192,7 +192,7 @@ data:
           },
           "targets": [
             {
-              "datasource": "$datasource",
+              "datasource": "${DS_PROMETHEUS}",
               "editorMode": "builder",
               "expr": "drop_fps",
               "legendFormat": "__auto",
@@ -204,7 +204,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": "$datasource",
+          "datasource": "${DS_PROMETHEUS}",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -278,9 +278,9 @@ data:
           },
           "targets": [
             {
-              "datasource": "$datasource",
+              "datasource": "${DS_PROMETHEUS}",
               "editorMode": "builder",
-              "expr": "sum by(container) (infer_fps)",
+              "expr": "sum(infer_fps)",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -290,7 +290,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": "$datasource",
+          "datasource": "${DS_PROMETHEUS}",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -364,7 +364,7 @@ data:
           },
           "targets": [
             {
-              "datasource": "$datasource",
+              "datasource": "${DS_PROMETHEUS}",
               "editorMode": "builder",
               "expr": "sum(drop_fps)",
               "legendFormat": "__auto",
@@ -378,7 +378,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$datasource"
+            "uid": "${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -456,7 +456,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "rate(streaming_to_inference_latency_sum[1m])\r\n  /\r\nrate(streaming_to_inference_latency_count[1m])",
@@ -472,7 +472,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$datasource"
+            "uid": "${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -550,7 +550,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "rate(predict_latency_sum[1m])\r\n  /\r\nrate(predict_latency_count[1m])",
@@ -565,7 +565,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$datasource"
+            "uid": "${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -643,7 +643,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "histogram_quantile(0.99, rate(streaming_to_inference_latency_bucket[1m]))",
@@ -654,7 +654,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "histogram_quantile(0.95, rate(streaming_to_inference_latency_bucket[1m]))",
@@ -666,7 +666,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "histogram_quantile(0.90, rate(streaming_to_inference_latency_bucket[1m]))",
@@ -683,7 +683,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$datasource"
+            "uid": "${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -761,7 +761,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "histogram_quantile(0.99, rate(predict_latency_bucket[1m]))",
@@ -772,7 +772,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "histogram_quantile(0.95, rate(predict_latency_bucket[1m]))",
@@ -784,7 +784,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$datasource"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "histogram_quantile(0.90, rate(predict_latency_bucket[1m]))",
