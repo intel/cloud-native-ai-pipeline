@@ -85,7 +85,3 @@ env:
   - name: KMP_AFFINITY
     value: "granularity=fine,verbose,compact,1,0"
 
-grafana:
-  namespace: monitoring
-  dashboard_labels:
-    grafana_dashboard: "1"
