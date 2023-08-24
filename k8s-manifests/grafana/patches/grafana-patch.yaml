@@ -11,4 +11,3 @@ spec:
       - name: grafana-config-volume
         configMap:
           name: grafana-config
-
