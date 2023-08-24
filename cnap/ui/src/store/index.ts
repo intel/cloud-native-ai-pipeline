@@ -62,13 +62,11 @@ export const refreshPipeline = async (pipeline_db_url:string, ws_server_url:stri
 }
 
 function format_time(date: Date) {
-  let hour = date.getHours();
-  let hour_string = hour >= 10 ? String(hour) : "0" + String(hour);
-  let minute = date.getMinutes();
-  let minute_string = minute >= 10 ? String(minute) : "0" + String(minute);
-  let second = date.getSeconds();
-  let second_string = second >= 10 ? String(second) : "0" + String(second);
-  return hour_string + ":" + minute_string + ":" + second_string;
+  const padZero = (num: number) => num < 10 ? `0${num}` : num.toString();
+  const hour = padZero(date.getHours());
+  const minute = padZero(date.getMinutes());
+  const second = padZero(date.getSeconds());
+  return `${hour}:${minute}:${second}`;
 }
 
 function get_env(key:string, default_vaule:any = null) {
