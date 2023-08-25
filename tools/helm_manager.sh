@@ -7,6 +7,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 helm_dir="$script_dir/../helm"
 repository_url=""
 image_tag=""
+namespace="default"
 
 # Automatically detect the helm charts
 mapfile -t charts < <(find "$helm_dir" -maxdepth 1 -type d -exec basename {} \; | grep -v "^helm$")
@@ -19,6 +20,7 @@ install_chart() {
     # Check if repository and tag values are set
     [[ -n "$repository_url" ]] && helm_args+=("--set" "image.repository=$repository_url")
     [[ -n "$image_tag" ]] && helm_args+=("--set" "image.tag=$image_tag")
+    [[ -n "$namespace" ]] && helm_args+=("--namespace" "$namespace")
 
     echo "------------------------------------------"
     echo "INSTALLING CHART: $chart_name"
@@ -40,10 +42,11 @@ install_chart() {
 uninstall_chart() {
     local chart=$1
     if is_chart_installed "$chart"; then
+        [[ -n "$namespace" ]] && helm_args+=("--namespace" "$namespace")
         echo "------------------------------------------"
         echo "UNINSTALLING CHART: $chart"
         echo "------------------------------------------"
-        helm uninstall "$chart" || {
+        helm uninstall "$chart"  "${helm_args[@]}" || {
             echo "ERROR: Uninstallation of $chart chart failed."
             echo "------------------------------------------"s
         }
@@ -80,7 +83,7 @@ uninstall_all_charts() {
 # Function to check if a helm chart is installed
 is_chart_installed() {
     local release_name=$1
-    helm list --deployed --short | grep -q "^$release_name$"
+    helm list --short -n "$namespace" | grep -q "^$release_name$"
 }
 
 
@@ -107,6 +110,7 @@ print_help() {
     echo "            -r <repository_url>   Set the image repository (only valid with -i)."
     echo "            -g <image_tag>       Set the image tag (only valid with -i)."
     echo "-u          Uninstall specified chart(s), or all charts if no chart is specified."
+    echo "-n          Set the namespace (can be used with both -i and -u)."
     echo ""
     echo "Examples:"
     echo "./helm-manager.sh -i <chart_name>"
@@ -167,6 +171,10 @@ while [[ $# -gt 0 ]]; do
                 echo "Error: -g option is only valid when -i is set."
                 exit 1
             fi
+            ;;
+        -n)
+            namespace=$2
+            shift 2
             ;;
         *)
             echo "Invalid option or chart name: $1. Use -h for help."
