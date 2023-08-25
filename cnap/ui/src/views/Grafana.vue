@@ -1,5 +1,5 @@
 <template>
-    <iframe :src="getSrc()" height="800px" width="1600px"></iframe>
+    <iframe :src="getSrc()" height="800px" width="100%"></iframe>
 </template>
 
 <script setup lang="ts">
