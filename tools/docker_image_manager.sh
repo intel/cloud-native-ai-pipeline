@@ -85,7 +85,7 @@ function build_a_image {
         "--build-arg" "no_proxy"
         "--build-arg" "pip_mirror"
         "-f" "${container_directory}/${img_container}/Dockerfile"
-        "${top_directory}"
+        "${container_directory}/${img_container}"
         "--tag" "${registry}/${img_container}:${tag}"
     )
 
