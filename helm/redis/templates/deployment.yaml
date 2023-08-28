@@ -30,12 +30,20 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
+          {{- if .Values.dsa.enabled }}
+          image: "{{ .Values.image.repository }}/cnap-redis:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["/opt/redis/redis-server-dto"]
+          resources:
+            limits:
+              dsa.intel.com/wq-user-shared: "{{ .Values.dsa.wqnumbers }}"
+          {{- else }}
+          image: "docker.io/redis:7.0"
+          command: ["redis-server"]
+          {{- end }}
+          args: ["/etc/redis.conf"]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.redisImage.repository }}/redis:{{ .Values.redisImage.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.redisImage.pullPolicy }}
-          command: ["redis-server"]
-          args: ["/etc/redis.conf"]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/redis.conf

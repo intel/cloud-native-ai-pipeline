@@ -4,11 +4,11 @@
 
 replicaCount: 1
 
-redisImage:
-  repository: docker.io
+image:
+  repository: <your registry>
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "7.0"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -42,6 +42,10 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
+
+dsa:
+  enabled: false
+  wqnumbers: 2
 
 nodeSelector: {}
 
