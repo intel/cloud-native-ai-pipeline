@@ -16,5 +16,9 @@ export default createRouter({
       path: '/pipelines',
       component: () => import('./views/Pipelines.vue'),
     },
+    {
+      path: '/grafana',
+      component: () => import('./views/Grafana.vue'),
+    },
   ],
 })

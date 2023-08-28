@@ -16,7 +16,7 @@ const store = useStore();
 
 onMounted(async () => {
   console.log("app mounted");
-  setInterval(refreshPipeline, 1000, store.state.pipeline_db_server, store.state.websocket_server);
+  setInterval(refreshPipeline, 1000);
 });
 
 
