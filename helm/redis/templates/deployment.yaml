@@ -31,19 +31,18 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           {{- if .Values.dsa.enabled }}
-          image: "{{ .Values.redisImage.repository }}/cnap-redis:{{ .Values.redisImage.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.redisImage.pullPolicy }}
+          image: "{{ .Values.image.repository }}/cnap-redis:{{ .Values.image.tag | default .Chart.AppVersion }}"
           command: ["/opt/redis/redis-server-dto"]
           resources:
             limits:
               dsa.intel.com/wq-user-shared: 2
           args: ["/etc/redis.conf"]
           {{- else }}
-          image: "{{ .Values.redisImage.repository }}/redis:{{ .Values.redisImage.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.redisImage.pullPolicy }}
+          image: "docker.io/redis:7.0"
           command: ["redis-server"]
           args: ["/etc/redis.conf"]
           {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:

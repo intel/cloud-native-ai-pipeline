@@ -9,7 +9,11 @@ metadata:
 spec:
   containers:
     - name: "{{ .Chart.Name }}-test"
-      image: "{{ .Values.redisImage.repository }}/redis:{{ .Values.redisImage.tag | default .Chart.AppVersion }}"
+      {{- if .Values.dsa.enabled }}
+      image: "{{ .Values.image.repository }}/cnap-redis:{{ .Values.image.tag | default .Chart.AppVersion }}"
+      {{- else }}
+      image: "docker.io/redis:7.0"
+      {{- end }}
       command:
         - sh
         - -c
