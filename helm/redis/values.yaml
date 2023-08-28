@@ -45,6 +45,7 @@ resources: {}
 
 dsa:
   enabled: false
+  wqnumbers: 2
 
 nodeSelector: {}
 

@@ -35,13 +35,12 @@ spec:
           command: ["/opt/redis/redis-server-dto"]
           resources:
             limits:
-              dsa.intel.com/wq-user-shared: 2
-          args: ["/etc/redis.conf"]
+              dsa.intel.com/wq-user-shared: "{{ .Values.dsa.wqnumbers }}"
           {{- else }}
           image: "docker.io/redis:7.0"
           command: ["redis-server"]
-          args: ["/etc/redis.conf"]
           {{- end }}
+          args: ["/etc/redis.conf"]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
