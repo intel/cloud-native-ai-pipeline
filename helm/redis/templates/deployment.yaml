@@ -22,9 +22,6 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "redis.fullname" . }}
-        - name: devfs
-          hostPath:
-            path: /dev/dsa
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -51,9 +48,6 @@ spec:
             - name: config-volume
               mountPath: /etc/redis.conf
               subPath: redis.conf
-            - name: devfs
-              mountPath: /dev/dsa
-              readOnly: true
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -74,8 +68,6 @@ spec:
                 - redis-cli ping
             initialDelaySeconds: 5
             timeoutSeconds: 5
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

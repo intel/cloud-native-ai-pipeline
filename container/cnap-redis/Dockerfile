@@ -10,7 +10,7 @@ ARG ACCEL_CONFIG_DOWNLOAD_URL="https://github.com/intel/idxd-config/archive/acce
 ARG ACCEL_CONFIG_SHA256="6d9bce40d797a87508ce5c5a5b71bb2bdc1cb544848925ed2c4c37b46a1252ce"
 
 RUN curl -fsSL "$ACCEL_CONFIG_DOWNLOAD_URL" -o accel-config.tar.gz && echo "$ACCEL_CONFIG_SHA256 accel-config.tar.gz" | sha256sum -c - && tar -xzf accel-config.tar.gz
-COPY cnap/redis/*.patch /
+COPY container/cnap-redis/patches/*.patch /
 RUN cd idxd-config-accel-config-v$ACCEL_CONFIG_VERSION && \
     patch -p1 < ../idxd-reset.patch && \
     patch -p1 < ../test_runner_disable_shared_queues.patch && \
@@ -24,7 +24,7 @@ ARG DTO_VERSION="1.0"
 ARG DTO_URL="https://github.com/intel/DTO/archive/refs/tags/v$DTO_VERSION.tar.gz"
 
 RUN curl -fsSL "$DTO_URL" -o dto.tar.gz && tar -xzf dto.tar.gz
-COPY cnap/redis/idxd.h /usr/local/include/linux/
+COPY container/cnap-redis/patches/idxd.h /usr/local/include/linux/
 RUN cd DTO-$DTO_VERSION && \
     make libdto && make install && \
     cp lib* /
@@ -52,7 +52,7 @@ RUN mkdir bin
 WORKDIR /opt/bin 
 
 COPY --from=baseimage /usr/local/bin /opt/bin
-COPY cnap/redis/redis.conf /etc/redis.conf
+COPY container/cnap-redis/redis.conf /etc/redis.conf
 
 WORKDIR /opt
 RUN mkdir redis
