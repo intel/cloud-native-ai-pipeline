@@ -158,7 +158,7 @@ class QATZip(ZipBase):
 
         #preprocessing: Convert src/dst to ctypes
         src_len = ctypes.c_uint(len(src))
-        src_array = (ctypes.c_char * len(src))(*src)
+        src_array = (ctypes.c_char * len(src)).from_buffer_copy(src)
         src_point = ctypes.cast(ctypes.pointer(src_array), ctypes.c_void_p)
 
         dst_len = ctypes.c_uint(dst_sz)
@@ -188,7 +188,7 @@ class QATZip(ZipBase):
         dst_sz = len(src) * self.EXPANSION_RATIO[0]
 
         src_len = ctypes.c_uint(len(src))
-        src_array = (ctypes.c_char * len(src))(*src)
+        src_array = (ctypes.c_char * len(src)).from_buffer_copy(src)
         src_point = ctypes.cast(ctypes.pointer(src_array), ctypes.c_void_p)
 
         dst_len = ctypes.c_uint(dst_sz)
