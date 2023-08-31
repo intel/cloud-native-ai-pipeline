@@ -1,0 +1,20 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ineference-scale
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: inference
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  pollingInterval: 5 # Optional. Default: 30 seconds
+  cooldownPeriod:  30 # Optional. Default: 300 seconds
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://<prometheus-k8s-svc>
+      metricName: drop_fps
+      threshold: '5' # Define the threshold for scaling
+      query: sum(drop_fps) by (job)
+
