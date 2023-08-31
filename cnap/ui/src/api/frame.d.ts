@@ -24,8 +24,8 @@ export interface IFrameMessage {
     /** FrameMessage rawChannels */
     rawChannels?: (number|null);
 
-    /** FrameMessage tsInferStart */
-    tsInferStart?: (number|null);
+    /** FrameMessage tsInferEnd */
+    tsInferEnd?: (number|null);
 }
 
 /** Represents a FrameMessage. */
@@ -58,8 +58,8 @@ export class FrameMessage implements IFrameMessage {
     /** FrameMessage rawChannels. */
     public rawChannels: number;
 
-    /** FrameMessage tsInferStart. */
-    public tsInferStart: number;
+    /** FrameMessage tsInferEnd. */
+    public tsInferEnd: number;
 
     /**
      * Creates a new FrameMessage instance using the specified properties.

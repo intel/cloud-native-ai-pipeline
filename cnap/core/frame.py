@@ -70,7 +70,7 @@ class Frame:
         _sequence (int): The monolithic counter of the frame sequence number.
         _raw (np.ndarray): The raw frame of the frame.
         _ts_new (float): The timestamp of the beginning of this new frame.
-        _ts_infer_start (float): The timestamp of the inference's start point of this frame.
+        _ts_infer_end (float): The timestamp of the inference's end point of this frame.
     """
 
     # Class variable to calculate the last sequence number
@@ -94,7 +94,7 @@ class Frame:
         self._sequence = sequence
         self._raw = raw_frame
         self._ts_new = time.time()
-        self._ts_infer_start = 0
+        self._ts_infer_end = 0
 
     @property
     def pipeline_id(self) -> str:
@@ -132,14 +132,14 @@ class Frame:
         self._raw = raw_frame
 
     @property
-    def timestamp_infer_start(self) -> float:
-        """float: The timestamp of the inference's start point of this frame."""
-        return self._ts_infer_start
+    def timestamp_infer_end(self) -> float:
+        """float: The timestamp of the inference's end point of this frame."""
+        return self._ts_infer_end
 
-    @timestamp_infer_start.setter
-    def timestamp_infer_start(self, timestamp: float) -> None:
-        """Set the timestamp of the inference's start point."""
-        self._ts_infer_start = timestamp
+    @timestamp_infer_end.setter
+    def timestamp_infer_end(self, timestamp: float) -> None:
+        """Set the timestamp of the inference's end point."""
+        self._ts_infer_end = timestamp
 
     def to_blob(self) -> bytes:
         """Encode the raw frame to a blob for transferring to the infer queue.
@@ -170,7 +170,7 @@ class Frame:
             frame_msg.raw_height = height
             frame_msg.raw_width = width
             frame_msg.raw_channels = channel
-            frame_msg.ts_infer_start = self._ts_infer_start
+            frame_msg.ts_infer_end = self._ts_infer_end
 
             serialized_data = frame_msg.SerializeToString()
 
@@ -206,7 +206,7 @@ class Frame:
 
             frame = Frame(None, frame_msg.pipeline_id, frame_msg.sequence, raw_frame)
             frame.timestamp_new_frame = frame_msg.ts_new
-            frame.timestamp_infer_start = frame_msg.ts_infer_start
+            frame.timestamp_infer_end = frame_msg.ts_infer_end
 
             return frame
         except Exception as e:

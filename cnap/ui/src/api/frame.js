@@ -20,7 +20,7 @@ export const FrameMessage = $root.FrameMessage = (() => {
      * @property {number|null} [rawHeight] FrameMessage rawHeight
      * @property {number|null} [rawWidth] FrameMessage rawWidth
      * @property {number|null} [rawChannels] FrameMessage rawChannels
-     * @property {number|null} [tsInferStart] FrameMessage tsInferStart
+     * @property {number|null} [tsInferEnd] FrameMessage tsInferEnd
      */
 
     /**
@@ -95,12 +95,12 @@ export const FrameMessage = $root.FrameMessage = (() => {
     FrameMessage.prototype.rawChannels = 0;
 
     /**
-     * FrameMessage tsInferStart.
-     * @member {number} tsInferStart
+     * FrameMessage tsInferEnd.
+     * @member {number} tsInferEnd
      * @memberof FrameMessage
      * @instance
      */
-    FrameMessage.prototype.tsInferStart = 0;
+    FrameMessage.prototype.tsInferEnd = 0;
 
     /**
      * Creates a new FrameMessage instance using the specified properties.
@@ -140,8 +140,8 @@ export const FrameMessage = $root.FrameMessage = (() => {
             writer.uint32(/* id 6, wireType 0 =*/48).int32(message.rawWidth);
         if (message.rawChannels != null && Object.hasOwnProperty.call(message, "rawChannels"))
             writer.uint32(/* id 7, wireType 0 =*/56).int32(message.rawChannels);
-        if (message.tsInferStart != null && Object.hasOwnProperty.call(message, "tsInferStart"))
-            writer.uint32(/* id 8, wireType 1 =*/65).double(message.tsInferStart);
+        if (message.tsInferEnd != null && Object.hasOwnProperty.call(message, "tsInferEnd"))
+            writer.uint32(/* id 8, wireType 1 =*/65).double(message.tsInferEnd);
         return writer;
     };
 
@@ -205,7 +205,7 @@ export const FrameMessage = $root.FrameMessage = (() => {
                     break;
                 }
             case 8: {
-                    message.tsInferStart = reader.double();
+                    message.tsInferEnd = reader.double();
                     break;
                 }
             default:
@@ -264,9 +264,9 @@ export const FrameMessage = $root.FrameMessage = (() => {
         if (message.rawChannels != null && message.hasOwnProperty("rawChannels"))
             if (!$util.isInteger(message.rawChannels))
                 return "rawChannels: integer expected";
-        if (message.tsInferStart != null && message.hasOwnProperty("tsInferStart"))
-            if (typeof message.tsInferStart !== "number")
-                return "tsInferStart: number expected";
+        if (message.tsInferEnd != null && message.hasOwnProperty("tsInferEnd"))
+            if (typeof message.tsInferEnd !== "number")
+                return "tsInferEnd: number expected";
         return null;
     };
 
@@ -306,8 +306,8 @@ export const FrameMessage = $root.FrameMessage = (() => {
             message.rawWidth = object.rawWidth | 0;
         if (object.rawChannels != null)
             message.rawChannels = object.rawChannels | 0;
-        if (object.tsInferStart != null)
-            message.tsInferStart = Number(object.tsInferStart);
+        if (object.tsInferEnd != null)
+            message.tsInferEnd = Number(object.tsInferEnd);
         return message;
     };
 
@@ -342,7 +342,7 @@ export const FrameMessage = $root.FrameMessage = (() => {
             object.rawHeight = 0;
             object.rawWidth = 0;
             object.rawChannels = 0;
-            object.tsInferStart = 0;
+            object.tsInferEnd = 0;
         }
         if (message.pipelineId != null && message.hasOwnProperty("pipelineId"))
             object.pipelineId = message.pipelineId;
@@ -361,8 +361,8 @@ export const FrameMessage = $root.FrameMessage = (() => {
             object.rawWidth = message.rawWidth;
         if (message.rawChannels != null && message.hasOwnProperty("rawChannels"))
             object.rawChannels = message.rawChannels;
-        if (message.tsInferStart != null && message.hasOwnProperty("tsInferStart"))
-            object.tsInferStart = options.json && !isFinite(message.tsInferStart) ? String(message.tsInferStart) : message.tsInferStart;
+        if (message.tsInferEnd != null && message.hasOwnProperty("tsInferEnd"))
+            object.tsInferEnd = options.json && !isFinite(message.tsInferEnd) ? String(message.tsInferEnd) : message.tsInferEnd;
         return object;
     };
 

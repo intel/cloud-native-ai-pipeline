@@ -20,17 +20,17 @@ package "Frame" {
         - _sequence: int
         - _raw: np.ndarray
         - _ts_new: float
-        - _ts_infer_start: float
+        - _ts_infer_end: float
         + {static} last_sequence: int
         --
         + pipeline_id(): str (property)
         + sequence(): int (property)
         + timestamp_new_frame(): float (property)
-        + timestamp_infer_start(): float (property)
+        + timestamp_infer_end(): float (property)
         + raw(): np.ndarray (property)
         + pipeline_id(new_str: str) (setter)
         + timestamp_new_frame(timestamp: float) (setter)
-        + timestamp_infer_start(timestamp: float) (setter)
+        + timestamp_infer_end(timestamp: float) (setter)
         + raw(raw_frame: np.ndarray) (setter)
         + __init__(provider: StreamProvider, pipeline_id: str, sequence: int, raw: np.ndarray)
         + {static} get_sequence(): int
