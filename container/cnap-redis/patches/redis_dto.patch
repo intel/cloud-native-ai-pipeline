@@ -1,0 +1,21 @@
+diff --git a/src/Makefile b/src/Makefile
+index ecbd2753d..3f42351d7 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -25,6 +25,7 @@ ifeq ($(OPTIMIZATION),-O3)
+ 	endif
+ 	REDIS_LDFLAGS+=-O3 -flto
+ endif
++LDFLAGS+=-ldto
+ DEPENDENCY_TARGETS=hiredis linenoise lua hdr_histogram fpconv
+ NODEPS:=clean distclean
+ 
+@@ -218,6 +219,8 @@ endif
+ endif
+ endif
+ 
++FINAL_LIBS+=-ldto
++
+ ifdef OPENSSL_PREFIX
+ 	OPENSSL_CFLAGS=-I$(OPENSSL_PREFIX)/include
+ 	OPENSSL_LDFLAGS=-L$(OPENSSL_PREFIX)/lib
