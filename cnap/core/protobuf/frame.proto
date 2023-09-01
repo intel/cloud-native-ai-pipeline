@@ -8,5 +8,5 @@ message FrameMessage {
     int32 raw_height = 5;
     int32 raw_width = 6;
     int32 raw_channels = 7;
-    double ts_infer_start = 8;
+    double ts_infer_end = 8;
 }

@@ -515,6 +515,7 @@ class InferenceTask(MicroServiceTask):
             frame.raw = prediction
 
             time_after_predict = time.time()
+            frame.timestamp_infer_end = time_after_predict
             streaming_to_inference_latency = time_after_predict - frame.timestamp_new_frame
             metrics_manager.observe_histogram('streaming_to_inference_latency',
                                               streaming_to_inference_latency)

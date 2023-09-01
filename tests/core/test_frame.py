@@ -12,7 +12,7 @@ Functions:
     test_frame_pipeline_timestamp_new_frame_setter: Tests the setter of _ts_new attribute of Frame
       class.
     test_frame_pipeline_raw_setter: Tests the setter of _raw attribute of Frame class.
-    test_frame_pipeline_timestamp_infer_start_setter: Tests the setter of _ts_infer_start attribute
+    test_frame_pipeline_timestamp_infer_end_setter: Tests the setter of _ts_infer_end attribute
       of Frame class.
     test_frame_to_blob: Tests the to_blob method of Frame class.
     test_frame_to_blob_failed: Tests the to_blob method of Frame class when serializing fails.
@@ -92,7 +92,7 @@ def expected_blob(img):
     frame_msg.raw_height = img.shape[0]
     frame_msg.raw_width = img.shape[1]
     frame_msg.raw_channels = 3
-    frame_msg.ts_infer_start = 0
+    frame_msg.ts_infer_end = 0
     return frame_msg.SerializeToString()
 
 def assert_frame_equal(frame1: frame.Frame, frame2: frame.Frame):
@@ -106,7 +106,7 @@ def assert_frame_equal(frame1: frame.Frame, frame2: frame.Frame):
     assert frame1.sequence == frame2.sequence
     assert (frame1.raw == frame2.raw).all()
     assert frame1.timestamp_new_frame == frame2.timestamp_new_frame
-    assert frame1.timestamp_infer_start == frame2.timestamp_infer_start
+    assert frame1.timestamp_infer_end == frame2.timestamp_infer_end
 
 def test_frame_pipeline_id_setter(frame_instance):
     """Tests the setter of _pipeline_id attribute of Frame class.
@@ -136,14 +136,14 @@ def test_frame_pipeline_raw_setter(frame_instance):
     frame_instance.raw = raw_setter
     assert frame_instance.raw == raw_setter
 
-def test_frame_pipeline_timestamp_infer_start_setter(frame_instance):
-    """Tests the setter of _ts_infer_start attribute of Frame class.
+def test_frame_pipeline_timestamp_infer_end_setter(frame_instance):
+    """Tests the setter of _ts_infer_end attribute of Frame class.
 
     Args:
         frame_instance (Frame): Fixture for Frame.
     """
-    frame_instance.timestamp_infer_start = TEST_FRAME_TIMESTAMP_SETTER
-    assert frame_instance.timestamp_infer_start == TEST_FRAME_TIMESTAMP_SETTER
+    frame_instance.timestamp_infer_end = TEST_FRAME_TIMESTAMP_SETTER
+    assert frame_instance.timestamp_infer_end == TEST_FRAME_TIMESTAMP_SETTER
 
 def test_frame_to_blob(frame_instance, expected_blob):
     """Tests the to_blob method of Frame class.
