@@ -2,7 +2,7 @@ apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: ineference-scale
-  namespace: default
+  namespace: <cnap-inference-namespace>
 spec:
   scaleTargetRef:
     name: inference
@@ -15,6 +15,6 @@ spec:
     metadata:
       serverAddress: http://<prometheus-k8s-svc>
       metricName: drop_fps
-      threshold: '5' # Define the threshold for scaling
+      threshold: '10' # Define the threshold for scaling
       query: sum(drop_fps) by (job)
 

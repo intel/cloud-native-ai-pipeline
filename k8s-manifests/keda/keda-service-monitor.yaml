@@ -1,0 +1,51 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: keda-metrics-apiserver-monitor
+  namespace: keda
+  labels:
+    app.kubernetes.io/name: keda-metrics-apiserver
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keda-metrics-apiserver
+  endpoints:
+  - port: metrics
+    interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: keda-operator-monitor
+  namespace: keda
+  labels:
+    app.kubernetes.io/name: keda-operator
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keda-operator
+  endpoints:
+  - port: metrics
+    interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: keda-admission-monitor
+  namespace: keda
+  labels:
+    app.kubernetes.io/component: admission-webhooks
+    app.kubernetes.io/instance: admission-webhooks
+    app.kubernetes.io/part-of: keda-operator
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: admission-webhooks
+      app.kubernetes.io/instance: admission-webhooks
+      app.kubernetes.io/part-of: keda-operator
+  endpoints:
+  - port: metrics
+    interval: 15s
+
