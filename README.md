@@ -105,4 +105,4 @@ Please refer to the [script](./tools/helm_manager.sh) source code for more detai
 
 The dashboard of CNAP will be available at `http://<your-ip>:31002`, it is exposed as a NodePort service in kubernetes.
 
-**Note**: This is pre-release/prototype software and, as such, it may be substantially modified as updated versions are made available. Also, the authors make no assurance that it will ever develop or make generally available a production-ready version.
+**Note**: This is pre-release/prototype software and, as such, it may be substantially modified as updated versions are made available.
