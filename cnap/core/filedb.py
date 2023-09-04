@@ -21,11 +21,11 @@ class FileDatabase(ABC):
     """
 
     @abstractmethod
-    def __init__(self):
+    def __init__(self): # pragma: no cover
         """Initialize the FileDatabase object."""
 
     @abstractmethod
-    def get_file(self, filename: str) -> str:
+    def get_file(self, filename: str) -> str: # pragma: no cover
         """Abstract method for getting a file from the file database.
 
         This method is expected to retrieve a file from the file database and return

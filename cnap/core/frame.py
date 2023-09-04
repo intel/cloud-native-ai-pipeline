@@ -37,7 +37,7 @@ class FrameCipherBase(ABC):
     """
 
     @abstractmethod
-    def encrypt(self) -> None:
+    def encrypt(self) -> None: # pragma: no cover
         """Encrypt the frame.
 
         The method is to encrypt the frame to protect the privacy of the frame.
@@ -48,7 +48,7 @@ class FrameCipherBase(ABC):
         raise NotImplementedError("Subclasses should implement encrypt() method.")
 
     @abstractmethod
-    def decrypt(self) -> None:
+    def decrypt(self) -> None: # pragma: no cover
         """Decrypt the frame.
 
         The method is to decrypt the encrypted frame.
