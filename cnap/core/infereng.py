@@ -213,15 +213,11 @@ class InferEngineManager:
         "model": dict(model_info)
         }
 
-        try:
-            self._db.save_table_object_dict(
-                INFER_ENGINE_TABLE,
-                infer_info.id,
-                data
-                )
-        except ValueError as e:
-            LOG.exception(e)
-            raise
+        self._db.save_table_object_dict(
+            INFER_ENGINE_TABLE,
+            infer_info.id,
+            data
+            )
 
     def unregister_engine(self, infer_info_id: str) -> None:
         """Unregister the infer engine from database.
@@ -241,7 +237,7 @@ class InferenceEngine(ABC):
     """
 
     @abstractmethod
-    def verify(self) -> bool:
+    def verify(self) -> bool: # pragma: no cover
         """Checks if the model is valid for inference.
 
         The method is to check if the model is valid for inference.
@@ -255,7 +251,7 @@ class InferenceEngine(ABC):
         raise NotImplementedError("Subclasses should implement the verify() method.")
 
     @abstractmethod
-    def preprocess(self, frame: np.ndarray) -> np.ndarray:
+    def preprocess(self, frame: np.ndarray) -> np.ndarray: # pragma: no cover
         """Preprocesses the input data.
 
         The method is to preprocess the input data before feeding it to the model.
@@ -294,7 +290,7 @@ class InferenceEngine(ABC):
         return postprocessed_result, latency
 
     @abstractmethod
-    def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray:
+    def postprocess(self, frame: np.ndarray, outputs: dict) -> np.ndarray: # pragma: no cover
         """Postprocesses the output from the inference process.
 
         The method is to postprocess the output from the inference process.
@@ -312,7 +308,7 @@ class InferenceEngine(ABC):
         raise NotImplementedError("Subclasses should implement the postprocess() method.")
 
     @abstractmethod
-    def _predict(self, preprocessed_frame: np.ndarray) -> dict:
+    def _predict(self, preprocessed_frame: np.ndarray) -> dict: # pragma: no cover
         """Performs inference using the loaded model and preprocessed input data.
 
         The method is to perform inference using the loaded model and preprocessed input data.

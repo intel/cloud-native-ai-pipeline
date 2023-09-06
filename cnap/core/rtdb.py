@@ -31,7 +31,7 @@ class RuntimeDatabaseBase(ABC):
     MAX_RECONNECTION_TIMES = 5
 
     @abstractmethod
-    def connect(self, host: str, port: int):
+    def connect(self, host: str, port: int): # pragma: no cover
         """Connect to runtime database.
 
         This method is used to connect to runtime database, will attempt to reconnect
@@ -47,7 +47,7 @@ class RuntimeDatabaseBase(ABC):
         raise NotImplementedError("Subclasses should implement connect() method.")
 
     @abstractmethod
-    def save_table_object_dict(self, table: str, obj: str, d: dict) -> None:
+    def save_table_object_dict(self, table: str, obj: str, d: dict) -> None: # pragma: no cover
         """Save a dict value for an object in a table.
 
         This method is used to save a dict value for an object in a table.
@@ -64,7 +64,7 @@ class RuntimeDatabaseBase(ABC):
         raise NotImplementedError("Subclasses should implement save_table_object_dict() method.")
 
     @abstractmethod
-    def get_table_object_dict(self, table: str, obj: str) -> dict:
+    def get_table_object_dict(self, table: str, obj: str) -> dict: # pragma: no cover
         """Get a dict value for an object from a table.
 
         This method is used to get a dict value for an object from a table.
@@ -83,7 +83,7 @@ class RuntimeDatabaseBase(ABC):
         raise NotImplementedError("Subclasses should implement get_table_object_dict() method.")
 
     @abstractmethod
-    def get_all_table_objects_dict(self, table: str) -> dict:
+    def get_all_table_objects_dict(self, table: str) -> dict: # pragma: no cover
         """Get all dict values from a table.
 
         This method is used to get all dict values from a table.
@@ -102,7 +102,7 @@ class RuntimeDatabaseBase(ABC):
                                   method.")
 
     @abstractmethod
-    def check_table_object_exist(self, table: str, obj: str) -> bool:
+    def check_table_object_exist(self, table: str, obj: str) -> bool: # pragma: no cover
         """Check whether a given object exists in a given table.
 
         This method is used to check whether a given object exists in a given table.
@@ -121,7 +121,7 @@ class RuntimeDatabaseBase(ABC):
         raise NotImplementedError("Subclasses should implement check_table_object_exist() method.")
 
     @abstractmethod
-    def del_table_object(self, table: str, obj: str) -> None:
+    def del_table_object(self, table: str, obj: str) -> None: # pragma: no cover
         """Delete an object from a given table.
 
         This method is used to delete an object from a given table.
