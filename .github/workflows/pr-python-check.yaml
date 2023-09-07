@@ -27,6 +27,8 @@ jobs:
           python3 -m pip install pylint pydocstyle
           python3 -m pip install -r ./cnap/requirements.txt
           python3 -m pip install -r ./cnap/requirements-test.txt
+          sudo apt update
+          sudo apt install redis
 
       - name: Analyze python code 
         run: |
