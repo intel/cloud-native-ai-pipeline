@@ -45,6 +45,7 @@ TEST_INFERENCE_INFO_ID = str(uuid.uuid1())
 TEST_FRAMEWORK = 'tensorflow'
 TEST_TARGET = 'object-detection'
 TEST_MODEL_NAME = 'ssdmobilenet'
+TEST_MODEL_PATH = '/tmp/ssdmobilenet_v10.pb'
 TEST_MODEL_VERSION = '1.0'
 
 REDIS_HOST = '0.0.0.0'
@@ -101,7 +102,7 @@ def model_info():
     model_metrics = model.ModelMetrics(0,0,0,0,0)
     model_details = model.ModelDetails(TEST_MODEL_NAME, TEST_MODEL_VERSION, TEST_FRAMEWORK,
                                        TEST_TARGET, 'int8')
-    model_info = model.ModelInfo(model_details, 0, model_metrics)
+    model_info = model.ModelInfo(None, TEST_MODEL_PATH, model_details, 0, model_metrics)
     model_info.id = TEST_MODEL_ID
     return model_info
 
