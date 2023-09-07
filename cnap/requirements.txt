@@ -1,3 +1,4 @@
+ccnp
 flask
 flask_cors
 kafka-python
@@ -6,6 +7,6 @@ opencv-python
 prometheus_client
 protobuf
 redis
+requests
 tensorflow
 websockets
-requests
