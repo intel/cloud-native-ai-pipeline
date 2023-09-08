@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 
 import requests
 from core.model import ModelInfo, ModelMetrics, ModelDetails
+from core.keybroker import KEY_BROKER_HANDLERS
 
 # Put models to the tmp directory, the tmp directory should be mounted to memory
 # from secure concern.
@@ -144,10 +145,18 @@ class SimpleModelProvider(ModelProvider):
             raise ConnectionError(f"Download model failed, error code: {resp.status_code}.")
 
         # Save model to MODEL_DIR
+        if resp.content is None or len(resp.content) == 0:
+            raise RuntimeError(f"The model data is invalid: {resp.content}")
+
         self._model_data = resp.content
         model_filename = info_data.get("url").split('/')[-1]
         model_filename = model_filename.replace(".enc", "").strip()
         model_path = MODEL_DIR + model_filename
+
+        if info_data.get("encrypted") is True:
+            self._model_data = self.get_model_securely(info_data.get("kbs"),
+                                                       info_data.get("kbs_url"),
+                                                       info_data.get("key_id"))
 
         with open(model_path, "wb") as model_file:
             model_file.write(self._model_data)
@@ -170,6 +179,38 @@ class SimpleModelProvider(ModelProvider):
         if self._model_data is None:
             self.get_model_info()
         return self._model_data
+
+    def get_model_securely(self, kbs_name, kbs_url, key_id) -> bytes:
+        """Get model securely.
+
+        This method is to enhance the security to get the model, it shall run in Trusted Execution
+        Environment (TEE) and get the key from KBS (get the quote, do attestation), decrypt
+        the model.
+
+        Args:
+            kbs_name(str): The name of the KBS.
+            kbs_url(str): The URL of the KBS.
+            key_id(str): The key ID to get the key to decrypt the model.
+
+        Returns:
+            bytes: The decrypted model data.
+
+        Raises:
+            ValueError: If model data or kbs input is invalid.
+            RuntimeError: If the KBS can not be handled.
+        """
+        if kbs_name is None or kbs_url is None:
+            raise ValueError(f"Invalid KBS info: name {kbs_name}, url {kbs_url}")
+        if key_id is None:
+            raise ValueError(f"Invalid key id {key_id}")
+
+        if kbs_name not in KEY_BROKER_HANDLERS:
+            raise RuntimeError(f"KBS {kbs_name} cannot be handled")
+
+        handler = KEY_BROKER_HANDLERS[kbs_name]()
+        key = handler.get_key(kbs_url, key_id)
+        # TODO: accelerate decryption by an accelerator like QAT.
+        return handler.decrypt_data(self._model_data, key)
 
 # Model providers mapping, the name will be configured by env INFER_MODEL_PROVIDER
 MODEL_PROVIDERS = {

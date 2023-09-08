@@ -202,3 +202,9 @@ class SimpleKeyBrokerClient(KeyBrokerClientBase):
         decryptor = Cipher(algorithms.AES(key), modes.GCM(iv, tag)).decryptor()
         decrypted_data = decryptor.update(data) + decryptor.finalize()
         return decrypted_data
+
+# Key broker clients mapping, name can be a KBS short name
+KEY_BROKER_HANDLERS = {
+    # name: class
+    "simple_kbs": SimpleKeyBrokerClient
+}
