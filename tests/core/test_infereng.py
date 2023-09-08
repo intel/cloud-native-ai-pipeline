@@ -4,7 +4,6 @@ This module contains the tests for the inference engine module.
 
 Functions:
     inference_info: Fixture for inference info.
-    rtdb_connect: Fixture for Redis runtime database.
     inference_engine_manager: Fixture for inference engine manager.
     model_info: Fixture for model info.
     assert_inference_info_equal: Assert if two inference info are equal.
@@ -33,9 +32,8 @@ Functions:
 import uuid
 
 import pytest
-from pytest_redis import factories
 
-from cnap.core import infereng, model, rtdb
+from cnap.core import infereng, model
 
 # pylint: disable=redefined-outer-name
 
@@ -48,12 +46,6 @@ TEST_MODEL_NAME = 'ssdmobilenet'
 TEST_MODEL_PATH = '/tmp/ssdmobilenet_v10.pb'
 TEST_MODEL_VERSION = '1.0'
 
-REDIS_HOST = '0.0.0.0'
-REDIS_PORT = 8080
-
-my_redis_server = factories.redis_proc(host=REDIS_HOST, port=REDIS_PORT)
-my_redis_client = factories.redisdb('my_redis_server')
-
 @pytest.fixture
 def inference_info():
     """Fixture for inference info.
@@ -62,21 +54,6 @@ def inference_info():
         InferenceInfo: A `InferenceInfo` object.
     """
     return infereng.InferenceInfo(TEST_DEVICE, TEST_MODEL_ID)
-
-@pytest.fixture
-def rtdb_connect(my_redis_client):
-    """Fixture for Redis runtime database.
-
-    Args:
-        my_redis_client (Callable): Temporary redis client provided by pytest-redis's redisdb
-          fixture.
-
-    Returns:
-        RuntimeDatabaseBase: A `RuntimeDatabaseBase` object.
-    """
-    db = rtdb.RedisDB()
-    db.connect(host=REDIS_HOST, port=REDIS_PORT)
-    return db
 
 @pytest.fixture
 def inference_engine_manager(rtdb_connect):

@@ -3,7 +3,6 @@
 This module contains the tests for the runtime database module.
 
 Functions:
-    rtdb_connect: Fixture for Redis runtime database.
     data_config: Fixture for test data configurations.
     test_redis_runtime_database_connect: Tests the connect method of the RedisDB class.
     test_redis_runtime_database_connect_failed: Tests the connect method of the RedisDB class when
@@ -35,33 +34,12 @@ Functions:
 import json
 
 import pytest
-from pytest_redis import factories
 import redis.exceptions
 
 from cnap.core import rtdb
+from tests.core.conftest import REDIS_HOST
 
 # pylint: disable=redefined-outer-name
-
-REDIS_HOST = '0.0.0.0'
-REDIS_PORT = 8808
-
-my_redis_server = factories.redis_proc(host=REDIS_HOST, port=REDIS_PORT)
-my_redis_client = factories.redisdb('my_redis_server')
-
-@pytest.fixture
-def rtdb_connect(my_redis_client):
-    """Fixture for Redis runtime database.
-
-    Args:
-        my_redis_client (Callable): Temporary redis client provided by pytest-redis's redisdb
-          fixture.
-
-    Returns:
-        RuntimeDatabaseBase: A `RuntimeDatabaseBase` object.
-    """
-    db = rtdb.RedisDB()
-    db.connect(host=REDIS_HOST, port=REDIS_PORT)
-    return db
 
 @pytest.fixture
 def data_config():
@@ -75,7 +53,7 @@ def data_config():
               'dict': 'test-value'}
     return config
 
-def test_redis_runtime_database_connect(my_redis_client, rtdb_connect):
+def test_redis_runtime_database_connect(rtdb_connect):
     """Tests the connect method of the RedisDB class.
 
     This test checks if the connect method can connect to redis server successfully.
@@ -85,7 +63,7 @@ def test_redis_runtime_database_connect(my_redis_client, rtdb_connect):
           fixture.
         rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
     """
-    assert my_redis_client.info()['connected_clients'] == 2
+    assert rtdb_connect._conn.ping() # pylint: disable=protected-access
 
 def test_redis_runtime_database_connect_failed(my_redis_client):
     """Tests the connect method of the RedisDB class when the connection fails.
