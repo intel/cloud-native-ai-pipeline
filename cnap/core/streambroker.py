@@ -38,7 +38,7 @@ class StreamBrokerClientBase(ABC):
     MAX_RECONNECTION_TIMES = 5
 
     @abstractmethod
-    def connect(self, host: str, port: int):
+    def connect(self, host: str, port: int): # pragma: no cover
         """Connect to broker server.
 
         This method is used to connect to stream broker server, will attempt to reconnect
@@ -54,7 +54,7 @@ class StreamBrokerClientBase(ABC):
         raise NotImplementedError("Subclasses should implement connect() method.")
 
     @abstractmethod
-    def publish_frame(self, topic: str, frame: Frame) -> None:
+    def publish_frame(self, topic: str, frame: Frame) -> None: # pragma: no cover
         """Publish a frame to stream broker server for a topic.
 
         Args:
@@ -143,10 +143,7 @@ class RedisStreamBrokerClient(StreamBrokerClientBase):
         except Exception as e:
             raise RuntimeError(f"Error during encoding image into jpg format: {str(e)}") from e
         frame.raw = img
-        try:
-            frame_blob = frame.to_blob()
-        except RuntimeError as e:
-            raise RuntimeError(e) from e
+        frame_blob = frame.to_blob()
         self._conn.publish(topic, frame_blob)
 
 
@@ -221,8 +218,5 @@ class KafkaStreamBrokerClient(StreamBrokerClientBase):
         except Exception as e:
             raise RuntimeError(f"Error during encoding image into jpg format: {str(e)}") from e
         frame.raw = img
-        try:
-            frame_blob = frame.to_blob()
-        except RuntimeError as e:
-            raise RuntimeError(e) from e
+        frame_blob = frame.to_blob()
         self._conn.send(topic, frame_blob)

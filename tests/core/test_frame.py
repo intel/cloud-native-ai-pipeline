@@ -3,9 +3,6 @@
 This module contains the tests for the frame module.
 
 Functions:
-    img: Fixture for raw image.
-    filesource: Fixture for Frame.
-    frame_instance: Fixture for file source stream provider.
     expected_blob: Fixture for expected blob bytes.
     assert_frame_equal: Assert if two frames are equal.
     test_frame_pipeline_id_setter: Tests the setter of _pipeline_id attribute of Frame class.
@@ -29,8 +26,9 @@ import os
 import cv2
 import pytest
 
-from cnap.core import frame, stream
+from cnap.core import frame
 from cnap.core.generated.core.protobuf import frame_pb2
+from tests.core.conftest import TEST_PIPELINE_ID, TEST_FRAME_TIMESTAMP, TEST_FRAME_SEQUENCE
 
 # pylint: disable=no-member
 # pylint: disable=redefined-outer-name
@@ -41,43 +39,10 @@ TRAGET_WIDTH = 300
 TRAGET_HEIGHT = 300
 
 TEST_STREAM_NAME = 'classroom'
-TEST_PIPELINE_ID = '2bbbdebe-3722-11ee-ba4a-d6bcdc58bce0'
 TEST_PIPELINE_ID_SETTER = '2bbbdebe-3722-11ee-ba4a-d6bcdc58bce1'
-TEST_FRAME_SEQUENCE = 0x5fffffffffff0000
-TEST_FRAME_TIMESTAMP = 0.0
 TEST_FRAME_TIMESTAMP_SETTER = 1.1
 
-@pytest.fixture(scope="session")
-def img():
-    """Fixture for raw image.
-
-    Returns:
-        numpy.ndarray: The raw image for test.
-    """
-    img = cv2.imread(os.path.join(CURR_DIR, "../../docs/cnap_arch.png"))
-    return img
-
-@pytest.fixture
-def filesource():
-    """Fixture for Frame.
-
-    Returns:
-        StreamProvider: A `StreamProvider` object instantiated as `FileSource`.
-    """
-    return stream.FileSource(TEST_STREAM_NAME)
-
-@pytest.fixture
-def frame_instance(filesource, img):
-    """Fixture for file source stream provider.
-
-    Returns:
-        StreamProvider: A `StreamProvider` object instantiated as `FileSource`.
-    """
-    frame_instance = frame.Frame(filesource, TEST_PIPELINE_ID, TEST_FRAME_SEQUENCE, img)
-    frame_instance.timestamp_new_frame = TEST_FRAME_TIMESTAMP
-    return frame_instance
-
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def expected_blob(img):
     """Fixture for expected blob bytes.
 
@@ -157,7 +122,7 @@ def test_frame_to_blob(frame_instance, expected_blob):
     blob = frame_instance.to_blob()
     assert blob == expected_blob
 
-def test_frame_to_blob_failed(frame_instance):
+def test_frame_to_blob_failed(frame_instance, img, filesource):
     """Tests the to_blob method of Frame class when serializing fails.
 
     Args:

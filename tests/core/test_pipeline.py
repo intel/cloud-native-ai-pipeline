@@ -3,10 +3,8 @@
 This module contains the tests for the pipeline module.
 
 Functions:
-    filesource: Fixture for file source stream provider.
     inference_info: Fixture for inference info.
     pipeline_instance: Fixture for pipeline.
-    rtdb_connect: Fixture for Redis runtime database.
     pipeline_manager: Fixture for pipeline manager.
     test_pipeline_id_setter: Tests the setter of _id attribute of Pipeline class.
     test_pipeline_iter: Tests the Iterator of Pipeline class.
@@ -24,9 +22,8 @@ import uuid
 import json
 
 import pytest
-from pytest_redis import factories
 
-from cnap.core import infereng, pipeline, rtdb, stream
+from cnap.core import infereng, pipeline, stream
 
 # pylint: disable=redefined-outer-name
 
@@ -34,12 +31,6 @@ TEST_STREAM_NAME = 'classroom'
 TEST_DEVICE = 'cpu'
 TEST_MODEL_ID = str(uuid.uuid1())
 TEST_PIPELINE_ID = "2bbbdebe-3722-11ee-ba4a-d6bcdc58bce0"
-
-REDIS_HOST = '0.0.0.0'
-REDIS_PORT = 8000
-
-my_redis_server = factories.redis_proc(host=REDIS_HOST, port=REDIS_PORT)
-my_redis_client = factories.redisdb('my_redis_server')
 
 @pytest.fixture
 def filesource():
@@ -71,21 +62,6 @@ def pipeline_instance(filesource, inference_info):
         Pipeline: A `Pipeline` object.
     """
     return pipeline.Pipeline(filesource, inference_info)
-
-@pytest.fixture
-def rtdb_connect(my_redis_client):
-    """Fixture for Redis runtime database.
-
-    Args:
-        my_redis_client (Callable): Temporary redis client provided by pytest-redis's redisdb
-          fixture.
-
-    Returns:
-        RuntimeDatabaseBase: A `RuntimeDatabaseBase` object.
-    """
-    db = rtdb.RedisDB()
-    db.connect(host=REDIS_HOST, port=REDIS_PORT)
-    return db
 
 @pytest.fixture
 def pipeline_manager(rtdb_connect):
