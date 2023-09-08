@@ -66,16 +66,14 @@ env:
     value: "redis"
   - name: BROKER_HOST
     value: "redis-service"
-  - name: INFER_FRAMEWORK
-    value: "tensorflow"
-  - name: INFER_TARGET
-    value: "object-detection"
+  - name: INFER_MODEL_PROVIDER
+    value: "simple"
+  - name: INFER_MODEL_INFO_URL
+    value: ""
+  - name: INFER_MODEL_ID
+    value: ""
   - name: INFER_DEVICE
     value: "cpu"
-  - name: INFER_MODEL_NAME
-    value: "ssdmobilenet"
-  - name: INFER_MODEL_VERSION
-    value: "1.0"
   - name: OMP_NUM_THREADS
     value: "1"
   - name: TF_NUM_INTEROP_THREADS
