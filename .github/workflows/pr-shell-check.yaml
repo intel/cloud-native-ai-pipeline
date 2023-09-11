@@ -5,10 +5,10 @@ on:
     branches:
     - main
     paths:
-    - 'tools/**/*.sh'
+    - '**/*.sh'
   pull_request:
     paths:
-    - 'tools/**/*.sh'
+    - '**/*.sh'
   workflow_dispatch:
 
 jobs:
