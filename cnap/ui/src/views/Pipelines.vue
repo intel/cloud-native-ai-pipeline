@@ -51,7 +51,6 @@ onUnmounted(() => {
 }
 
 .stream-card {
-  width: 100%;
   height: 250px;
   margin: 10px;
   display: flex;
