@@ -109,15 +109,17 @@ class PipelineService:
         pipelines = []
 
         for pipeline_id, pipeline_dict in pipeline_dicts.items():
-            infer_id = pipeline_dict['info_engine_info']['id']
-            pipeline = {
-                'pipeline_id': pipeline_id,
-                'model_name': inference_dicts[infer_id]['model']['details']['name'],
-                'stream_name': pipeline_dict['provider']['name'],
-                'input_fps': pipeline_dict['provider']['fps'],
-                'infer_fps': sum(pipeline_dict['infer_fps'].values())
-            }
-            pipelines.append(pipeline)
+            for infer_id in pipeline_dict['infer_engine_dict'].keys():
+                pipeline = {
+                    'pipeline_id': pipeline_id,
+                    'model_name': inference_dicts[infer_id]['model']['details']['name'],
+                    'stream_name': pipeline_dict['provider']['name'],
+                    'input_fps': pipeline_dict['provider']['fps'],
+                    'infer_fps': sum(value['infer_fps'] 
+                                      for value in pipeline_dict['infer_engine_dict'].values())
+                }
+                pipelines.append(pipeline)
+                break
 
         return pipelines
 

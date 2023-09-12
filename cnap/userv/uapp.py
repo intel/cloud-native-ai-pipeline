@@ -191,6 +191,6 @@ class MicroAppBase(ABC):
 
     def stop(self):
         """Stop an application instance."""
-        self.cleanup()
         MicroServiceTask.stop_all_tasks()
         MicroServiceTask.wait_all_tasks_end()
+        self.cleanup()

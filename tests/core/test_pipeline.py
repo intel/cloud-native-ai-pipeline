@@ -16,6 +16,10 @@ Functions:
       class.
     test_pipeline_manager_set_infer_fps_unregistered_pipeline: Tests the set_infer_fps method of
       the PipelineManager class with an unregistered pipeline.
+    test_pipeline_manager_set_infer_fps_add_inference_engine: Tests the set_infer_fps method of the
+      PipelineManager class when add new inference engine.
+    test_pipeline_manager_clean_infer_engine: Tests the clean_infer_engine method of the
+      PipelineManager class.
 """
 
 import uuid
@@ -99,8 +103,9 @@ def test_pipeline_iter(filesource, inference_info, pipeline_instance):
     """
     pipeline_dict = dict(pipeline_instance)
     assert pipeline_dict == {'provider': dict(filesource),
-                             'info_engine_info': dict(inference_info),
-                             'infer_fps': {}}
+                             'infer_engine_dict': {inference_info.id:
+                            {'infer_info': dict(inference_info),
+                            'infer_fps': 0}}}
 
 def test_pipeline_manager_register_pipeline(pipeline_instance, rtdb_connect, pipeline_manager):
     """Tests the register_pipeline method of the PipelineManager class.
@@ -145,9 +150,10 @@ def test_pipeline_manager_set_infer_fps(inference_info, pipeline_instance, rtdb_
     """
     pipeline_manager.register_pipeline(pipeline_instance)
     infer_fps = 15
-    pipeline_manager.set_infer_fps(pipeline_instance.id, inference_info.id, infer_fps)
+    pipeline_manager.set_infer_fps(pipeline_instance.id, inference_info, infer_fps)
     assert rtdb_connect.get_table_object_dict(pipeline_manager.PIPELINE_TABLE,
-                pipeline_instance.id)['infer_fps'][inference_info.id] == infer_fps
+                pipeline_instance.id)['infer_engine_dict'][inference_info.id]['infer_fps'] \
+                    == infer_fps
 
 def test_pipeline_manager_set_infer_fps_unregistered_pipeline(inference_info, pipeline_instance,
                                                               pipeline_manager):
@@ -162,5 +168,45 @@ def test_pipeline_manager_set_infer_fps_unregistered_pipeline(inference_info, pi
         pipeline_manager (PipelineManager): Fixture for pipeline manager.
     """
     infer_fps = 15
-    pipeline_manager.set_infer_fps(pipeline_instance.id, inference_info.id, infer_fps)
+    pipeline_manager.set_infer_fps(pipeline_instance.id, inference_info, infer_fps)
     assert True
+
+def test_pipeline_manager_set_infer_fps_add_inference_engine(inference_info, pipeline_instance,
+                                                             rtdb_connect, pipeline_manager):
+    """Tests the set_infer_fps method of the PipelineManager class when add new inference engine.
+
+    Args:
+        inference_info (InferenceInfo): Fixture for inference info.
+        pipeline_instance (Pipeline): Fixture for pipeline.
+        rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
+        pipeline_manager (PipelineManager): Fixture for pipeline manager.
+    """
+    pipeline_manager.register_pipeline(pipeline_instance)
+    infer_fps = 15
+    pipeline_manager.set_infer_fps(pipeline_instance.id, inference_info, infer_fps)
+    inference_info_add = infereng.InferenceInfo(TEST_DEVICE, TEST_MODEL_ID)
+    pipeline_manager.set_infer_fps(pipeline_instance.id, inference_info_add, infer_fps)
+    assert rtdb_connect.get_table_object_dict(pipeline_manager.PIPELINE_TABLE,
+                pipeline_instance.id)['infer_engine_dict'][inference_info_add.id] == \
+            {'infer_info': dict(inference_info_add),
+             'infer_fps': infer_fps}
+
+def test_pipeline_manager_clean_infer_engine(inference_info, pipeline_manager, pipeline_instance,
+                                            rtdb_connect):
+    """Tests the clean_infer_engine method of the PipelineManager class.
+
+    This test checks if the clean_infer_engine method can clear inference engine for pipelines
+      successfully.
+
+    Args:
+        inference_info (InferenceInfo): Fixture for inference info.
+        pipeline_manager (PipelineManager): Fixture for pipeline manager.
+        pipeline_instance (Pipeline): Fixture for pipeline.
+        rtdb_connect (RuntimeDatabaseBase): Fixture for Redis runtime database.
+    """
+    pipeline_manager.register_pipeline(pipeline_instance)
+    infer_fps = 15
+    pipeline_manager.set_infer_fps(pipeline_instance.id, inference_info, infer_fps)
+    pipeline_manager.clean_infer_engine(inference_info.id)
+    assert inference_info.id not in rtdb_connect.get_table_object_dict(
+        pipeline_manager.PIPELINE_TABLE, pipeline_instance.id)['infer_engine_dict']
