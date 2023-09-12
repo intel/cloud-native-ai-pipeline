@@ -54,7 +54,7 @@ $ kubectl get nodes -o go-template='{{range .items}}{{.metadata.name}}{{"\n"}}{{
 master
   dsa.intel.com/wq-user-shared: 8
 node1
- dsa.intel.com/wq-user-shared: 20
+  dsa.intel.com/wq-user-shared: 20
 ```
 
 ### 4. Enable Redis offload with DSA
@@ -81,7 +81,7 @@ resources:
 Same deployment command as original with your image registry
 
 ```
-$ ./tools/helm_manager.sh -i -r <your-registry>
+$ ./tools/helm_manager.sh -i -r <your-registry> -g <image-tag>
 # To uninstall all charts
 # ./tools/helm_manager.sh -u
 ```

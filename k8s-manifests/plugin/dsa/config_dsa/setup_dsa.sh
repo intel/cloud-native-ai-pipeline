@@ -1,6 +1,8 @@
 #!/bin/bash
-num_dsa=`ls /sys/bus/dsa/devices/  | grep dsa | wc -l`
-script=`basename $0`
+shopt -s nullglob
+num_dsa=$(echo /sys/bus/dsa/devices/dsa* | wc -w)
+
+script=$(basename "$0")
 
 usage() {
     cat <<HELP_USAGE
@@ -21,26 +23,27 @@ unbind() {
 	case $1 in
 
 	0)
-		for ((i = 0; i < $num_dsa ; i++ ))
+		for ((i = 0; i < num_dsa ; i++ ))
 		do
-			echo wq$did.$i > $WQ_DRV_PATH/unbind 2>/dev/null && echo disabled wq$did.$i
+			echo wq"$did".$i > "$WQ_DRV_PATH"/unbind 2>/dev/null && echo disabled wq"$did".$i
 		done
 
-		echo $dname  > $DEV_DRV_PATH/unbind 2>/dev/null && echo disabled $dname
+		echo "$dname"  > "$DEV_DRV_PATH"/unbind 2>/dev/null && echo disabled "$dname"
 		;;
 
 	1)
 
-		dname=`cat $config  | grep \"dev\":\"dsa  | cut -f2 -d: | cut -f1 -d, | sed -e s/\"//g`
+		dname=$(grep "\"dev\":\"dsa" < "$config" | cut -f2 -d: | cut -f1 -d, | sed -e s/\"//g)
+
 		readarray -d a  -t tmp <<< "$dname"
-		d=`echo ${tmp[1]}`
+		d=$(echo -n "${tmp[1]}" | tr -d '\n')
 
 		for i in {0..7}
 		do
-			[[ `cat /sys/bus/dsa/devices/$dname/wq$d\.$i/state` == "enabled" ]] && sudo accel-config disable-wq $dname/wq$d\.$i
+			[[ $(cat /sys/bus/dsa/devices/"$dname"/wq"$d"."$i"/state) == "enabled" ]] && sudo accel-config disable-wq "$dname"/wq"$d"."$i"
 		done
 
-		[[ `cat /sys/bus/dsa/devices/$dname/state` == "enabled" ]] && sudo accel-config disable-device $dname
+		[[ $(cat /sys/bus/dsa/devices/"$dname"/state) == "enabled" ]] && sudo accel-config disable-device "$dname"
 		;;
 
 	*)
@@ -54,29 +57,29 @@ configure() {
 	case $1 in
 
 	0)
-		for ((i = 0; i < $num_eng ; i++ ))
+		for ((i = 0; i < num_eng ; i++ ))
 		do
-			echo 0 > $DSA_CONFIG_PATH/$dname/engine$did.$i/group_id
+			echo 0 > "$DSA_CONFIG_PATH"/"$dname"/engine"$did".$i/group_id
 		done
 
-		for ((i = 0; i < $num_wq ; i++ ))
+		for ((i = 0; i < num_wq ; i++ ))
 		do
-			[ -d $DSA_CONFIG_PATH/$dname/wq$did.$i/ ] && wq_dir=$DSA_CONFIG_PATH/$dname/wq$did.$i/
-			[ -d $DSA_CONFIG_PATH/wq$did.$i/ ] && wq_dir=$DSA_CONFIG_PATH/wq$did.$i/
+			[ -d "$DSA_CONFIG_PATH"/"$dname"/wq"$did".$i/ ] && wq_dir=$DSA_CONFIG_PATH/$dname/wq$did.$i/
+			[ -d "$DSA_CONFIG_PATH"/wq"$did".$i/ ] && wq_dir=$DSA_CONFIG_PATH/wq$did.$i/
 
-			echo 0 > $wq_dir/block_on_fault
-			echo 0 > $wq_dir/group_id
-			echo $mode > $wq_dir/mode
-			echo 10 > $wq_dir/priority
-			echo $size > $wq_dir/size
-			[[ $mode == shared ]] && echo 10 > $wq_dir/threshold
-			echo "user" > $wq_dir/type
-			echo "app$i"  > $wq_dir/name
+			echo 0 > "$wq_dir"/block_on_fault
+			echo 0 > "$wq_dir"/group_id
+			echo "$mode" > "$wq_dir"/mode
+			echo 10 > "$wq_dir"/priority
+			echo "$size" > "$wq_dir"/size
+			[[ $mode == shared ]] && echo 10 > "$wq_dir"/threshold
+			echo "user" > "$wq_dir"/type
+			echo "app$i"  > "$wq_dir"/name
 		done
 		;;
 
 	1)
-		sudo accel-config load-config -c $config
+		sudo accel-config load-config -c "$config"
 		;;
 
 	*)
@@ -89,19 +92,19 @@ bind() {
 	# start devices
 	case $1 in
 	0)
-		echo $dname  > $DEV_DRV_PATH/bind && echo enabled $dname
+		echo "$dname"  > "$DEV_DRV_PATH"/bind && echo enabled "$dname"
 
-		for ((i = 0; i < $num_wq ; i++ ))
+		for ((i = 0; i < num_wq ; i++ ))
 		do
-			echo wq$did.$i > $WQ_DRV_PATH/bind && echo enabled wq$did.$i
+			echo wq"$did".$i > "$WQ_DRV_PATH"/bind && echo enabled wq"$did".$i
 		done
 		;;
 	1)
-		sudo accel-config enable-device  $dname
+		sudo accel-config enable-device  "$dname"
 
 		for i in {0..7}
 		do
-			[[ `cat /sys/bus/dsa/devices/$dname/wq$d\.$i/size` -ne "0" ]] && sudo accel-config enable-wq $dname/wq$d\.$i
+			[[ $(cat /sys/bus/dsa/devices/"$dname"/wq"$d"\."$i"/size) -ne "0" ]] && sudo accel-config enable-wq "$dname"/wq"$d"\."$i"
 		done
 		;;
 	*)
@@ -124,7 +127,7 @@ do_options() {
 	num_wq=0
 	num_eng=4
 
-	if [[ ! $@ =~ ^\-.+ ]]
+	if [[ ! "$*" =~ ^\-.+ ]]
 	then
 	usage
 	fi
@@ -134,7 +137,7 @@ do_options() {
 	    case "${flag}" in
 		d)
 			dname=${OPTARG}
-			did=`echo $dname | awk '{print substr($0,4)}'`
+			did=$(echo "$dname" | awk '{print substr($0,4)}')
 			;;
 		w)
 			num_wq=${OPTARG}
@@ -154,7 +157,7 @@ do_options() {
 	    esac
 	done
 
-	[ -d /sys/bus/dsa/devices/$dname ] || { echo "Invalid dev name $dname" && exit 1; }
+	[ -d /sys/bus/dsa/devices/"$dname" ] || { echo "Invalid dev name $dname" && exit 1; }
 
 	DSA_CONFIG_PATH=/sys/bus/dsa/devices
 	DEV_DRV_PATH=/sys/bus/dsa/drivers/dsa
@@ -167,14 +170,14 @@ do_options() {
 		[[ $mode == "s" ]] && mode=shared
 		[[ $mode == "" ]] && usage
 
-		wq_size=`cat /sys/bus/dsa/devices/$dname/max_work_queues_size`
+		wq_size=$(cat /sys/bus/dsa/devices/"$dname"/max_work_queues_size)
 		size=$(( wq_size / num_wq ))
 
 		unbind 0
 		configure 0
 		bind 0
 	else
-		echo "disabling device" $dname
+		echo "disabling device" "$dname"
 		unbind 0
 	fi
 
@@ -186,7 +189,7 @@ then
 	usage
 elif [ -f "$1" ]
 then
-	do_config_file $1
+	do_config_file "$1"
 else
-	do_options $@
+	do_options "$@"
 fi
