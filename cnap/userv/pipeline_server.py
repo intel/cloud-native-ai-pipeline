@@ -176,10 +176,10 @@ def sse():
                 break
 
             # Check if pipelines have changed
-            if PipelineService.inst().pipelines_have_changed:
-                pipelines = PipelineService.inst().pipelines
-                LOG.info("Sending updated pipelines to client.")
-                yield f"data: {json.dumps(pipelines)}\n\n"
+            # if PipelineService.inst().pipelines_have_changed:
+            pipelines = PipelineService.inst().pipelines
+            LOG.info("Sending updated pipelines to client.")
+            yield f"data: {json.dumps(pipelines)}\n\n"
             sleep(1)  # Sleep for a short duration before checking again
     return Response(generate(), mimetype='text/event-stream')
 

@@ -7,18 +7,17 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-import axios, { AxiosInstance } from "axios";
-import { useStore } from 'vuex';
-import { refreshPipeline } from "./store";
-
-const store = useStore();
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { refreshPipeline, closeEventSource } from "./store";
 
 onMounted(async () => {
   console.log("app mounted");
-  setInterval(refreshPipeline, 1000);
+  refreshPipeline();
 });
 
+onBeforeUnmount(() => {
+  closeEventSource();
+});
 
 </script>
 
