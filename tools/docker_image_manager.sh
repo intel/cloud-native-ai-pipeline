@@ -24,7 +24,7 @@ function scan_all_containers {
 function usage {
     cat << EOM
 usage: $(basename "$0") [OPTION]...
-    -a <build|publish|save|all>  all is default, which not include save. Please execute save explicity if need.
+    -a <build|download|publish|save|all>  all is default, which not include save. Please execute save explicity if need.
     -r <registry prefix> the prefix string for registry
     -c <container name> same as directory name
     -g <tag> container image tag
@@ -48,7 +48,7 @@ while getopts ":a:r:c:g:hf" option; do
         esac
     done
 
-    if [[ ! "$action" =~ ^(build|publish|save|all)$ ]]; then
+    if [[ ! "$action" =~ ^(build|download|publish|save|all)$ ]]; then
         echo "invalid type: $action"
         usage
     fi
@@ -137,6 +137,25 @@ function publish_images {
     fi
 }
 
+function download_a_image {
+    local img_container=$1
+    echo "Download container image: ${registry}/${img_container}:${tag} ..."
+    crictl pull "${registry}/${img_container}:${tag}" || \
+        { echo "Fail to download images ${registry}/${img_container}:${tag}"; exit 1; }
+    echo -e "Complete download container image ${registry}/${img_container}:${tag} ...\n"
+}
+
+function download_images {
+    if [[ "$container" == "all" ]]; then
+        for img_container in "${all_containers[@]}"
+        do
+	    download_a_image "$img_container"
+        done
+    else
+	download_a_image "$container"
+    fi
+}
+
 function save_a_image {
     local img_container=$1
     echo "Save container image ${registry}/${img_container}:${tag} => ${top_directory}/images/ ... "
@@ -188,3 +207,8 @@ fi
 if [[ "$action" =~ ^(save)$ ]]; then
     save_images
 fi
+
+if [[ "$action" =~ ^(download)$ ]]; then
+    download_images
+fi
+
