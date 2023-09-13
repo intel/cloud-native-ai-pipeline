@@ -299,6 +299,9 @@ class InferenceService(MicroAppBase):
         self._is_stopping = True
         LOG.debug("cleanup")
 
+        if self.pipeline_manager:
+            self.pipeline_manager.clean_infer_engine(self.infer_info.id)
+
         if self.infer_queue_connector:
             self.infer_queue_connector.unregister_infer_queue(self.infer_info.queue_topic)
 
@@ -437,7 +440,7 @@ class InferenceTask(MicroServiceTask):
             elapsed_time (float): The elapsed time to calculate FPS.
         """
         infer_fps_pipeline = round(self.infer_frame_count[pipeline_id] / elapsed_time)
-        self.pipeline_manager.set_infer_fps(pipeline_id, self.infer_info.id, infer_fps_pipeline)
+        self.pipeline_manager.set_infer_fps(pipeline_id, self.infer_info, infer_fps_pipeline)
 
         infer_fps_sum = round(self.infer_frame_count_sum / elapsed_time)
         drop_fps_sum = round(self.drop_frame_count_sum / elapsed_time)
