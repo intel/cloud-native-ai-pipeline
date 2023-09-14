@@ -157,9 +157,13 @@ class PipelineManager:
         """
         pipeline_dicts = self._db.get_all_table_objects_dict(PipelineManager.PIPELINE_TABLE)
         for pipeline_id, pipeline_dict in pipeline_dicts.items():
-            del pipeline_dict['infer_engine_dict'][infer_info_id]
-            self._db.save_table_object_dict(
-                PipelineManager.PIPELINE_TABLE,
-                pipeline_id,
-                pipeline_dict
-                )
+            if infer_info_id in pipeline_dict['infer_engine_dict']:
+                del pipeline_dict['infer_engine_dict'][infer_info_id]
+                if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
+                    self._db.save_table_object_dict(
+                        PipelineManager.PIPELINE_TABLE,
+                        pipeline_id,
+                        pipeline_dict
+                        )
+                else:
+                    LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)
