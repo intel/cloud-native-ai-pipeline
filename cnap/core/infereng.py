@@ -45,7 +45,7 @@ DEFAULT_INPUT_HEIGHT = 240
 INFER_ENGINE_TABLE = "InferEngine-table"
 
 # Set of valid devices
-VALID_DEVICES = {"cpu", "gpu", "tpu"}
+VALID_DEVICES = {"cpu", "cpu-amx", "gpu", "tpu"}
 
 class InferenceInfo:
     """Inference information class.

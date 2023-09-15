@@ -26,8 +26,7 @@ class Pipeline:
     Attributes:
         _id (str): The pipeline ID.
         _provider (StreamProvider): The stream provider of pipeline.
-        _info_engine_info (InferenceInfo): The inference engine inforamtion of pipeline.
-        _infer_fps (dict): A dictonary that saves the inference fps for every inference service. 
+        _infer_engine_dict (dict): The dict of inference engines inforamtion of pipeline.
     """
 
     def __init__(self, provider: StreamProvider, infer_engine_info: InferenceInfo):
@@ -42,8 +41,8 @@ class Pipeline:
         """
         self._id = None
         self._provider = provider
-        self._info_engine_info = infer_engine_info
-        self._infer_fps = {}
+        self._infer_engine_dict = {infer_engine_info.id: {'infer_info': dict(infer_engine_info),
+                                                         'infer_fps': 0}}
 
     @property
     def id(self) -> str:
@@ -60,8 +59,7 @@ class Pipeline:
     def __iter__(self) -> Iterator[Tuple[str, Dict[str, Any]]]:
         """The Iterator for Pipeline class."""
         yield 'provider', dict(self._provider)
-        yield 'info_engine_info', dict(self._info_engine_info)
-        yield 'infer_fps', self._infer_fps
+        yield 'infer_engine_dict', self._infer_engine_dict
 
 
 class PipelineManager:
@@ -116,11 +114,12 @@ class PipelineManager:
         LOG.debug("Unregister Pipeline: %s", pipeline_id)
         self._db.del_table_object(PipelineManager.PIPELINE_TABLE, pipeline_id)
 
-    def set_infer_fps(self, pipeline_id: str, infer_info_id: str, infer_fps: int) -> None:
+    def set_infer_fps(self, pipeline_id: str, infer_info: InferenceInfo, infer_fps: int) -> None:
         """Set inference fps for a pipeline.
 
         Args:
             pipeline_id (str): The id of pipeline to set inference fps.
+            infer_info (InferenceInfo): The inference info to set inference fps.
             infer_fps (int): The inference fps to set.
 
         Raises:
@@ -128,11 +127,16 @@ class PipelineManager:
                 or `save_table_object_dict` if some cases are met.
         """
         LOG.debug("Set inference fps: %d for pipeline: %s and inference service: %s",
-                  infer_fps, pipeline_id, infer_info_id)
+                  infer_fps, pipeline_id, infer_info.id)
         if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
             pipeline_dict = self._db.get_table_object_dict(PipelineManager.PIPELINE_TABLE,
                                                            pipeline_id)
-            pipeline_dict['infer_fps'][infer_info_id] = infer_fps
+            # Add inference engine to infer_engine_dict if not exist.
+            if infer_info.id not in pipeline_dict['infer_engine_dict']:
+                pipeline_dict['infer_engine_dict'][infer_info.id] = {'infer_info': dict(infer_info),
+                                                                     'infer_fps': infer_fps}
+            else:
+                pipeline_dict['infer_engine_dict'][infer_info.id]['infer_fps'] = infer_fps
             self._db.save_table_object_dict(
                 PipelineManager.PIPELINE_TABLE,
                 pipeline_id,
@@ -140,3 +144,26 @@ class PipelineManager:
                 )
         else:
             LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)
+
+    def clean_infer_engine(self, infer_info_id: str) -> None:
+        """Clean inference engine in infer_engine_dict.
+
+        Args:
+            infer_info_id (str): The id of inference info to clear inference fps.
+
+        Raises:
+            ValueError: Propagates the ValueError raised by `get_all_table_objects_dict`
+                or `save_table_object_dict` if some cases are met.
+        """
+        pipeline_dicts = self._db.get_all_table_objects_dict(PipelineManager.PIPELINE_TABLE)
+        for pipeline_id, pipeline_dict in pipeline_dicts.items():
+            if infer_info_id in pipeline_dict['infer_engine_dict']:
+                del pipeline_dict['infer_engine_dict'][infer_info_id]
+                if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
+                    self._db.save_table_object_dict(
+                        PipelineManager.PIPELINE_TABLE,
+                        pipeline_id,
+                        pipeline_dict
+                        )
+                else:
+                    LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)

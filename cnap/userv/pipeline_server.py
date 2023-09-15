@@ -16,10 +16,12 @@ import os
 import sys
 import logging
 import signal
+import json
+from time import sleep
 from multiprocessing import Process
 from typing import Any, Optional
 
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, request
 from flask_cors import cross_origin
 
 from core.rtdb import RedisDB, RuntimeDatabaseBase
@@ -57,6 +59,7 @@ class PipelineService:
     PIPELINE_TABLE = "Pipeline-table"
 
     _instance = None
+    _last_pipelines_hash = None
 
     def __init__(self):
         """Initialize a PipelineService object."""
@@ -106,17 +109,34 @@ class PipelineService:
         pipelines = []
 
         for pipeline_id, pipeline_dict in pipeline_dicts.items():
-            infer_id = pipeline_dict['info_engine_info']['id']
-            pipeline = {
-                'pipeline_id': pipeline_id,
-                'model_name': inference_dicts[infer_id]['model']['details']['name'],
-                'stream_name': pipeline_dict['provider']['name'],
-                'input_fps': pipeline_dict['provider']['fps'],
-                'infer_fps': sum(pipeline_dict['infer_fps'].values())
-            }
-            pipelines.append(pipeline)
+            for infer_id in pipeline_dict['infer_engine_dict'].keys():
+                pipeline = {
+                    'pipeline_id': pipeline_id,
+                    'model_name': inference_dicts[infer_id]['model']['details']['name'],
+                    'stream_name': pipeline_dict['provider']['name'],
+                    'input_fps': pipeline_dict['provider']['fps'],
+                    'infer_fps': sum(value['infer_fps'] 
+                                      for value in pipeline_dict['infer_engine_dict'].values())
+                }
+                pipelines.append(pipeline)
+                break
 
         return pipelines
+
+    @property
+    def pipelines_have_changed(self) -> bool:
+        """Check if the pipelines have changed since the last check.
+
+        Returns:
+            bool: True if pipelines have changed, False otherwise.
+        """
+        current_pipelines = self.pipelines
+        current_hash = hash(str(current_pipelines))
+
+        if self._last_pipelines_hash != current_hash:
+            self._last_pipelines_hash = current_hash
+            return True
+        return False
 
     @classmethod
     def inst(cls):
@@ -130,7 +150,7 @@ class PipelineService:
         return cls._instance
 
 @WEB_APP.route('/api/pipelines', methods=['GET'])
-@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+@cross_origin(origins='*', allow_headers=['Content-Type', 'Authorization'])
 def api_get_pipelines() -> Response:
     """Restful API for getting pipeline data.
 
@@ -139,6 +159,31 @@ def api_get_pipelines() -> Response:
     """
     pipelines = PipelineService.inst().pipelines
     return jsonify(pipelines)
+
+@WEB_APP.route('/events', methods=['GET'])
+@cross_origin(origins='*', allow_headers=['Content-Type', 'Authorization'])
+def sse():
+    """Server Sent Events (SSE) endpoint.
+
+    Returns:
+        Response: Flask response object with JSON data and status.
+    """
+    wfile = request.environ.get('wfile', None)
+
+    def generate():
+        while True:
+            # Check if client is still connected
+            if wfile and wfile.closed:
+                LOG.info("Client disconnected.")
+                break
+
+            # Check if pipelines have changed
+            # if PipelineService.inst().pipelines_have_changed:
+            pipelines = PipelineService.inst().pipelines
+            LOG.info("Sending updated pipelines to client.")
+            yield f"data: {json.dumps(pipelines)}\n\n"
+            sleep(1)  # Sleep for a short duration before checking again
+    return Response(generate(), mimetype='text/event-stream')
 
 @WEB_APP.route('/healthz', methods=['GET'])
 def health_check() -> Response:

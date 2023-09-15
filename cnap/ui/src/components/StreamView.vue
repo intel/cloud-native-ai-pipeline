@@ -29,7 +29,6 @@ const props = defineProps<{
 
 const socket = ref<WebSocket | null>(null);
 const imgRef: Ref<VNodeRef | undefined>['value'] = ref(undefined);
-let intervalId: number;
 
 const streamTitle = computed(() => {
     return props.stream.name.split(":")[0];
@@ -78,6 +77,7 @@ const connectWebsocketServer = () => {
 
 const closeWebsocket = () => {
     if(socket.value) {
+        console.log("close websocket connection");
         socket.value.close();
     }
 };
@@ -86,11 +86,9 @@ const emit = defineEmits(["onReceiveMsg"]);
 
 onMounted(() => {
     connectWebsocketServer();
-    intervalId = window.setInterval(closeWebsocket, 10 * 60 * 1000);
 });
 
 onUnmounted(() => {
-    window.clearInterval(intervalId);
     closeWebsocket();
 });
 
