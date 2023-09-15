@@ -2,9 +2,8 @@
   <div class="pipelines-container">
     <div style="width: 100%;" v-if="store.state.pipelines.length != 0">
       <el-row>
-        <el-col v-for="(o, index) in store.state.pipelines.length" :key="o" >
-          <el-card class="stream-card" :body-style="{ width: '100%', padding: '10px' }">
-            <div>
+        <el-col v-for="(o, index) in store.state.pipelines.length" :key="o" style="height:50% ;">
+          <div class="stream-card">
               <DetailView
                 :pipeline_id="store.state.pipelines[index].pipeline_id"
                 :stream_name="store.state.pipelines[index].stream_name"
@@ -15,7 +14,6 @@
                 :now_time="store.state.now_time"
                 />
             </div>
-          </el-card>
         </el-col>
       </el-row>
     </div>
@@ -51,10 +49,14 @@ onUnmounted(() => {
 }
 
 .stream-card {
-  width: 100%;
-  height: 250px;
-  margin: 10px;
-  display: flex;
+  height: 100%;
+  width: 98%;
+  margin: 5px;
+  padding: 5px;
+  display: block;
+  border: 3px;
+  background-color:azure;
+  border-style: dashed;
 }
 
 .image {
