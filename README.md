@@ -33,6 +33,9 @@ It is extended for the following uses:
 - `Trusted AI pipeline` to protect input stream or model in TEE VM/Container
 - `Sustainable AI computing` to reduce carbon footprint for AI workloads
 
+For the details of how to use Trust Execution Environment (TEE) to enhance the security of AI model, please refer
+[How to Protect AI Models in Cloud-Native Environments](docs/How_to_Protect_AI_Models_in_Cloud_Native_Environments.md)
+
 ![](docs/cnap-uses.png)
 
 ## 3. Building
