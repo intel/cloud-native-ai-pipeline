@@ -145,11 +145,23 @@ class RedisDB(RuntimeDatabaseBase):
 
     Attributes:
         _conn (redis.Redis): The Redis connection object.
+        _lock (Lock): The lock for Redis connection.
     """
 
     def __init__(self):
         """Initialize a RedisDB object."""
         self._conn = None
+        self._lock = None
+
+    def lock(self, name):
+        """Lock for redis connection."""
+        if self._lock is None:
+            self._lock = self._conn.lock(name)
+        self._lock.acquire()
+
+    def unlock(self):
+        """Unlock for redis connection."""
+        self._lock.release()
 
     def connect(self, host: str = "127.0.0.1", port: int = 6379, db: int = 0) -> None:
         """The connect method for the runtime database of Redis backend implementation.

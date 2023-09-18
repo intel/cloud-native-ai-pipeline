@@ -95,11 +95,15 @@ class PipelineManager:
                 are met.
         """
         LOG.debug("Register Pipeline: %s", str(dict(pipeline_obj)))
-        self._db.save_table_object_dict(
-            PipelineManager.PIPELINE_TABLE,
-            pipeline_obj.id,
-            dict(pipeline_obj)
-            )
+        try:
+            self._db.lock(f"{self.PIPELINE_TABLE}-lock")
+            self._db.save_table_object_dict(
+                PipelineManager.PIPELINE_TABLE,
+                pipeline_obj.id,
+                dict(pipeline_obj)
+                )
+        finally:
+            self._db.unlock()
 
     def unregister_pipeline(self, pipeline_id: str) -> None:
         """Unregister an existing pipeline.
@@ -112,7 +116,11 @@ class PipelineManager:
                 met.
         """
         LOG.debug("Unregister Pipeline: %s", pipeline_id)
-        self._db.del_table_object(PipelineManager.PIPELINE_TABLE, pipeline_id)
+        try:
+            self._db.lock(f"{self.PIPELINE_TABLE}-lock")
+            self._db.del_table_object(PipelineManager.PIPELINE_TABLE, pipeline_id)
+        finally:
+            self._db.unlock()
 
     def set_infer_fps(self, pipeline_id: str, infer_info: InferenceInfo, infer_fps: int) -> None:
         """Set inference fps for a pipeline.
@@ -129,19 +137,24 @@ class PipelineManager:
         LOG.debug("Set inference fps: %d for pipeline: %s and inference service: %s",
                   infer_fps, pipeline_id, infer_info.id)
         if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
-            pipeline_dict = self._db.get_table_object_dict(PipelineManager.PIPELINE_TABLE,
-                                                           pipeline_id)
-            # Add inference engine to infer_engine_dict if not exist.
-            if infer_info.id not in pipeline_dict['infer_engine_dict']:
-                pipeline_dict['infer_engine_dict'][infer_info.id] = {'infer_info': dict(infer_info),
-                                                                     'infer_fps': infer_fps}
-            else:
-                pipeline_dict['infer_engine_dict'][infer_info.id]['infer_fps'] = infer_fps
-            self._db.save_table_object_dict(
-                PipelineManager.PIPELINE_TABLE,
-                pipeline_id,
-                pipeline_dict
-                )
+            try:
+                self._db.lock(f"{self.PIPELINE_TABLE}-lock")
+                pipeline_dict = self._db.get_table_object_dict(PipelineManager.PIPELINE_TABLE,
+                                                            pipeline_id)
+                # Add inference engine to infer_engine_dict if not exist.
+                if infer_info.id not in pipeline_dict['infer_engine_dict']:
+                    pipeline_dict['infer_engine_dict'][infer_info.id] = \
+                                {'infer_info': dict(infer_info),
+                                'infer_fps': infer_fps}
+                else:
+                    pipeline_dict['infer_engine_dict'][infer_info.id]['infer_fps'] = infer_fps
+                self._db.save_table_object_dict(
+                    PipelineManager.PIPELINE_TABLE,
+                    pipeline_id,
+                    pipeline_dict
+                    )
+            finally:
+                self._db.unlock()
         else:
             LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)
 
@@ -155,15 +168,20 @@ class PipelineManager:
             ValueError: Propagates the ValueError raised by `get_all_table_objects_dict`
                 or `save_table_object_dict` if some cases are met.
         """
-        pipeline_dicts = self._db.get_all_table_objects_dict(PipelineManager.PIPELINE_TABLE)
-        for pipeline_id, pipeline_dict in pipeline_dicts.items():
-            if infer_info_id in pipeline_dict['infer_engine_dict']:
-                del pipeline_dict['infer_engine_dict'][infer_info_id]
-                if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
-                    self._db.save_table_object_dict(
-                        PipelineManager.PIPELINE_TABLE,
-                        pipeline_id,
-                        pipeline_dict
-                        )
-                else:
-                    LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)
+        try:
+            self._db.lock(f"{self.PIPELINE_TABLE}-lock")
+            pipeline_dicts = self._db.get_all_table_objects_dict(PipelineManager.PIPELINE_TABLE)
+            for pipeline_id, pipeline_dict in pipeline_dicts.items():
+                if infer_info_id in pipeline_dict['infer_engine_dict']:
+                    del pipeline_dict['infer_engine_dict'][infer_info_id]
+                    if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE,
+                                                         pipeline_id):
+                        self._db.save_table_object_dict(
+                            PipelineManager.PIPELINE_TABLE,
+                            pipeline_id,
+                            pipeline_dict
+                            )
+                    else:
+                        LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)
+        finally:
+            self._db.unlock()
