@@ -37,6 +37,7 @@ class StreamWebSocketServer:
     Attributes:
         _stream_broker_redis_host (str): The host ip or hostname of stream broker Redis server.
         _stream_broker_redis_port (int): The host port of stream broker Redis server.
+        _ws_send_time_out (float): The time out for websocket send message.
         _pipelines (dict): A dictionary object representing the stream publish tasks for every
           pipelines.
         _users (dict): A dictionary object representing all established WebSocket connections.
@@ -48,6 +49,9 @@ class StreamWebSocketServer:
             "STREAM_BROKER_REDIS_HOST", "127.0.0.1")
         self._stream_broker_redis_port = self._get_env(
             "STREAM_BROKER_REDIS_PORT", 6379)
+        self._ws_send_time_out = self._get_env(
+            "WS_SEND_TIME_OUT", 10.0
+        )
         self._pipelines = {}
         self._users = {}
 
@@ -258,7 +262,8 @@ class StreamWebSocketServer:
                             continue
 
                         try:
-                            await user.send(msg["data"])
+                            await asyncio.wait_for(user.send(msg["data"]),
+                                                   timeout=self._ws_send_time_out)
                         except websockets.exceptions.ConnectionClosedOK:
                             LOG.error("[%s] fail to send due to WebSocket exception [cc_ok]",
                                     sid)
@@ -268,6 +273,10 @@ class StreamWebSocketServer:
                         except websockets.exceptions.WebSocketException:
                             LOG.error("[%s] Uncatched websockets error",
                                     sid, exc_info=True)
+                        except asyncio.TimeoutError:
+                            LOG.error("[%s] failed to send due to timeout",
+                                      sid)
+                            await user.close()
         finally:
             await redis_pubsub.close()
             await redis_conn.close()
