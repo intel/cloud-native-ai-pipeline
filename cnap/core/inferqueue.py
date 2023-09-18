@@ -190,6 +190,7 @@ class RedisInferQueueClient(InferQueueClientBase):
         """Initialize a RedisInferQueueClient object."""
         InferQueueClientBase.__init__(self)
         self._conn = None
+        self._registered = False
 
     def connect(self, host: str="127.0.0.1", port: int=6379):
         """The Redis queue client implementation for connect method.
@@ -267,31 +268,26 @@ class RedisInferQueueClient(InferQueueClientBase):
         if topic is None:
             raise ValueError("topic can not be None")
         key = topic + "-available"
-        return self._conn.exists(key)
+        return int(self._conn.get(key)) > 0
 
     def register_infer_queue(self, topic: str):
         """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
         key = topic + "-available"
-        if self._conn.exists(key):
-            count = int(self._conn.get(key)) + 1
-            self._conn.set(key, count)
-        else:
+        if self._conn.incr(key) == 1:
             LOG.info("Register inference queue for topic: %s", topic)
-            self._conn.set(key, 1)
+        self._registered = True
 
     def unregister_infer_queue(self, topic: str):
         """See base class."""
         if topic is None:
             raise ValueError("topic can not be None")
+        if not self._registered:
+            return
         key = topic + "-available"
-        count = int(self._conn.get(key)) - 1
-        if count > 0:
-            self._conn.set(key, count)
-        else:
+        if self._conn.decr(key) == 0:
             LOG.info("Unregister inference queue for topic: %s", topic)
-            self._conn.delete(key)
             self._conn.delete(topic)
 
 class KafkaInferQueueClient(InferQueueClientBase):
