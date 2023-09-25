@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redis Memory Operation Offload with DSA &mdash; Cloud Native AI Pipeline  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Cloud Native AI Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="core/modules.html">core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userv/modules.html">userv</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Cloud Native AI Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Redis Memory Operation Offload with DSA</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/enable_dsa_offloading.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="redis-memory-operation-offload-with-dsa">
+<h1>Redis Memory Operation Offload with DSA<a class="headerlink" href="#redis-memory-operation-offload-with-dsa" title="Permalink to this headline">¶</a></h1>
+<p>Accelerate memory copy &amp; move operation in Redis with Intel® <a href="#id1"><span class="problematic" id="id2">`</span></a>DTO &lt;<a class="reference external" href="https://github.com/intel/DTO#intel-dsa-transparent-offload-library">https://github.com/intel/DTO#intel-dsa-transparent-offload-library</a>&gt;`_(DSA Transparent Offload Library), a shared library for applications to transparently use DSA.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Intel® DSA(Data streaming accelerator), <a class="reference external" href="https://www.intel.com/content/www/us/en/content-details/671116/intel-data-streaming-accelerator-architecture-specification.html?wapkw=data%20streaming%20accelerator%20specification">Specification</a>,
+DSA is a high-performance data copy and transformation accelerator that is integrated in 4th Gen Intel(R) Xeon(R) Scalable Processor(Sapphire Rapids) and later.</p>
+<p>You need firstly follow DSA <a class="reference external" href="https://github.com/intel/idxd-config">accel-config</a> to build and install it.</p>
+</section>
+<section id="how-to-use">
+<h2>How to use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<section id="build-redis-dsa-image">
+<h3>1. Build Redis &amp; DSA image<a class="headerlink" href="#build-redis-dsa-image" title="Permalink to this headline">¶</a></h3>
+<p>You can skip this step if you have already done it before.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./tools/docker_image_manager.sh -a build -c cnap-redis -r &lt;your-registry&gt;
+</pre></div>
+</div>
+</section>
+<section id="enable-dsa-in-host">
+<h3>2. Enable DSA in host<a class="headerlink" href="#enable-dsa-in-host" title="Permalink to this headline">¶</a></h3>
+<p>Configure DSA:</p>
+<ul class="simple">
+<li><p>Make sure you have installed <a class="reference external" href="https://github.com/intel/idxd-config">accel-config</a> library and tools before doing this step</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd k8s-manifests/plugin/dsa/config_dsa
+$ ./setup_dsa.sh configs/1e1w-s.conf
+</pre></div>
+</div>
+<p>Run test to verfiy:</p>
+<ul class="simple">
+<li><p>To run dsa_test for single mode, run dsa_test_batch for batch mode</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd build/bin
+$ ./dsa_test -w 0 -l 4096 -o 3
+$ ./dsa_test_batch -w 0 -l 4096 -c 16
+</pre></div>
+</div>
+</section>
+<section id="setup-dsa-device-plugin">
+<h3>3. Setup DSA Device Plugin<a class="headerlink" href="#setup-dsa-device-plugin" title="Permalink to this headline">¶</a></h3>
+<p>The DSA plugin discovers DSA work queues and presents them as a node resources.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kubectl apply -k k8s-manifests/plugin/dsa/intel-dsa-plugin.yaml
+daemonset.apps/intel-dsa-plugin created
+</pre></div>
+</div>
+<p>Verify DSA device plugin:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kubectl get nodes -o go-template=&#39;{{range .items}}{{.metadata.name}}{{&quot;\n&quot;}}{{range $k,$v:=.status.allocatable}}{{&quot;  &quot;}}{{$k}}{{&quot;: &quot;}}{{$v}}{{&quot;\n&quot;}}{{end}}{{end}}&#39; | grep &#39;^\([^ ]\)\|\(  dsa\)&#39;
+master
+  dsa.intel.com/wq-user-shared: 8
+node1
+  dsa.intel.com/wq-user-shared: 20
+</pre></div>
+</div>
+</section>
+<section id="enable-redis-offload-with-dsa">
+<h3>4. Enable Redis offload with DSA<a class="headerlink" href="#enable-redis-offload-with-dsa" title="Permalink to this headline">¶</a></h3>
+<p>We have integrated Redis offloading with DSA in CNAP, you can modify the helm/redis/values.yaml to enable DSA:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dsa</span><span class="p">:</span>
+  <span class="n">enabled</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">wqnumbers</span><span class="p">:</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>To enable Redis offloading with DSA in other user scenarios, you can update Redis deployment yaml file directly as below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">image</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">redis_image_build_before_with_DTO</span><span class="o">&gt;</span>
+<span class="n">command</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;/opt/redis/redis-server-dto&quot;</span><span class="p">]</span>
+<span class="n">resources</span><span class="p">:</span>
+  <span class="n">limits</span><span class="p">:</span>
+    <span class="n">dsa</span><span class="o">.</span><span class="n">intel</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">wq</span><span class="o">-</span><span class="n">user</span><span class="o">-</span><span class="n">shared</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">wp_numbers_want_to_be_allocated</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="deployment">
+<h3>5. Deployment<a class="headerlink" href="#deployment" title="Permalink to this headline">¶</a></h3>
+<p>Same deployment command as original with your image registry</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./tools/helm_manager.sh -i -r &lt;your-registry&gt; -g &lt;image-tag&gt;
+# To uninstall all charts
+# ./tools/helm_manager.sh -u
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Intel CSE CSS Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
