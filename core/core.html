@@ -58,8 +58,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-core.metrics">core.metrics module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-core.model">core.model module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-core.pipeline">core.pipeline module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#core-qat-module">core.qat module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-core.qat_params">core.qat_params module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#core-crypto-qat-module">core.crypto.qat module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#core-crypto-qat-params-module">core.crypto.qat_params module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-core.rtdb">core.rtdb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-core.stream">core.stream module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-core.streambroker">core.streambroker module</a></li>
@@ -231,7 +231,7 @@ can be simply encoded and decoded by protobuf.</p>
 <li><p><strong>_sequence</strong> (<em>int</em>) – The monolithic counter of the frame sequence number.</p></li>
 <li><p><strong>_raw</strong> (<em>np.ndarray</em>) – The raw frame of the frame.</p></li>
 <li><p><strong>_ts_new</strong> (<em>float</em>) – The timestamp of the beginning of this new frame.</p></li>
-<li><p><strong>_ts_infer_start</strong> (<em>float</em>) – The timestamp of the inference’s start point of this frame.</p></li>
+<li><p><strong>_ts_infer_end</strong> (<em>float</em>) – The timestamp of the inference’s end point of this frame.</p></li>
 </ul>
 </dd>
 </dl>
@@ -353,9 +353,9 @@ number to the new value.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="core.frame.Frame.timestamp_infer_start">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">timestamp_infer_start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#core.frame.Frame.timestamp_infer_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>The timestamp of the inference’s start point of this frame.</p>
+<dt class="sig sig-object py" id="core.frame.Frame.timestamp_infer_end">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">timestamp_infer_end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#core.frame.Frame.timestamp_infer_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>The timestamp of the inference’s end point of this frame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -786,7 +786,7 @@ of buffer can be adjusted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.inferqueue.InferQueueClientBase.get_frame">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#core.frame.Frame" title="core.frame.Frame"><span class="pre">core.frame.Frame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#core.inferqueue.InferQueueClientBase.get_frame" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#core.inferqueue.InferQueueClientBase.get_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a frame from queue.</p>
 <p>This method is used to get a frame from queue server, it will deserialize
 the Frame after get a frame from the queue server,</p>
@@ -798,14 +798,12 @@ the Frame after get a frame from the queue server,</p>
 <dd class="field-even"><p>The frame get from topic or None if the infer queue is empty now.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference internal" href="#core.frame.Frame" title="core.frame.Frame">Frame</a>]</p>
+<dd class="field-odd"><p>Optional[bytes]</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>NotImplementedError</strong> – If the subclasses don’t implement the method.</p></li>
 <li><p><strong>ValueError</strong> – If the topic is None.</p></li>
-<li><p><strong>TypeError</strong> – If the type of msg getted from infer queue is not bytes.</p></li>
-<li><p><strong>RuntimeError</strong> – If any errors while decoding after getting frame.</p></li>
 </ul>
 </dd>
 </dl>
@@ -838,7 +836,7 @@ not.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.inferqueue.InferQueueClientBase.publish_frame">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">publish_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.frame.Frame" title="core.frame.Frame"><span class="pre">core.frame.Frame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.inferqueue.InferQueueClientBase.publish_frame" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">publish_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.inferqueue.InferQueueClientBase.publish_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Publish a frame to queue server for a topic.</p>
 <p>This method is used to publish a frame to queue server, it will serialize
 the Frame before publish a frame to the queue server.</p>
@@ -846,14 +844,13 @@ the Frame before publish a frame to the queue server.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>topic</strong> (<em>str</em>) – The topic name to publish to.</p></li>
-<li><p><strong>frame</strong> (<em>Frame</em>) – The Frame to publish.</p></li>
+<li><p><strong>frame</strong> (<em>bytes</em>) – The frame to publish.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>NotImplementedError</strong> – If the subclasses don’t implement the method.</p></li>
 <li><p><strong>ValueError</strong> – If the topic or frame is None.</p></li>
-<li><p><strong>RuntimeError</strong> – If any errors while encoding before publishing frame.</p></li>
 </ul>
 </dd>
 </dl>
@@ -932,7 +929,7 @@ base class. The main defference is raises.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.inferqueue.KafkaInferQueueClient.get_frame">
-<span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#core.frame.Frame" title="core.frame.Frame"><span class="pre">core.frame.Frame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#core.inferqueue.KafkaInferQueueClient.get_frame" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#core.inferqueue.KafkaInferQueueClient.get_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>See base class.</p>
 </dd></dl>
 
@@ -944,7 +941,7 @@ base class. The main defference is raises.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.inferqueue.KafkaInferQueueClient.publish_frame">
-<span class="sig-name descname"><span class="pre">publish_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.frame.Frame" title="core.frame.Frame"><span class="pre">core.frame.Frame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.inferqueue.KafkaInferQueueClient.publish_frame" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">publish_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.inferqueue.KafkaInferQueueClient.publish_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>See base class.</p>
 </dd></dl>
 
@@ -997,7 +994,7 @@ base class. The main defference is raises.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.inferqueue.RedisInferQueueClient.get_frame">
-<span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#core.frame.Frame" title="core.frame.Frame"><span class="pre">core.frame.Frame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#core.inferqueue.RedisInferQueueClient.get_frame" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#core.inferqueue.RedisInferQueueClient.get_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>See base class.</p>
 </dd></dl>
 
@@ -1009,7 +1006,7 @@ base class. The main defference is raises.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.inferqueue.RedisInferQueueClient.publish_frame">
-<span class="sig-name descname"><span class="pre">publish_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.frame.Frame" title="core.frame.Frame"><span class="pre">core.frame.Frame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.inferqueue.RedisInferQueueClient.publish_frame" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">publish_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.inferqueue.RedisInferQueueClient.publish_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>See base class.</p>
 </dd></dl>
 
@@ -1274,7 +1271,7 @@ Model: A class for managing an Inference model.</p>
 </dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.model.Model">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.model.ModelInfo" title="core.model.ModelInfo"><span class="pre">core.model.ModelInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.model.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_info_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class for managing an Inference model.</p>
 <p>This class defines the information of the inference model, including
@@ -1388,7 +1385,7 @@ name, version, framework, target and data type.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="core.model.ModelInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.model.</span></span><span class="sig-name descname"><span class="pre">ModelInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.model.ModelDetails" title="core.model.ModelDetails"><span class="pre">core.model.ModelDetails</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">uploaded_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.model.ModelMetrics" title="core.model.ModelMetrics"><span class="pre">core.model.ModelMetrics</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.model.ModelInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.model.</span></span><span class="sig-name descname"><span class="pre">ModelInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.model.ModelDetails" title="core.model.ModelDetails"><span class="pre">core.model.ModelDetails</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">uploaded_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.model.ModelMetrics" title="core.model.ModelMetrics"><span class="pre">core.model.ModelMetrics</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.model.ModelInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class for managing information about an Inference model.</p>
 <p>This class defines the information of the inference model, including
@@ -1432,6 +1429,17 @@ ID, details, uploaded date and performance metrics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#core.model.ModelMetrics" title="core.model.ModelMetrics">ModelMetrics</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.model.ModelInfo.path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#core.model.ModelInfo.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1546,8 +1554,7 @@ inference engine information.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>_id</strong> (<em>str</em>) – The pipeline ID.</p></li>
 <li><p><strong>_provider</strong> (<a class="reference internal" href="#core.stream.StreamProvider" title="core.stream.StreamProvider"><em>StreamProvider</em></a>) – The stream provider of pipeline.</p></li>
-<li><p><strong>_info_engine_info</strong> (<a class="reference internal" href="#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><em>InferenceInfo</em></a>) – The inference engine inforamtion of pipeline.</p></li>
-<li><p><strong>_infer_fps</strong> (<em>dict</em>) – A dictonary that saves the inference fps for every inference service.</p></li>
+<li><p><strong>_infer_engine_dict</strong> (<em>dict</em>) – The dict of inference engines inforamtion of pipeline.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1582,6 +1589,21 @@ and <cite>unregister_pipeline</cite> methods.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="core.pipeline.PipelineManager.clean_infer_engine">
+<span class="sig-name descname"><span class="pre">clean_infer_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infer_info_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.pipeline.PipelineManager.clean_infer_engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean inference engine in infer_engine_dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>infer_info_id</strong> (<em>str</em>) – The id of inference info to clear inference fps.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Propagates the ValueError raised by <cite>get_all_table_objects_dict</cite>
+    or <cite>save_table_object_dict</cite> if some cases are met.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="core.pipeline.PipelineManager.register_pipeline">
 <span class="sig-name descname"><span class="pre">register_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.pipeline.Pipeline" title="core.pipeline.Pipeline"><span class="pre">core.pipeline.Pipeline</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.pipeline.PipelineManager.register_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a new pipeline.</p>
@@ -1598,12 +1620,13 @@ and <cite>unregister_pipeline</cite> methods.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.pipeline.PipelineManager.set_infer_fps">
-<span class="sig-name descname"><span class="pre">set_infer_fps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_info_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.pipeline.PipelineManager.set_infer_fps" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_infer_fps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#core.infereng.InferenceInfo" title="core.infereng.InferenceInfo"><span class="pre">core.infereng.InferenceInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.pipeline.PipelineManager.set_infer_fps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set inference fps for a pipeline.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pipeline_id</strong> (<em>str</em>) – The id of pipeline to set inference fps.</p></li>
+<li><p><strong>infer_info</strong> (<em>InferenceInfo</em>) – The inference info to set inference fps.</p></li>
 <li><p><strong>infer_fps</strong> (<em>int</em>) – The inference fps to set.</p></li>
 </ul>
 </dd>
@@ -1632,296 +1655,176 @@ and <cite>unregister_pipeline</cite> methods.</p>
 </dd></dl>
 
 </section>
-<section id="core-qat-module">
-<h2>core.qat module<a class="headerlink" href="#core-qat-module" title="Permalink to this headline">¶</a></h2>
-</section>
-<section id="module-core.qat_params">
-<span id="core-qat-params-module"></span><h2>core.qat_params module<a class="headerlink" href="#module-core.qat_params" title="Permalink to this headline">¶</a></h2>
-<p>A QAT params module.</p>
-<p>This module provides the relevant parameters required to call QAT.</p>
+<section id="core-crypto-qat-module">
+<h2>core.crypto.qat module<a class="headerlink" href="#core-crypto-qat-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-core.crypto.qat"></span><p>A QAT module.</p>
+<p>This module provides a class to use Intel qat to accelerate compression/decompression of frames.
+It provides methods to init, set up, teardown and close QATZip session, as well as compression
+and decompression using QAT.</p>
 <dl class="simple">
-<dt>Classes:</dt><dd><p>QzDirection: An enum for the type of the Huffman header supported by QATzip.
-QzPollingMode: An enum for the type of polling mode supported by QATzip.
-QzDataFormat: An enum for the type of data format supported by QATzip.
-QzHuffmanHdr: An enum for the type of the Huffman header supported by QATzip.
-QzSession:A class for QATzip Session opaque data storage.
-QzSessionParamsCommon: A class for QATzip session common parameters.
-QzSessionParamsDeflate: A class for QATzip session defalte parameters.</p>
+<dt>Classes:</dt><dd><p>QATZip: A class that use QAT to accelerate frame compression and decompression.</p>
 </dd>
 </dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="core.qat_params.QzDataFormat">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.qat_params.</span></span><span class="sig-name descname"><span class="pre">QzDataFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.qat_params.QzDataFormat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enum for the type of QzDataFormat.</p>
-<p>This enum defines the types of the data format supported by QATzip.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDataFormat.QZ_DEFLATE_4B">
-<span class="sig-name descname"><span class="pre">QZ_DEFLATE_4B</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(0)</span></em><a class="headerlink" href="#core.qat_params.QzDataFormat.QZ_DEFLATE_4B" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDataFormat.QZ_DEFLATE_GZIP">
-<span class="sig-name descname"><span class="pre">QZ_DEFLATE_GZIP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(1)</span></em><a class="headerlink" href="#core.qat_params.QzDataFormat.QZ_DEFLATE_GZIP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDataFormat.QZ_DEFLATE_GZIP_EXT">
-<span class="sig-name descname"><span class="pre">QZ_DEFLATE_GZIP_EXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(2)</span></em><a class="headerlink" href="#core.qat_params.QzDataFormat.QZ_DEFLATE_GZIP_EXT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDataFormat.QZ_DEFLATE_RAW">
-<span class="sig-name descname"><span class="pre">QZ_DEFLATE_RAW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(3)</span></em><a class="headerlink" href="#core.qat_params.QzDataFormat.QZ_DEFLATE_RAW" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDataFormat.QZ_FMT_NUM">
-<span class="sig-name descname"><span class="pre">QZ_FMT_NUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(4)</span></em><a class="headerlink" href="#core.qat_params.QzDataFormat.QZ_FMT_NUM" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="core.qat_params.QzDirection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.qat_params.</span></span><span class="sig-name descname"><span class="pre">QzDirection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.qat_params.QzDirection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enum for the type of QzDirection.</p>
-<p>This enum defines the types of QzDirection that can be created.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDirection.QZ_DIR_BOTH">
-<span class="sig-name descname"><span class="pre">QZ_DIR_BOTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(2)</span></em><a class="headerlink" href="#core.qat_params.QzDirection.QZ_DIR_BOTH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDirection.QZ_DIR_COMPRESS">
-<span class="sig-name descname"><span class="pre">QZ_DIR_COMPRESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(0)</span></em><a class="headerlink" href="#core.qat_params.QzDirection.QZ_DIR_COMPRESS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzDirection.QZ_DIR_DECOMPRESS">
-<span class="sig-name descname"><span class="pre">QZ_DIR_DECOMPRESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(1)</span></em><a class="headerlink" href="#core.qat_params.QzDirection.QZ_DIR_DECOMPRESS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="core.qat_params.QzHuffmanHdr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.qat_params.</span></span><span class="sig-name descname"><span class="pre">QzHuffmanHdr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.qat_params.QzHuffmanHdr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enum for the type of QzipHuffmanHdr.</p>
-<p>This enum defines the types of the Huffman header supported by QATzip.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzHuffmanHdr.QZ_DYNAMIC_HDR">
-<span class="sig-name descname"><span class="pre">QZ_DYNAMIC_HDR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(0)</span></em><a class="headerlink" href="#core.qat_params.QzHuffmanHdr.QZ_DYNAMIC_HDR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzHuffmanHdr.QZ_STATIC_HDR">
-<span class="sig-name descname"><span class="pre">QZ_STATIC_HDR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(1)</span></em><a class="headerlink" href="#core.qat_params.QzHuffmanHdr.QZ_STATIC_HDR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="core.qat_params.QzPollingMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.qat_params.</span></span><span class="sig-name descname"><span class="pre">QzPollingMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.qat_params.QzPollingMode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enum for the type of QzPollingMode.</p>
-<p>This enum defines the types of polling mode supported by QATzip.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzPollingMode.QZ_BUSY_POLLING">
-<span class="sig-name descname"><span class="pre">QZ_BUSY_POLLING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(1)</span></em><a class="headerlink" href="#core.qat_params.QzPollingMode.QZ_BUSY_POLLING" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzPollingMode.QZ_PERIODICAL_POLLING">
-<span class="sig-name descname"><span class="pre">QZ_PERIODICAL_POLLING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">c_uint(0)</span></em><a class="headerlink" href="#core.qat_params.QzPollingMode.QZ_PERIODICAL_POLLING" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="core.qat_params.QzSession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.qat_params.</span></span><span class="sig-name descname"><span class="pre">QzSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.qat_params.QzSession" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ctypes.Structure</span></code></p>
-<p>A class for QATzip Session opaque data storage.</p>
-<p>This class contains a pointer to a structure with session state.</p>
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.crypto.qat.</span></span><span class="sig-name descname"><span class="pre">QATZip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_lvl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.crypto.qat.QATZip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">core.crypto.zip.ZipBase</span></code></p>
+<p>A class that use QAT to accelerate frame compression and decompression.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hw_session_stat</strong> (<em>ctypes.c_long</em>) – Hardware session status.</p></li>
-<li><p><strong>thd_sess_stst</strong> (<em>ctypes.c_int</em>) – Note process compression and decompression thread state.</p></li>
-<li><p><strong>internel</strong> (<em>ctypes.c_void_p</em>) – Session data is opaque to outside world.</p></li>
-<li><p><strong>total_in</strong> (<em>ctypes.c_ulong</em>) – Total processed input data length in this session.</p></li>
-<li><p><strong>total_out</strong> (<em>ctypes.c_ulong</em>) – Total output data length in this session.</p></li>
+<li><p><strong>_qziplib</strong> (<em>CDLL</em>) – The QATZip library.</p></li>
+<li><p><strong>_direction</strong> (<em>int</em>) – The QATZip work way.</p></li>
+<li><p><strong>_comp_lvl</strong> (<em>int</em>) – The QATZip compression level.</p></li>
+<li><p><strong>_algorithm</strong> (<em>int</em>) – The QATZip Compression/decompression algorithm.</p></li>
+<li><p><strong>_session</strong> (<em>QzSession</em>) – The QATZip Session.</p></li>
+<li><p><strong>_common_session</strong> (<em>QzSessionParamsCommon</em>) – The QATZip session with common parameters.</p></li>
+<li><p><strong>_deflate_params</strong> (<em>QzSessionParamsDeflate</em>) – The QATZip session with deflate parameters.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSession.hw_session_stat">
-<span class="sig-name descname"><span class="pre">hw_session_stat</span></span><a class="headerlink" href="#core.qat_params.QzSession.hw_session_stat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.ALGO_DEFLATE">
+<span class="sig-name descname"><span class="pre">ALGO_DEFLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.ALGO_DEFLATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSession.internel">
-<span class="sig-name descname"><span class="pre">internel</span></span><a class="headerlink" href="#core.qat_params.QzSession.internel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.DIR_BOTH">
+<span class="sig-name descname"><span class="pre">DIR_BOTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.DIR_BOTH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSession.thd_sess_stst">
-<span class="sig-name descname"><span class="pre">thd_sess_stst</span></span><a class="headerlink" href="#core.qat_params.QzSession.thd_sess_stst" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.DIR_COMPRESS">
+<span class="sig-name descname"><span class="pre">DIR_COMPRESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.DIR_COMPRESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSession.total_in">
-<span class="sig-name descname"><span class="pre">total_in</span></span><a class="headerlink" href="#core.qat_params.QzSession.total_in" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.DIR_DECOMPRESS">
+<span class="sig-name descname"><span class="pre">DIR_DECOMPRESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.DIR_DECOMPRESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSession.total_out">
-<span class="sig-name descname"><span class="pre">total_out</span></span><a class="headerlink" href="#core.qat_params.QzSession.total_out" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.EXPANSION_RATIO">
+<span class="sig-name descname"><span class="pre">EXPANSION_RATIO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[5,</span> <span class="pre">20,</span> <span class="pre">50,</span> <span class="pre">100]</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.EXPANSION_RATIO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.LAST">
+<span class="sig-name descname"><span class="pre">LAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.LAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.qat_params.</span></span><span class="sig-name descname"><span class="pre">QzSessionParamsCommon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">c_uint(2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_lvl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_ubyte</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_forks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sw_backup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_ubyte</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hw_buff_sz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">65536</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strm_buff_sz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">65536</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_sz_thrshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_cnt_thrshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_cnt_thrshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polling_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">c_uint(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_sensitive_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ctypes.c_uint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ctypes.Structure</span></code></p>
-<p>A class for QATzip session common parameters.</p>
-<p>This structure contains data for initializing a common session..</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.LEVEL_BEST">
+<span class="sig-name descname"><span class="pre">LEVEL_BEST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.LEVEL_BEST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.LEVEL_FAST">
+<span class="sig-name descname"><span class="pre">LEVEL_FAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.LEVEL_FAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.SW_BACKUP">
+<span class="sig-name descname"><span class="pre">SW_BACKUP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.SW_BACKUP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.algorithm">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">algorithm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>The QATZip compression/decompression algorithm.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>direction</strong> (<em>ctypes.c_uint</em>) – Compress or decompress.</p></li>
-<li><p><strong>comp_lvl</strong> (<em>ctypes.c_ubyte</em>) – Compression level 1 to 9.</p></li>
-<li><p><strong>comp_algorithm</strong> (<em>ctypes.c_uint</em>) – Compress/decompression algorithms.</p></li>
-<li><p><strong>max_forks</strong> (<em>ctypes.c_uint</em>) – Maximum forks permitted in the current thread.</p></li>
-<li><p><strong>sw_backup</strong> (<em>ctypes.c_ubyte</em>) – Bit field defining SW configuration.</p></li>
-<li><p><strong>hw_buff_sz</strong> (<em>ctypes.c_uint</em>) – Default buffer size, must be a power of 2k.</p></li>
-<li><p><strong>strm_buff_sz</strong> (<em>ctypes.c_uint</em>) – Default strm_buf_sz, equals to hw_buff_sz.</p></li>
-<li><p><strong>input_sz_thrshold</strong> (<em>ctypes.c_uint</em>) – Threshold of compression service’s input size.</p></li>
-<li><p><strong>req_cnt_thrshold</strong> (<em>ctypes.c_uint</em>) – Set between 1 and 32.</p></li>
-<li><p><strong>wait_cnt_thrshold</strong> (<em>ctypes.c_uint</em>) – Wait for specific calls before device reopen retry.</p></li>
-<li><p><strong>polling_mode</strong> (<em>ctypes.c_uint</em>) – Polling mode supported by QATzip.</p></li>
-<li><p><strong>is_sensitive_mode</strong> (<em>ctypes.c_uint</em>) – 0 means disable sensitive mode, 1 means enable.</p></li>
-</ul>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.comp_algorithm">
-<span class="sig-name descname"><span class="pre">comp_algorithm</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.comp_algorithm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.comp_lvl">
-<span class="sig-name descname"><span class="pre">comp_lvl</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.comp_lvl" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.direction">
-<span class="sig-name descname"><span class="pre">direction</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.direction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.hw_buff_sz">
-<span class="sig-name descname"><span class="pre">hw_buff_sz</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.hw_buff_sz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.input_sz_thrshold">
-<span class="sig-name descname"><span class="pre">input_sz_thrshold</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.input_sz_thrshold" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.is_sensitive_mode">
-<span class="sig-name descname"><span class="pre">is_sensitive_mode</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.is_sensitive_mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.max_forks">
-<span class="sig-name descname"><span class="pre">max_forks</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.max_forks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.polling_mode">
-<span class="sig-name descname"><span class="pre">polling_mode</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.polling_mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.req_cnt_thrshold">
-<span class="sig-name descname"><span class="pre">req_cnt_thrshold</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.req_cnt_thrshold" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.strm_buff_sz">
-<span class="sig-name descname"><span class="pre">strm_buff_sz</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.strm_buff_sz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.sw_backup">
-<span class="sig-name descname"><span class="pre">sw_backup</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.sw_backup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsCommon.wait_cnt_thrshold">
-<span class="sig-name descname"><span class="pre">wait_cnt_thrshold</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsCommon.wait_cnt_thrshold" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsDeflate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.qat_params.</span></span><span class="sig-name descname"><span class="pre">QzSessionParamsDeflate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">common_params:</span> <span class="pre">core.qat_params.QzSessionParamsCommon</span> <span class="pre">=</span> <span class="pre">&lt;core.qat_params.QzSessionParamsCommon</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">huffman_hdr:</span> <span class="pre">core.qat_params.QzHuffmanHdr</span> <span class="pre">=</span> <span class="pre">c_uint(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_fmt:</span> <span class="pre">core.qat_params.QzDataFormat</span> <span class="pre">=</span> <span class="pre">c_uint(1)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.qat_params.QzSessionParamsDeflate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ctypes.Structure</span></code></p>
-<p>A class for QATzip session deflate parameters.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.close_session">
+<span class="sig-name descname"><span class="pre">close_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.crypto.qat.QATZip.close_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminates a QATZip session.</p>
+<p>This method closes the connection with QAT.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>common_params</strong> (<a class="reference internal" href="#core.qat_params.QzSessionParamsCommon" title="core.qat_params.QzSessionParamsCommon"><em>QzSessionParamsCommon</em></a>) – Compress or decompress.</p></li>
-<li><p><strong>huffman_hdr</strong> (<em>ctypes.c_uint</em>) – Dynamic or Static Huffman headers.</p></li>
-<li><p><strong>data_fmt</strong> (<em>ctypes.c_uint</em>) – Deflate, deflate with GZip or deflate with GZip ext.</p></li>
-</ul>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If any error occurs while closing the session.</p>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsDeflate.common_params">
-<span class="sig-name descname"><span class="pre">common_params</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsDeflate.common_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsDeflate.data_fmt">
-<span class="sig-name descname"><span class="pre">data_fmt</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsDeflate.data_fmt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.comp_lvl">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">comp_lvl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.comp_lvl" title="Permalink to this definition">¶</a></dt>
+<dd><p>The QATZip compression level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.qat_params.QzSessionParamsDeflate.huffman_hdr">
-<span class="sig-name descname"><span class="pre">huffman_hdr</span></span><a class="headerlink" href="#core.qat_params.QzSessionParamsDeflate.huffman_hdr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure/Union member</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.compress">
+<span class="sig-name descname"><span class="pre">compress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#core.crypto.qat.QATZip.compress" title="Permalink to this definition">¶</a></dt>
+<dd><p>See base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.decompress">
+<span class="sig-name descname"><span class="pre">decompress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#core.crypto.qat.QATZip.decompress" title="Permalink to this definition">¶</a></dt>
+<dd><p>See base class.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.direction">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">direction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#core.crypto.qat.QATZip.direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compress or decompress or both.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.init_session">
+<span class="sig-name descname"><span class="pre">init_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.crypto.qat.QATZip.init_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize QAT hardware.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If any errors during the initialization of QAT.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.set_session">
+<span class="sig-name descname"><span class="pre">set_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.crypto.qat.QATZip.set_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a QATZip session with deflate parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If any error occurs during the session set up.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.crypto.qat.QATZip.teardown_session">
+<span class="sig-name descname"><span class="pre">teardown_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.crypto.qat.QATZip.teardown_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uninitialize a QATZip session.</p>
+<p>This method disconnects a session from a hardware instance and deallocates buffers.
+If no session has been initialized, then no action will take place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If any error occurs during the session teardown.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
+</section>
+<section id="core-crypto-qat-params-module">
+<h2>core.crypto.qat_params module<a class="headerlink" href="#core-crypto-qat-params-module" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="module-core.rtdb">
 <span id="core-rtdb-module"></span><h2>core.rtdb module<a class="headerlink" href="#module-core.rtdb" title="Permalink to this headline">¶</a></h2>
@@ -1943,7 +1846,10 @@ RedisDB:  A concrete class implementing the RuntimeDatabaseBase using Redis as b
 defined in <cite>RuntimeDatabaseBase</cite> abstract base class for Redis in-memory datbase backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
-<dd class="field-odd"><p><strong>_conn</strong> (<em>redis.Redis</em>) – The Redis connection object.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_conn</strong> (<em>redis.Redis</em>) – The Redis connection object.</p></li>
+<li><p><strong>_lock</strong> (<em>Lock</em>) – The lock for Redis connection.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -1985,9 +1891,21 @@ base class. The main difference is raises.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="core.rtdb.RedisDB.lock">
+<span class="sig-name descname"><span class="pre">lock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.rtdb.RedisDB.lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lock for redis connection.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="core.rtdb.RedisDB.save_table_object_dict">
 <span class="sig-name descname"><span class="pre">save_table_object_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#core.rtdb.RedisDB.save_table_object_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>See base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.rtdb.RedisDB.unlock">
+<span class="sig-name descname"><span class="pre">unlock</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.rtdb.RedisDB.unlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unlock for redis connection.</p>
 </dd></dl>
 
 </dd></dl>

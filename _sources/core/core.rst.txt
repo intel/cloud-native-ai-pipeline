@@ -69,18 +69,18 @@ core.pipeline module
    :undoc-members:
    :show-inheritance:
 
-core.qat module
+core.crypto.qat module
 ---------------
 
-.. automodule:: core.qat
+.. automodule:: core.crypto.qat
    :members:
    :undoc-members:
    :show-inheritance:
 
-core.qat\_params module
+core.crypto.qat\_params module
 -----------------------
 
-.. automodule:: core.qat_params
+.. automodule:: core.crypto..qat_params
    :members:
    :undoc-members:
    :show-inheritance:
