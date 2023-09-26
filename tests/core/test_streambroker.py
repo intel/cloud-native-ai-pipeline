@@ -26,14 +26,12 @@ import pytest
 import redis.exceptions
 from kafka import KafkaConsumer
 import kafka.errors
-import cv2
 
 from cnap.core import streambroker
 from tests.core.conftest import TEST_PIPELINE_ID, KAFKA_HOST, KAFKA_PORT, REDIS_HOST, REDIS_PORT
 
 TEST_TOPIC = f"result-{TEST_PIPELINE_ID}"
 
-# pylint: disable=no-member
 # pylint: disable=redefined-outer-name
 
 @pytest.fixture(scope="module")
@@ -140,7 +138,7 @@ def test_kafka_stream_broker_client_publish_frame(kafka_broker_client, frame_ins
         kafka_broker_client (KafkaStreamBrokerClient): Fixture for KafkaStreamBrokerClient.
         frame_instance (Frame): Fixture for Frame.
     """
-    consumer = KafkaConsumer(TEST_TOPIC, group_id='test2',
+    consumer = KafkaConsumer(TEST_TOPIC, group_id='cnap-test-streambroker',
                              bootstrap_servers=f"{KAFKA_HOST}:{KAFKA_PORT}",
                              auto_offset_reset='earliest', enable_auto_commit=False)
     assert consumer.bootstrap_connected()
@@ -184,8 +182,7 @@ def test_publish_frame_error_encode(redis_broker_client, kafka_broker_client, fr
         kafka_broker_client (KafkaStreamBrokerClient): Fixture for KafkaStreamBrokerClient.
         frame_instance (Frame): Fixture for Frame.
     """
-    _, img = cv2.imencode('.jpg', frame_instance.raw)
-    frame_instance.raw = img
+    frame_instance.raw = []
     with pytest.raises(RuntimeError):
         redis_broker_client.publish_frame(TEST_TOPIC, frame_instance)
     with pytest.raises(RuntimeError):

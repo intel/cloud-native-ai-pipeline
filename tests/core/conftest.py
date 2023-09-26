@@ -65,7 +65,7 @@ def docker_client():
 @pytest.fixture(scope="session")
 def network(docker_client):
     """Fixture for docker network."""
-    _network = docker_client.networks.create(name="network-test")
+    _network = docker_client.networks.create(name="network-cnap-test")
     yield _network
     _network.remove()
 
@@ -102,6 +102,8 @@ def img():
         numpy.ndarray: The raw image for test.
     """
     img = cv2.imread(os.path.join(CURR_DIR, "../../docs/cnap_arch.png"))
+    img = cv2.resize(img,
+                (stream.StreamProvider.DEFAULT_WIDTH, stream.StreamProvider.DEFAULT_HEIGHT))
     return img
 
 @pytest.fixture(scope="session")
