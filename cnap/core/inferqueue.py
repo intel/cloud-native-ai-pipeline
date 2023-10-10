@@ -43,7 +43,7 @@ class InferQueueClientBase(ABC):
         self._buffer_len = None
 
     @abstractmethod
-    def connect(self, host: str, port: int):
+    def connect(self, host: str, port: int): # pragma: no cover
         """Connect to queue server.
 
         This method is used to connect to queue server, will attempt to reconnect
@@ -59,7 +59,7 @@ class InferQueueClientBase(ABC):
         raise NotImplementedError("Subclasses should implement connect() method.")
 
     @abstractmethod
-    def publish_frame(self, topic: str, frame: bytes) -> None:
+    def publish_frame(self, topic: str, frame: bytes) -> None: # pragma: no cover
         """Publish a frame to queue server for a topic.
 
         This method is used to publish a frame to queue server, it will serialize
@@ -76,7 +76,7 @@ class InferQueueClientBase(ABC):
         raise NotImplementedError("Subclasses should implement publish_frame() method.")
 
     @abstractmethod
-    def get_frame(self, topic: str) -> Optional[bytes]:
+    def get_frame(self, topic: str) -> Optional[bytes]: # pragma: no cover
         """Get a frame from queue.
 
         This method is used to get a frame from queue server, it will deserialize
@@ -95,7 +95,7 @@ class InferQueueClientBase(ABC):
         raise NotImplementedError("Subclasses should implement get_frame() method.")
 
     @abstractmethod
-    def drop(self, topic: str) -> int:
+    def drop(self, topic: str) -> int: # pragma: no cover
         """Drop the frames overflow the buffer.
 
         This method is used to drop the frames overflow the buffer, the length
@@ -126,7 +126,7 @@ class InferQueueClientBase(ABC):
         self._buffer_len = new_buffer_len
 
     @abstractmethod
-    def infer_queue_available(self, topic: str) -> bool:
+    def infer_queue_available(self, topic: str) -> bool: # pragma: no cover
         """Determine whether the inference queue for the topic is available.
 
         The method is used to determine whether the inference queue for the topic is available or
@@ -145,7 +145,7 @@ class InferQueueClientBase(ABC):
         raise NotImplementedError("Subclasses should implement infer_queue_available() method.")
 
     @abstractmethod
-    def register_infer_queue(self, topic: str):
+    def register_infer_queue(self, topic: str): # pragma: no cover
         """Register the topic in the inference queue.
 
         The method is used to register the topic in the inference queue.
@@ -160,7 +160,7 @@ class InferQueueClientBase(ABC):
         raise NotImplementedError("Subclasses should implement register_infer_queue() method.")
 
     @abstractmethod
-    def unregister_infer_queue(self, topic: str):
+    def unregister_infer_queue(self, topic: str): # pragma: no cover
         """Unregister the topic in the inference queue.
 
         The method is used to unregister the topic in the inference queue.
@@ -354,27 +354,27 @@ class KafkaInferQueueClient(InferQueueClientBase):
             raise ValueError("frame can not be None")
         self._conn.send(topic, frame)
 
-    def get_frame(self, topic: str) -> Optional[bytes]:
+    def get_frame(self, topic: str) -> Optional[bytes]: # pragma: no cover
         """See base class."""
         # TODO: implement the get_frame function for Kafka queue.
         return None
 
-    def drop(self, topic: str) -> int:
+    def drop(self, topic: str) -> int: # pragma: no cover
         """See base class."""
         # TODO: implement the drop function for Kafka queue.
         return 0
 
-    def infer_queue_available(self, topic: str) -> bool:
+    def infer_queue_available(self, topic: str) -> bool: # pragma: no cover
         """See base class."""
         # TODO: implement the infer_queue_available function for Kafka queue.
         return False
 
-    def register_infer_queue(self, topic: str):
+    def register_infer_queue(self, topic: str): # pragma: no cover
         """See base class."""
         # TODO: implement the register_infer_queue function for Kafka queue.
         return None
 
-    def unregister_infer_queue(self, topic: str):
+    def unregister_infer_queue(self, topic: str): # pragma: no cover
         """See base class."""
         # TODO: implement the unregister_infer_queue function for Kafka queue.
         return None
