@@ -10,17 +10,23 @@ Functions:
     img: Fixture for raw image.
     filesource: Fixture for file source stream provider.
     frame_instance: Fixture for Frame.
+    model_metrics: Fixture for model metrics.
+    model_details: Fixture for model details.
+    model_info: Fixture for model info.
+    model_data: Fixture for model data.
+    model_instance: Fixture for model instance.
 """
 
 import time
 import os
+import uuid
 
 import cv2
 import pytest
 from pytest_redis import factories
 import docker
 
-from cnap.core import frame, stream, rtdb
+from cnap.core import frame, stream, rtdb, model
 
 # pylint: disable=no-member
 # pylint: disable=redefined-outer-name
@@ -31,6 +37,13 @@ TEST_STREAM_NAME = 'classroom'
 TEST_PIPELINE_ID = '2bbbdebe-3722-11ee-ba4a-d6bcdc58bce0'
 TEST_FRAME_SEQUENCE = 0x5fffffffffff0000
 TEST_FRAME_TIMESTAMP = 0.0
+
+TEST_MODEL_ID = str(uuid.uuid1())
+TEST_FRAMEWORK = 'tensorflow'
+TEST_TARGET = 'object-detection'
+TEST_MODEL_NAME = 'ssdmobilenet'
+TEST_MODEL_PATH = '/tmp/ssdmobilenet_v10.pb'
+TEST_MODEL_VERSION = '1.0'
 
 KAFKA_HOST = "localhost"
 KAFKA_PORT = 9092
@@ -125,3 +138,51 @@ def frame_instance(filesource, img):
     frame_instance = frame.Frame(filesource, TEST_PIPELINE_ID, TEST_FRAME_SEQUENCE, img)
     frame_instance.timestamp_new_frame = TEST_FRAME_TIMESTAMP
     return frame_instance
+
+@pytest.fixture(scope="session")
+def model_metrics():
+    """Fixture for model metrics."""
+    return model.ModelMetrics(0, 0, 0, 0, 0)
+
+@pytest.fixture(scope="session")
+def model_details():
+    """Fixture for model details."""
+    return model.ModelDetails(name=TEST_MODEL_NAME, version=TEST_MODEL_VERSION,
+                              framework=TEST_FRAMEWORK, target=TEST_TARGET, dtype='int8')
+
+@pytest.fixture(scope="session")
+def model_info(model_metrics, model_details):
+    """Fixture for model info."""
+    model_info = model.ModelInfo(None, TEST_MODEL_PATH, model_details, 0, model_metrics)
+    model_info.id = TEST_MODEL_ID
+    return model_info
+
+@pytest.fixture(scope="session")
+def model_data():
+    """Fixture for model data."""
+    return b"model data for test"
+
+@pytest.fixture
+def model_instance(httpserver, model_data):
+    """Fixture for model instance."""
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+
+    httpserver.expect_request(f"/models/{TEST_MODEL_ID}", headers=headers).respond_with_json(
+        {
+            "id": TEST_MODEL_ID,
+            "framework": TEST_FRAMEWORK,
+            "target": TEST_TARGET,
+            "url": httpserver.url_for("/models/model_data"),
+            "name": TEST_MODEL_NAME,
+            "version": TEST_MODEL_VERSION,
+            "dtype": "int8",
+            "encrypted": False
+        }
+    )
+
+    httpserver.expect_request("/models/model_data").respond_with_data(model_data)
+
+    return model.Model("simple", httpserver.url_for("/models"), TEST_MODEL_ID)
