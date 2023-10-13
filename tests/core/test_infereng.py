@@ -5,7 +5,6 @@ This module contains the tests for the inference engine module.
 Functions:
     inference_info: Fixture for inference info.
     inference_engine_manager: Fixture for inference engine manager.
-    model_info: Fixture for model info.
     assert_inference_info_equal: Assert if two inference info are equal.
     test_inference_info_init_invalid_device: Tests the __init__ method of InferenceInfo class with
       invalid device.
@@ -33,18 +32,14 @@ import uuid
 
 import pytest
 
-from cnap.core import infereng, model
+from cnap.core import infereng
+from tests.core.conftest import TEST_MODEL_ID, TEST_FRAMEWORK, TEST_TARGET, TEST_MODEL_NAME, \
+    TEST_MODEL_VERSION
 
 # pylint: disable=redefined-outer-name
 
 TEST_DEVICE = 'cpu'
-TEST_MODEL_ID = str(uuid.uuid1())
 TEST_INFERENCE_INFO_ID = str(uuid.uuid1())
-TEST_FRAMEWORK = 'tensorflow'
-TEST_TARGET = 'object-detection'
-TEST_MODEL_NAME = 'ssdmobilenet'
-TEST_MODEL_PATH = '/tmp/ssdmobilenet_v10.pb'
-TEST_MODEL_VERSION = '1.0'
 
 @pytest.fixture
 def inference_info():
@@ -68,20 +63,6 @@ def inference_engine_manager(rtdb_connect):
     """
     inference_engine_manager = infereng.InferEngineManager(rtdb_connect)
     return inference_engine_manager
-
-@pytest.fixture
-def model_info():
-    """Fixture for model info.
-
-    Returns:
-        ModelInfo: A `ModelInfo` object.
-    """
-    model_metrics = model.ModelMetrics(0,0,0,0,0)
-    model_details = model.ModelDetails(TEST_MODEL_NAME, TEST_MODEL_VERSION, TEST_FRAMEWORK,
-                                       TEST_TARGET, 'int8')
-    model_info = model.ModelInfo(None, TEST_MODEL_PATH, model_details, 0, model_metrics)
-    model_info.id = TEST_MODEL_ID
-    return model_info
 
 def assert_inference_info_equal(inference_info1: infereng.InferenceInfo,
                                 inference_info2: infereng.InferenceInfo):

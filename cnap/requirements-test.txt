@@ -1,4 +1,5 @@
 docker
 pytest
 pytest-cov
+pytest-httpserver
 pytest-redis
