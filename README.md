@@ -6,7 +6,6 @@
 ![CI Check Shell](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-shell-check.yaml/badge.svg)
 ![CI Check Node](https://github.com/intel/cloud-native-ai-pipeline/actions/workflows/pr-node-check.yaml/badge.svg)
 
-
 ## 1. Overview
 
 This project provides a multiple-stream, real-time inference pipeline based on cloud native design pattern as following architecture
@@ -109,3 +108,37 @@ Please refer to the [script](./tools/helm_manager.sh) source code for more detai
 The dashboard of CNAP will be available at `http://<your-ip>:31002`, it is exposed as a NodePort service in kubernetes.
 
 **Note**: This is pre-release/prototype software and, as such, it may be substantially modified as updated versions are made available.
+
+## 5. Integration
+
+The Cloud Native AI Pipeline incorporates several key technologies to foster a robust, scalable, and insightful environment conducive for cloud-native deployments. Our integration encompasses monitoring, visualization, and event-driven autoscaling to ensure optimized performance and efficient resource utilization.
+
+### Monitoring with Prometheus
+
+Our project is instrumented to expose essential metrics to [Prometheus](https://prometheus.io/), a reliable monitoring solution that aggregates and stores metric data. This metric exposition forms the basis for informed autoscaling decisions, ensuring our system dynamically adapts to workload demands. 
+
+Note that, when you want to deploy the workloads into other namespace, please first patch the Prometheus RoleBinding to grant the permission to access the workloads in other namespace:
+
+```bash
+kubectl apply -f ./k8s-manifests/prometheus/ClusterRole-All.yaml
+```
+
+### Visualization with Grafana
+
+[Grafana](https://grafana.com/) is employed to provide visual insights into the system's performance and the efficacy of the autoscaling integration. Through intuitive dashboards, we can monitor and analyze the metrics collected by Prometheus, fostering a transparent and insightful monitoring framework.
+
+The dashboards of this project is available at `./k8s-manifests/grafana/dashboards`, you can import it into your grafana.
+
+### Event-Driven Autoscaling with KEDA
+
+[Kubernetes Event-driven Autoscaling (KEDA)](https://keda.sh/) is integrated as an operator to orchestrate the dynamic scaling of our Horizontal Pod Autoscaler (HPA) and Vertical Pod Autoscaler (VPA) based on the metrics collected by Prometheus. This synergy ensures that resources are efficiently allocated in real-time, aligning with the fluctuating workload demands, thus embodying the essence of cloud-native scalability.
+
+As our project evolves, we envisage the integration of additional technologies to further enhance the cloud-native capabilities of our AI pipeline. For a deeper dive into the current integration and instructions on configuration and usage, refer to the [Integration Documentation](./docs/KEDA.md).
+
+To integrate KEDA with Prometheus, you need to deploy the Service Monitor CR for KEDA:
+
+```bash
+kubectl apply -f ./k8s-manifests/keda/keda-service-monitor.yaml
+```
+
+And an example of KEDA ScaledObject is available at `./k8s-manifests/keda/infer_scale.yaml`, you can deploy it to your kubernetes cluster to scale the workloads.
