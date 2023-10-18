@@ -142,3 +142,13 @@ kubectl apply -f ./k8s-manifests/keda/keda-service-monitor.yaml
 ```
 
 And an example of KEDA ScaledObject is available at `./k8s-manifests/keda/infer_scale.yaml`, you can deploy it to your kubernetes cluster to scale the workloads.
+
+### Sustainability with Kepler
+
+In our endeavor to not only optimize the performance but also minimize the environmental impact of our Cloud Native AI Pipeline, we have integrated [Kepler](https://github.com/sustainable-computing-io/kepler), a Kubernetes-based Efficient Power Level Exporter. Kepler employs eBPF to probe system statistics and utilizes machine learning models to estimate the energy consumption of workloads based on these statistics. The energy consumption metrics are then exported to Prometheus, enriching our monitoring framework with vital data that reflects the energy efficiency of our deployments.
+
+This integration aligns with our sustainability objectives by providing a clear insight into the energy footprint of our workloads. By understanding and analyzing the energy metrics provided by Kepler, we can make informed decisions to optimize the energy efficiency of our pipeline, thus contributing to a more sustainable and eco-friendly cloud-native environment.
+
+Furthermore, the integration of Kepler augments our existing monitoring setup with Prometheus and visualization through Grafana, by extending the metrics collection to include energy consumption metrics. This not only enhances our monitoring and visualization framework but also fosters a more holistic understanding of our system's performance and its environmental impact.
+
+For more details on configuring and utilizing Kepler for energy efficiency monitoring, refer to the [Kepler Documentation](https://sustainable-computing.io/).
