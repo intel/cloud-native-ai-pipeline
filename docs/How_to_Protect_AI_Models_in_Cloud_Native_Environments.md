@@ -78,8 +78,6 @@ and the 12 bytes header:
 uint32 IV length | uint32 tag length | uint32 data length
 ---|---|---
 
-```
-
 Some sample code for encryption:
 
 ```Python
@@ -258,6 +256,6 @@ Intel’s TDX technology can provide a TEE running environment, and CCNP can sim
 
 # References
 
-1. Model Provider: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/keybroker.py
-2. Key broker client: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/keybroker.py
+1. Model Provider: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/modelprovider.py
+2. Key Broker Client: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/keybroker.py
 3. CCNP: https://github.com/intel/confidential-cloud-native-primitives
