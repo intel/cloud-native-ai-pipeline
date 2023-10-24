@@ -53,6 +53,13 @@ The Dockerfile is under the directories in [container](container/)
 
 ## 4. Deployment
 
+Before you deploy the helm chart, you need to setup the kubernetes cluster and install the helm tool. Please refer to the [kubernetes documentation](https://kubernetes.io/docs/setup/) and [helm documentation](https://helm.sh/docs/intro/install/) for more details. We also deliver a quick start script to setup the kubernetes cluster:
+
+```bash
+# This is a quick start script for ubuntu
+bash ./tools/prerequisites/k8s-setup.sh
+```
+
 We deliver the helm chart for deployment. After you **finish** building the images and upload to your registry, you need to update the helm chart values `image.repository` to your registry and `image.tag` to your build tag, which defined in each helm chart. Then, assume you navigate to the project's root directory, you can use the following options to install the helm chart:
 
 ### Deploy with the helm manager
