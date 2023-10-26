@@ -49,9 +49,9 @@ class StreamWebSocketServer:
             "STREAM_BROKER_REDIS_HOST", "127.0.0.1")
         self._stream_broker_redis_port = self._get_env(
             "STREAM_BROKER_REDIS_PORT", 6379)
-        self._ws_send_time_out = self._get_env(
+        self._ws_send_time_out = float(self._get_env(
             "WS_SEND_TIME_OUT", 10.0
-        )
+        ))
         self._pipelines = {}
         self._users = {}
 

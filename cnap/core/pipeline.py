@@ -136,9 +136,9 @@ class PipelineManager:
         """
         LOG.debug("Set inference fps: %d for pipeline: %s and inference service: %s",
                   infer_fps, pipeline_id, infer_info.id)
-        if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
-            try:
-                self._db.lock(f"{self.PIPELINE_TABLE}-lock")
+        try:
+            self._db.lock(f"{self.PIPELINE_TABLE}-lock")
+            if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
                 pipeline_dict = self._db.get_table_object_dict(PipelineManager.PIPELINE_TABLE,
                                                             pipeline_id)
                 # Add inference engine to infer_engine_dict if not exist.
@@ -153,10 +153,10 @@ class PipelineManager:
                     pipeline_id,
                     pipeline_dict
                     )
-            finally:
-                self._db.unlock()
-        else:
-            LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)
+            else:
+                LOG.debug("Pipeline: %s has been unregistered.", pipeline_id)
+        finally:
+            self._db.unlock()
 
     def clean_infer_engine(self, infer_info_id: str) -> None:
         """Clean inference engine in infer_engine_dict.
