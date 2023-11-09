@@ -84,6 +84,7 @@ class ObjectDetectionPostprocessor(Postprocessor):
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
                     cv2.putText(frame, CategoryList[label], (x1, y1),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    break
             return frame
         except KeyError as e:
             raise KeyError(f"Missing key in outputs: {str(e)}") from e

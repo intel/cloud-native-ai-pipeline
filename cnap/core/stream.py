@@ -257,7 +257,7 @@ class FileSource(StreamProvider):
         _max_frame (int): The max frame count of file source stream provider.
     """
 
-    DEFAULT_TARGET_FPS = 25
+    DEFAULT_TARGET_FPS = 60
 
     def __init__(self, name: str, pathname: str="classroom.mp4"):
         """Initialize a FileSource object.

@@ -168,8 +168,6 @@ class ModelInfo:
     """
 
     def __init__(self,
-                 model_id: str,
-                 path: str,
                  details: ModelDetails,
                  uploaded_date: datetime,
                  metrics: ModelMetrics):
@@ -182,8 +180,7 @@ class ModelInfo:
             uploaded_date (datetime): The uploaded date of the model.
             metrics (ModelMetrics): The performance metrics of the model.
         """
-        self._id = str(uuid.uuid1()) if model_id is None else model_id
-        self._path = path
+        self._id = str(uuid.uuid1())
         self._details = details
         self._uploaded_date = uploaded_date
         self._metrics = metrics
@@ -236,7 +233,7 @@ class Model:
         _model_binary (bytes): The binary of the model.
     """
 
-    def __init__(self, model_provider: str, model_info_url: str, model_id: str = None):
+    def __init__(self, model_info: ModelInfo, model_binary: bytes):
         """Initialize a Model object.
 
         This constructor initializes a model provider by the given input name, then
@@ -247,18 +244,8 @@ class Model:
             model_info_url (str): The url of the model info server.
             model_id (str): The ID of the model.
         """
-        # pylint: disable=import-outside-toplevel
-        # Move MODEL_PROVIDERS to local to pervent circular import
-        from core.modelprovider import MODEL_PROVIDERS
-
-        if model_provider not in MODEL_PROVIDERS:
-            raise RuntimeError(f"The model provider {model_provider} was not found.")
-
-        provider_cls = MODEL_PROVIDERS[model_provider]
-        provider = provider_cls(model_info_url, model_id)
-
-        self._model_info = provider.get_model_info()
-        self._model_binary = provider.get_model_data()
+        self._model_info = model_info
+        self._model_binary = model_binary
 
     @property
     def model_info(self) -> ModelInfo:

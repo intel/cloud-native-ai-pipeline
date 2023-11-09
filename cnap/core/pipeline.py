@@ -134,8 +134,6 @@ class PipelineManager:
             ValueError: Propagates the ValueError raised by `get_table_object_dict`
                 or `save_table_object_dict` if some cases are met.
         """
-        LOG.debug("Set inference fps: %d for pipeline: %s and inference service: %s",
-                  infer_fps, pipeline_id, infer_info.id)
         try:
             self._db.lock(f"{self.PIPELINE_TABLE}-lock")
             if self._db.check_table_object_exist(PipelineManager.PIPELINE_TABLE, pipeline_id):
