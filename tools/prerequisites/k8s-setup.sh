@@ -121,6 +121,13 @@ install_kubernetes() {
 }
 
 initialize_cluster() {
+    if [ -d "$HOME/.kube" ]; then
+        rm -rf "$HOME/.kube"
+    fi
+
+    read -rp "Setting up single node cluster? (yes/no, default: no): " single_node_setup
+    single_node_setup=${single_node_setup:-"no"}
+
     read -rp "Enter Pod Network CIDR (default: 10.244.0.0/16): " pod_network_cidr
     pod_network_cidr=${pod_network_cidr:-"10.244.0.0/16"}
     command="kubeadm init --pod-network-cidr=${pod_network_cidr}"
@@ -150,7 +157,11 @@ initialize_cluster() {
     echo "Certificate Hash: $cert_hash"
     
     enable_kubectl_autocompletion
-    
+
+    if [[ $single_node_setup == "yes" ]]; then
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane- || true
+    fi
+
     echo "Cluster initialized with Pod Network CIDR $pod_network_cidr"
 }
 
