@@ -39,12 +39,12 @@ $ ./dsa_test -w 0 -l 4096 -o 3
 $ ./dsa_test_batch -w 0 -l 4096 -c 16
 ```
 
-### 3. Setup DSA Device Plugin
+### 3. Setup [DSA Device Plugin](https://github.com/intel/intel-device-plugins-for-kubernetes#dsa-device-plugin)
 
 The DSA plugin discovers DSA work queues and presents them as a node resources.
 
 ```
-$ kubectl apply -k k8s-manifests/plugin/dsa/intel-dsa-plugin.yaml
+$ kubectl apply -k 'https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/dsa_plugin?ref=main'
 daemonset.apps/intel-dsa-plugin created
 ```
 
