@@ -140,7 +140,7 @@ class SimpleKeyBrokerClient(KeyBrokerClientBase):
         resp = None
         for _ in range(RETRY_TIMES):
             try:
-                resp = requests.post(server_url, json=req_body, headers=headers, verify=False,
+                resp = requests.post(server_url, json=req_body, headers=headers, verify=True,
                                      timeout=TIMEOUT)
                 if resp.status_code in HTTP_OK:
                     break
