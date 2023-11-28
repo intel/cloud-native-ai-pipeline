@@ -107,6 +107,47 @@ configure_container() {
     done
 }
 
+add_container_proxy() {
+    # Config proxy
+    local HTTPS_PROXY="$HTTPS_PROXY"
+    local https_proxy="$https_proxy"
+    if [ -z "$HTTPS_PROXY" ]; then
+        HTTPS_PROXY="$https_proxy"
+    fi
+
+    local HTTP_PROXY="$HTTP_PROXY"
+    local http_proxy="$http_proxy"
+    if [ -z "$HTTP_PROXY" ]; then
+        HTTP_PROXY="$http_proxy"
+    fi
+
+    local NO_PROXY="$NO_PROXY"
+    local no_proxy="$no_proxy"
+    if [ -z "$NO_PROXY" ]; then
+        NO_PROXY="$no_proxy"
+    fi
+
+    if [[ -n $HTTP_PROXY ]] || [[ -n $HTTPS_PROXY ]] || [[ -n $NO_PROXY ]]; then
+        components=("containerd" "docker")
+        for component in "${components[@]}"; do
+            commands=(
+                "mkdir -p /etc/systemd/system/${component}.service.d/"
+                "tee /etc/systemd/system/${component}.service.d/http-proxy.conf <<EOF
+[Service]
+Environment=\"HTTP_PROXY=${HTTP_PROXY}\"
+Environment=\"HTTPS_PROXY=${HTTPS_PROXY}\"
+Environment=\"NO_PROXY=${NO_PROXY}\"
+EOF"
+                "systemctl daemon-reload"
+                "systemctl restart ${component}"
+            )
+            for command in "${commands[@]}"; do
+                execute_command "$command"
+            done
+        done
+    fi
+}
+
 install_kubernetes() {
     read -rp "Enter Kubernetes version (default: 1.28.2-00): " k8s_version
     k8s_version=${k8s_version:-"1.28.2-00"}
@@ -243,10 +284,11 @@ main_menu() {
         echo "3: install_pre_requisites"
         echo "4: install_container"
         echo "5: configure_container"
-        echo "6: install_kubernetes"
-        echo "7: setup_cluster"
-        echo "8: install_cni"
-        echo "9: Exit"
+        echo "6: add_container_proxy"
+        echo "7: install_kubernetes"
+        echo "8: setup_cluster"
+        echo "9: install_cni"
+        echo "10: Exit"
         read -rp "Enter step number: " choice
 
         case $choice in
@@ -256,6 +298,7 @@ main_menu() {
                 install_pre_requisites
                 install_container
                 configure_container
+                add_container_proxy
                 install_kubernetes
                 setup_cluster
                 install_cni
@@ -277,15 +320,18 @@ main_menu() {
                 configure_container
                 ;;
             6)
-                install_kubernetes
+                add_container_proxy
                 ;;
             7)
-                setup_cluster
+                install_kubernetes
                 ;;
             8)
-                install_cni
+                setup_cluster
                 ;;
             9)
+                install_cni
+                ;;
+            10)
                 break
                 ;;
             *)
@@ -294,5 +340,10 @@ main_menu() {
         esac
     done
 }
+
+# Export env var
+while read -r env_var; do
+    export "${env_var?}"
+done < /etc/environment
 
 main_menu
