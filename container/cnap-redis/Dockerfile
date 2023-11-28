@@ -2,6 +2,7 @@
 ARG OS_VER=20.04
 ARG OS_IMAGE=ubuntu
 FROM ${OS_IMAGE}:${OS_VER} AS baseimage
+
 RUN apt-get update && DEBIAN_FRONTEND="noninteractive" TZ="America/Los_Angeles" apt-get install -y build-essential git cmake autoconf libtool pkg-config uuid-dev numactl libevent-dev asciidoc libjson-c-dev gdb curl libz-dev libssl-dev
 
 # accel for DSA
@@ -9,7 +10,7 @@ ARG ACCEL_CONFIG_VERSION="4.0"
 ARG ACCEL_CONFIG_DOWNLOAD_URL="https://github.com/intel/idxd-config/archive/accel-config-v$ACCEL_CONFIG_VERSION.tar.gz"
 ARG ACCEL_CONFIG_SHA256="6d9bce40d797a87508ce5c5a5b71bb2bdc1cb544848925ed2c4c37b46a1252ce"
 
-RUN curl -fsSL "$ACCEL_CONFIG_DOWNLOAD_URL" -o accel-config.tar.gz && echo "$ACCEL_CONFIG_SHA256 accel-config.tar.gz" | sha256sum -c - && tar -xzf accel-config.tar.gz
+RUN /bin/bash -c set -o pipefail && curl -fsSL "$ACCEL_CONFIG_DOWNLOAD_URL" -o accel-config.tar.gz && echo "$ACCEL_CONFIG_SHA256 accel-config.tar.gz" | sha256sum -c - && tar -xzf accel-config.tar.gz
 COPY container/cnap-redis/patches/*.patch /
 RUN cd idxd-config-accel-config-v$ACCEL_CONFIG_VERSION && \
     patch -p1 < ../idxd-reset.patch && \
@@ -44,6 +45,8 @@ RUN cd redis-$REDIS_VERSION && \
 # target image with binaries and libraries
 FROM ${OS_IMAGE}:${OS_VER} AS redis
 
+RUN groupadd -r nonroot && useradd -r -g nonroot nonroot
+
 COPY --from=baseimage /usr/lib64/libaccel* /lib/x86_64-linux-gnu/ 
 COPY --from=baseimage /libdto.so.1.0 /lib/x86_64-linux-gnu/
 
@@ -62,4 +65,6 @@ COPY --from=baseimage /redis-server* /opt/redis/
 COPY --from=baseimage /redis-cli /usr/local/bin/
 
 RUN ldconfig
+
+USER nonroot
 
