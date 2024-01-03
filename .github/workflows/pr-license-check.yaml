@@ -13,6 +13,9 @@ on:
     - 'cnap/**/requirements-test.txt'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   codescan:
     runs-on: ubuntu-latest
