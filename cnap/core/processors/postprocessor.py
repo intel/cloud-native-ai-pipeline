@@ -74,6 +74,7 @@ class ObjectDetectionPostprocessor(Postprocessor):
         Postprocess the output by drawing boxes and labels on the input frame for
         object detection.
         """
+        frame = frame.copy()
         try:
             if self._drawing.get('draw_boxes'):
                 boxes = outputs['detection_boxes']
