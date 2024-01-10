@@ -42,10 +42,10 @@ For the details of how to use Trust Execution Environment (TEE) to enhance the s
 The provided [build script](tools/docker_image_manager.sh) simplifies the process of building Docker images for our microservices. For instance, to build all Docker images, use the following command:
 
 ```bash
-./tools/docker_image_manager.sh -a build -r <your-registry>
+./tools/docker_image_manager.sh -a build -r <your-registry> -g <your-tag>
 ```
 
-The `-a` argument specifies the action(either `build`, `publish`, `save` or `all`), and `-r` is the prefix string for your docker registry
+The `-a` argument specifies the action(either `build`, `publish`, `save` or `all`), and `-r` is the prefix string for your docker registry, `-g` argument specifies the container image tag.
 
 You can get more detail options and arguments for `docker_image_manager.sh` via `./tools/docker_image_manager.sh -h`
 
@@ -60,7 +60,40 @@ Before you deploy the helm chart, you need to setup the kubernetes cluster and i
 bash ./tools/prerequisites/k8s-setup.sh
 ```
 
-We deliver the helm chart for deployment. After you **finish** building the images and upload to your registry, you need to update the helm chart values `image.repository` to your registry and `image.tag` to your build tag, which defined in each helm chart. Then, assume you navigate to the project's root directory, you can use the following options to install the helm chart:
+We deliver the helm chart for deployment. After you **finish** building the images and upload to your registry, you need to update the helm chart values `image.repository` to your registry and `image.tag` to your build tag, which defined in each helm chart.
+
+You need a simple http model server for deployment, the following is an example about how to configure for the regular AI pipeline, for the Trusted AI pipeline, please refer to [How to Protect AI Models in Cloud-Native Environments](docs/How_to_Protect_AI_Models_in_Cloud_Native_Environments.md).
+
+Configure the env of [inference service](./helm/inference/values.yaml#L71-L74):
+
+```
+  - name: INFER_MODEL_INFO_URL
+    value: "http://{model_server_url}/tensorflow/"
+  - name: INFER_MODEL_ID
+    value: "c8b019e0-f4d8-4831-8936-f7f64ad99509"
+```
+
+The HTTP GET request to `http://{model_server_url}/tensorflow/c8b019e0-f4d8-4831-8936-f7f64ad99509` should response:
+
+```
+{
+    "id": "c8b019e0-f4d8-4831-8936-f7f64ad99509",
+    "framework": "tensorflow",
+    "target": "object-detection",
+    "url": "http://{model_server_url}/tensorflow/ssdmobilenet_v10.pb",
+    "name": "ssdmobilenet",
+    "version": "1.0",
+    "dtype": "int8",
+    "encrypted": false,
+}
+```
+
+`http://{model_server_url}/tensorflow/ssdmobilenet_v10.pb` is where the model stored.
+For more details about Model Server, please refer to [AI Model Server](./docs/How_to_Protect_AI_Models_in_Cloud_Native_Environments.md#23-ai-model-server).
+
+_Note: `ServiceMonitor` CR is included in helm charts, you can install [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus?tab=readme-ov-file#quickstart) to install the CRD._
+
+Then, assume you navigate to the project's root directory, you can use the following options to install the helm chart:
 
 ### Deploy with the helm manager
 
@@ -69,18 +102,20 @@ We deliver the helm chart for deployment. After you **finish** building the imag
 2. Execute the Helm manager script with the appropriate arguments. For instance, to install all Helm charts, use the following command:
 
    ```bash
-   ./tools/helm_manager.sh -i
+   ./tools/helm_manager.sh -i -n <your-namespace>
+   # Specfiy the image registry and tag via `-r` and `-g` arguments
+   # ./tools/helm_manager.sh -i -n <your-namespace> -r <your-registry> -g <your-tag>
    # To uninstall all charts
-   # ./tools/helm_manager.sh -u
+   # ./tools/helm_manager.sh -u -n <your-namespace>
    ```
 
-   The `-i` argument triggers the installation of Helm charts.
+   The `-i` argument triggers the installation of Helm charts, `-u` argument triggers the uninstallation of Helm charts, `-n` argument specifies the namespace, `-r` argument specifies the image registry, `-g` argument specifies the image tag.
 
    You can also specify a specific chart to install or uninstall using the chart name as an argument. For instance:
 
    ```bash
-   ./tools/helm_manager.sh -i <chart_name>
-   ./tools/helm_manager.sh -u <chart_name>
+   ./tools/helm_manager.sh -i <chart_name> -n <your-namespace>
+   ./tools/helm_manager.sh -u <chart_name> -n <your-namespace>
    ```
 
    Use `-l` to list all available charts and `-h` to display help information.
@@ -94,22 +129,22 @@ Please refer to the [script](./tools/helm_manager.sh) source code for more detai
 2. Execute the Helm manager script with the appropriate arguments. For instance, to install all Helm charts, use the following command:
 
     ```bash
-    # helm install <customer-release-name> <helm-chart-directory>
+    # helm install <customer-release-name> <helm-chart-directory> --namespace=<your-namespace>
 
     # Redis service
-    helm install redis ./helm/redis
-    # Optional, if you want to see the redis dashboard in grafana: helm install redis-exporter ./helm/redis-exporter
+    helm install redis ./helm/redis --namespace=<your-namespace>
+    # Optional, if you want to see the redis dashboard in grafana: helm install redis-exporter ./helm/redis-exporter --namespace=<your-namespace>
 
     # Inference service
-    helm install inference ./helm/inference
+    helm install inference ./helm/inference --namespace=<your-namespace>
 
     # SPA service
-    helm install pipelineapi ./helm/pipelineapi
-    helm install websocket ./helm/websocket
-    helm install ui ./helm/ui
+    helm install pipelineapi ./helm/pipelineapi --namespace=<your-namespace>
+    helm install websocket ./helm/websocket --namespace=<your-namespace>
+    helm install ui ./helm/ui --namespace=<your-namespace>
 
     # Steam service
-    helm install stream ./helm/stream
+    helm install stream ./helm/stream --namespace=<your-namespace>
     ```
 
 The dashboard of CNAP will be available at `http://<your-ip>:31002`, it is exposed as a NodePort service in kubernetes.
