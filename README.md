@@ -159,3 +159,13 @@ This integration aligns with our sustainability objectives by providing a clear 
 Furthermore, the integration of Kepler augments our existing monitoring setup with Prometheus and visualization through Grafana, by extending the metrics collection to include energy consumption metrics. This not only enhances our monitoring and visualization framework but also fosters a more holistic understanding of our system's performance and its environmental impact.
 
 For more details on configuring and utilizing Kepler for energy efficiency monitoring, refer to the [Kepler Documentation](https://sustainable-computing.io/).
+
+## 6. Contributors
+
+<!-- spell-checker: disable -->
+
+<!-- readme: contributors -start -->
+
+<!-- readme: contributors -end -->
+
+<!-- spell-checker: enable -->
