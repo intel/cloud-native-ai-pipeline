@@ -165,7 +165,73 @@ For more details on configuring and utilizing Kepler for energy efficiency monit
 <!-- spell-checker: disable -->
 
 <!-- readme: contributors -start -->
-
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/leyao-daily">
+            <img src="https://avatars.githubusercontent.com/u/54387247?v=4" width="100;" alt="leyao-daily"/>
+            <br />
+            <sub><b>Le Yao</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Hulongyin">
+            <img src="https://avatars.githubusercontent.com/u/108726629?v=4" width="100;" alt="Hulongyin"/>
+            <br />
+            <sub><b>Longyin Hu</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/kenplusplus">
+            <img src="https://avatars.githubusercontent.com/u/31843217?v=4" width="100;" alt="kenplusplus"/>
+            <br />
+            <sub><b>Lu Ken</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/dongx1x">
+            <img src="https://avatars.githubusercontent.com/u/34326010?v=4" width="100;" alt="dongx1x"/>
+            <br />
+            <sub><b>Xiaocheng Dong</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Yanbo0101">
+            <img src="https://avatars.githubusercontent.com/u/110962880?v=4" width="100;" alt="Yanbo0101"/>
+            <br />
+            <sub><b>Yanbo Xu</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/hwang37">
+            <img src="https://avatars.githubusercontent.com/u/36193324?v=4" width="100;" alt="hwang37"/>
+            <br />
+            <sub><b>Wang, Hongbo</b></sub>
+        </a>
+    </td></tr>
+<tr>
+    <td align="center">
+        <a href="https://github.com/pingzhaozz">
+            <img src="https://avatars.githubusercontent.com/u/56963659?v=4" width="100;" alt="pingzhaozz"/>
+            <br />
+            <sub><b>Null</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/jialeif">
+            <img src="https://avatars.githubusercontent.com/u/88661406?v=4" width="100;" alt="jialeif"/>
+            <br />
+            <sub><b>Jialei Feng</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/rdower">
+            <img src="https://avatars.githubusercontent.com/u/15023397?v=4" width="100;" alt="rdower"/>
+            <br />
+            <sub><b>Robert Dower</b></sub>
+        </a>
+    </td></tr>
+</table>
 <!-- readme: contributors -end -->
 
 <!-- spell-checker: enable -->
