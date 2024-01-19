@@ -1,0 +1,21 @@
+name: Minor Issue
+description: Report a minor issue or suggest a small fix
+labels: kind/small-fix
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thank you for contributing to the cloud-native-ai-pipeline!**
+        For small fixes or minor issues, please provide the following details to help us understand and address your concern promptly.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        Briefly describe the small fix or minor issue.
+      placeholder: "A concise description of the issue or fix..."
+    validations:
+      required: true
+
+

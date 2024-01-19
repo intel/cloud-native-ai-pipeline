@@ -1,0 +1,70 @@
+name: CI/CD Issue
+description: Report an issue related to Continuous Integration or Continuous Deployment
+labels: kind/cicd
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **We appreciate your contribution to improving our CI/CD processes.** 
+        Please provide detailed information to help us understand and address the issue efficiently.
+
+  - type: textarea
+    id: issue-summary
+    attributes:
+      label: Issue Summary
+      description: |
+        Briefly summarize the CI/CD issue you are experiencing.
+      placeholder: "A concise overview of the issue..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Detailed Description
+      description: |
+        Provide a detailed description of the issue. Include what you were trying to accomplish and where the process failed.
+      placeholder: "Detailed information about the issue, including specific errors or failures..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        List the steps to reproduce the issue. Be as specific as possible.
+      placeholder: "Step-by-step instructions to reproduce the issue..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: ci-cd-environment
+    attributes:
+      label: CI/CD Environment
+      description: |
+        Describe the CI/CD environment where the issue occurred (e.g., tools, versions, configurations).
+      placeholder: "Details about the CI/CD environment..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs-output
+    attributes:
+      label: Logs and Output
+      description: |
+        Provide any relevant logs or output data that can help diagnose the issue.
+      placeholder: "Logs, console output, error messages..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: |
+        Any other information that might be helpful, such as attempted solutions or workarounds.
+      placeholder: "Any other useful information..."
+    validations:
+      required: false
+

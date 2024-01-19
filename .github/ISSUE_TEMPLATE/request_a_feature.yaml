@@ -1,0 +1,70 @@
+name: Feature Request
+description: Propose a new feature or enhancement for the cloud-native-ai-pipeline
+labels: kind/feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thank you for your interest in improving the cloud-native-ai-pipeline!** 
+        We value your contributions and ideas. Please take a moment to share detailed information about your feature request. This helps us understand your vision and evaluate its potential impact.
+
+  - type: textarea
+    id: feature-summary
+    attributes:
+      label: Feature Summary
+      description: |
+        Provide a brief summary of the feature or enhancement you are proposing. 
+      placeholder: "A concise summary of the feature..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-detail
+    attributes:
+      label: Detailed Description
+      description: |
+        Elaborate on your feature idea. Include specific requirements, benefits, and any potential challenges.
+      placeholder: "In-depth details about the feature, including any specific requirements..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation and Context
+      description: |
+        Explain the problem or need that this feature addresses. How does it benefit the users and the project?
+      placeholder: "The problem or need the feature addresses..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: |
+        Describe potential use cases for this feature. How would it be used and by whom?
+      placeholder: "Examples of how the feature could be used..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and Considerations
+      description: |
+        Have you considered any alternative solutions or features? Please share your thoughts on them.
+      placeholder: "Alternative solutions or features considered..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: |
+        Provide any other information or screenshots that could be helpful in understanding your request.
+      placeholder: "Any other information or visual aids..."
+    validations:
+      required: false
+
