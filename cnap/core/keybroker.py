@@ -15,12 +15,14 @@ import logging
 import struct
 import requests
 
-from ccnp import Quote
+from ccnp import Eventlog, Quote
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+from core.eventlog import replay_event_log, verify_event_log
 
 LOG = logging.getLogger(__name__)
 
@@ -68,17 +70,19 @@ class SimpleKeyBrokerClient(KeyBrokerClientBase):
           key (SWK) to encrypt the user key (wrapped_key).
         - Encrypt the SWK by the public key from client (wrapped_swk).
     For a key broker client, here is an example flow to get a key from KBS:
+        - Get and replay all event logs, and verify by the measurement register.
         - Generate 2048 bit RSA key pair (a public key and a private key).
         - Encode the public key to base64 for transferring (user_data).
         - Get quote in the TEE with the hash of the public key for measurement (quote).
         - Request wrapped_key and wrapped_swk from KBS with quote and user_data.
         - Decrypt the user key by the SWK.
     """
-    def get_key(self, server_url: str, key_id: str) -> bytes:
+    def get_key(self, server_url: str, key_id: str) -> bytes: # pylint: disable=too-many-locals
         """Get model key by key ID from the KBS.
   
-        This method construct the request headers and body to request the wrapped_key and
-        wrapped_swk from KBS, decrypt the user key by SWK and return the key.
+        This method get and replay all event logs, and verify by the measurement register, then
+        construct the request headers and body to request the wrapped_key and wrapped_swk from KBS,
+        decrypt the user key by SWK and return the key.
 
         A example requests and response:
             - request headers:
@@ -105,13 +109,26 @@ class SimpleKeyBrokerClient(KeyBrokerClientBase):
     
         Raises:
             ValueError: If the server_url or key_id is None.
-            RuntimeError: If get quote or get key failed.
+            RuntimeError: If get or verify event log failed, and if get quote or get key failed.
             NotImplementedError: If the subclasses don't implement the method.
         """
         if server_url is None:
             raise ValueError("KBS server url can not be None")
         if key_id is None:
             raise ValueError("KBS key id can not be None")
+
+        # Get and verify event logs before get quote.
+        # The exectuion environment judgment will be implemented by ccnp in the future.
+        LOG.debug("Getting event log by CCNP")
+        event_logs = Eventlog.get_platform_eventlog()
+        if event_logs is None:
+            raise RuntimeError("Get event log failed")
+        measurement_dict = replay_event_log(event_logs)
+        if verify_event_log(measurement_dict):
+            LOG.info("Event log verify successfully.\n")
+        else:
+            LOG.error("Event log verify failed.\n")
+            raise RuntimeError("Event log verify failed.")
 
         private_key = rsa.generate_private_key(public_exponent=65537, key_size=3072)
         pubkey = private_key.public_key()
