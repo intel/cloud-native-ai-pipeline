@@ -4,7 +4,7 @@ This module provides functions related to event log processing. The event log ca
 Confidential Cloud-Native Primitives (CCNP), and is defined according to several tcg supported event
 log formats defined in TCG_PCClient Spec, Canonical Eventlog Spec, etc.
 
-CCNP: https://github.com/intel/confidential-cloud-native-primitives
+CCNP: https://github.com/cc-api/confidential-cloud-native-primitives
 TCG_PCClient Spec:
   https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientSpecPlat_TPM_2p0_1p04_pub.pdf
 Canonical Eventlog Spec:

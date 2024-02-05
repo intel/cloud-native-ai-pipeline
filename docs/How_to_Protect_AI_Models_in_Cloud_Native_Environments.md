@@ -10,8 +10,9 @@ To ensure the cloud native environments and AI models are secure protected in us
 
 ## 1. Architecture Design
 
-This design can be divided into three steps logically.
+This design can be divided into four steps logically.
 - A plain AI model is preprocessed before uploading or use in cloud native environment. AI model should be encrypted offline, and the encryption key will be stored in a key database server.
+- Fetch and verify event logs. Event logs are the record of measurements made to PCRs (PCR: Platform Configuration Register) by the Platform Firmware, with some informational events not extended to PCRs. The informational events are used to convey valuable information to an evaluator of the log. Each measurement made, as well as the information events, are recorded in the event logs as individual entries with specified fields. Event logs can assist the attestation/verification process. For more detail, please refer to [TCG_PCClient Spec](https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientSpecPlat_TPM_2p0_1p04_pub.pdf).
 - Attestation of the cloud native environment.  Attestation is a confidential computing keystone. With attestation, AI models owner can fully assert the trustworthiness of the hardware and software environment AI is running in, regardless of the security posture of the underlying infrastructure provider.
 - AI Model fetching and decryption. Before CNAP can start its AI pipeline streaming inference, a proper AI model has to be downloaded then decrypted.
 
@@ -26,15 +27,34 @@ To protect the model and its encryption key, the following preprocessing steps a
 - Upload the encrypted model to Model Server.
 - Register key to Key Broker Service (KBS), and KBS will communicate with Key Management Service (KMS) to store the key in its database.
 
-### 1.2 Attestation by using Confidential Cloud-Native Primitives (CCNP)
+### 1.2 Fetch and Verify Event Logs by using Confidential Cloud-Native Primitives (CCNP)
 
-[CCNP](https://github.com/intel/confidential-cloud-native-primitives) is to enable Intel Trust Domain Extensions (TDX) or other TEE technologies and simplify the usage of TEE in cloud native environment. It comprises two main components: the services and the SDK, which includes event log, measurement, quote generation and other APIs.
+[CCNP](https://github.com/cc-api/confidential-cloud-native-primitives) is to enable Intel Trust Domain Extensions (TDX) or other TEE technologies and simplify the usage of TEE in cloud native environment. It comprises two main components: the services and the SDK, which includes event logs, measurement, quote generation and other APIs.
 
 - Service is designed to hide the complexity of different TEE platforms and provides common interfaces and scalability for cloud native environment.
 
 - SDK is to simplify the use of the service interface for development, it communicates to the service and parses the return results from the services.
 
-The service supports attestation, measurement fetching and event log collecting of various platforms including Intel TDX, Trusted Platform Modules (TPM) and AMD Secure Encrypted Virtualization-Secure Nested Paging (SEV-SNP) (will be supported soon).
+The service supports attestation, measurement fetching and event logs collecting of various platforms including Intel TDX, Trusted Platform Modules (TPM) and AMD Secure Encrypted Virtualization-Secure Nested Paging (SEV-SNP) (will be supported soon).
+
+CCNP is a good choice to fetch these evidences including measurements and event logs, which hides the complexity of the underlying platforms and increase the usability of the APIs. Here's the sample code using CCNP:
+
+```Python
+from ccnp import Eventlog
+event_logs = Eventlog.get_platform_eventlog()
+```
+
+To verify that the event logs have not been tampered with, we can compare the measurement replayed from event logs with the IMR (Integrated Measurement Register) values fetched using CCNP.
+Here's the sample code using CCNP to fetch IMR values (use Intel TDX RTMR as example):
+
+```Python
+from ccnp import Measurement, MeasurementType
+imr_measurement = Measurement.get_platform_measurement(MeasurementType.TYPE_TDX_RTMR, None, 1)
+```
+
+CCNP API detail documentation can be found [here](https://intel.github.io/confidential-cloud-native-primitives/).
+
+### 1.3 Attestation by using Confidential Cloud-Native Primitives (CCNP)
 
 To get the key to decrypt the model, we need provide the quote of TEE for attestation, CCNP is a good choice to get the quote and it hides the complexity and is easy to use, sample code from CCNP:
 
@@ -43,13 +63,12 @@ from ccnp import Quote
 quote=Quote.get_quote()
 ```
 
-CCNP API detail documentation can be found [here](https://intel.github.io/confidential-cloud-native-primitives/).
-
-### 1.3 AI Model Decryption
+### 1.4 AI Model Decryption
 
 CNAP project’s Inference Service flow of getting AI model should be updated to support TEE environment since the AI model has been encrypted:
 
 - Deploy CCNP as a [DaemonSet](https://intel.github.io/confidential-cloud-native-primitives/_rst/service.quote.html#deploy-as-daemonset-in-kubernetes), it will detect the TEE environment.
+- Fetch and verify event logs.
 - Get the quote and request the key from KBS.
 - Download the encrypted AI model from Model Server.
 - Decrypt AI model and load the model in memory to start AI streaming inference.
@@ -60,7 +79,7 @@ Current Cloud-Native AI Pipeline (CNAP) project already implements the new desig
 
 To protect AI model, the first thing is to generate a key for model encryption, encrypt the model and register the key to KBS. Then KBS will submit further request to store the key to KMS.
 
-To fetch and decrypt the model, the runtime environment should be verified by attestation. A key broker client should get a quote and send the quote to KBS to verify that it is running on an authentic TEE platform. Upon successful attestation, KBS will then respond with a wrapped key for AI model's decryption later.
+To fetch and decrypt the model, the runtime environment should be verified by event logs and attestation. A key broker client should get a quote and send the quote to KBS to verify that it is running on an authentic TEE platform. Upon successful attestation, KBS will then respond with a wrapped key for AI model's decryption later.
 
 ### 2.1 AI Model Encryption
 
@@ -159,6 +178,7 @@ An sample working flow of a simple KBS implementation:
 
 For a key broker client, here is an example working flow of key broker client to get a key from KBS:
 
+- Get and replay all event logs, and verify by the measurement register.
 - Generate 2048 bit RSA key pair (a public key and a private key).
 - Encode the public key to base64 for transferring (user_data).
 - Get quote in the TEE with the hash of the public key for measurement (quote).
@@ -192,7 +212,45 @@ req_body = {
 }
 ```
 
-### 2.5 Attestation
+### 2.5 Fetch and Verify Event Logs
+
+CCNP provides an easy way to fetch and verify event logs in TEE. After fetching event logs, we can compare the measurement replayed from event logs with the IMR (Integrated Measurement Register) values fetched using CCNP to verify that event logs have not been tampered with.
+
+We can fetch, replay and verify event logs before attestation, the sample code:
+
+```Python
+import logging
+
+from ccnp import Eventlog, Measurement, MeasurementType
+
+LOG = logging.getLogger(__name__)
+IMR_VERIFY_COUNT = 3
+
+# Fetch event logs using CCNP and replay.
+event_logs = Eventlog.get_platform_eventlog()
+measurement_dict = replay(event_logs)
+
+# Fetch IMR measurement (use Intel TDX RTMR as example) and verify with replayed value.
+for index in range(IMR_VERIFY_COUNT):
+    # Fectch IMR measurement
+    imr_measurement = base64.b64decode(Measurement.get_platform_measurement(
+        MeasurementType.TYPE_TDX_RTMR, None, index))
+
+    # Get IMR value from replayed event logs
+    for value in measurement_dict[index].values():
+        imr_replayed = value
+        break
+
+    if imr_measurement == imr_replayed:
+        LOG.info("IMR[%d] passed the verification.", index)
+    else:
+        LOG.error("IMR[%d] did not pass the verification.", index)
+        raise RuntimeError("Event logs verify failed.")
+
+LOG.info("Event logs verify successfully.")
+```
+
+### 2.6 Attestation
 
 CCNP provides an easy way to get the quote for attestation in TEE. Before getting the quote, a RSA key pair need to be generated for wrapping purpose and the public key will be measured as the user data input to the quote fetching process.
 
@@ -214,7 +272,7 @@ user_data = base64.b64encode(pubkey_der).decode('utf-8')
 quote = Quote.get_quote(user_data=user_data)
 ```
 
-### 2.6 AI Model Decryption
+### 2.7 AI Model Decryption
 
 Just like the encryption, the AES-256-GCM encrypted data format should be:
 
@@ -251,11 +309,12 @@ def decrypt_data(encrypted_data, key) -> bytes:
 ## Conclusion
 
 As organizations move more of their AI workloads to the cloud, AI models security, and protection has become more important. Confidential computing provides a set of technologies designed to protect data in use, such as AI models currently being processed by the machine, or currently in memory. 
-This document describes a common architecture to “design and run” a native AI Model into confidential computing environments. (1) AI Model preprocess (2) Attestation of the cloud native environment (3) AI Model fetching and decryption.
-Intel’s TDX technology can provide a TEE running environment, and CCNP can simply the attestation of confidential native environment, last but not least, a sample KBS is introduced to help customer to connect with its own or vendor-independent attestation service (for example, Intel Trust Authority).
+This document describes a common architecture to “design and run” a native AI Model into confidential computing environments. (1) AI Model preprocess (2) Fetch and verify event logs (3) Attestation of the cloud native environment (4) AI Model fetching and decryption.
+Intel’s TDX technology can provide a TEE running environment, and CCNP can simplify the event logs, measurement fetching and attestation of confidential native environment, last but not least, a sample KBS is introduced to help customer to connect with its own or vendor-independent attestation service (for example, Intel Trust Authority).
 
 # References
 
 1. Model Provider: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/modelprovider.py
 2. Key Broker Client: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/keybroker.py
-3. CCNP: https://github.com/intel/confidential-cloud-native-primitives
+3. CCNP: https://github.com/cc-api/confidential-cloud-native-primitives
+4. TCG_PCClient Spec: https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientSpecPlat_TPM_2p0_1p04_pub.pdf
