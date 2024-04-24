@@ -52,7 +52,7 @@ from ccnp import Measurement, MeasurementType
 imr_measurement = Measurement.get_platform_measurement(MeasurementType.TYPE_TDX_RTMR, None, 1)
 ```
 
-CCNP API detail documentation can be found [here](https://intel.github.io/confidential-cloud-native-primitives/).
+CCNP API detail documentation can be found [here](https://cc-api.github.io/confidential-cloud-native-primitives).
 
 ### 1.3 Attestation by using Confidential Cloud-Native Primitives (CCNP)
 
@@ -67,7 +67,7 @@ quote=Quote.get_quote()
 
 CNAP project’s Inference Service flow of getting AI model should be updated to support TEE environment since the AI model has been encrypted:
 
-- Deploy CCNP as a [DaemonSet](https://intel.github.io/confidential-cloud-native-primitives/_rst/service.quote.html#deploy-as-daemonset-in-kubernetes), it will detect the TEE environment.
+- Deploy CCNP as a [DaemonSet](https://cc-api.github.io/confidential-cloud-native-primitives/kubernetes_deployment.html), it will detect the TEE environment.
 - Fetch and verify event logs.
 - Get the quote and request the key from KBS.
 - Download the encrypted AI model from Model Server.
