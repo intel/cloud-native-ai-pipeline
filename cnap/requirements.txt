@@ -7,6 +7,6 @@ opencv-python==4.8.1.78
 prometheus-client==0.18.0
 protobuf==4.23.4
 redis==5.0.1
-requests==2.31.0
+requests==2.32.0
 tensorflow==2.15.0
 websockets==12.0
