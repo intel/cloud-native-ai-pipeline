@@ -1,4 +1,5 @@
-ccnp==0.0.2
+ccnp
+cctrusted_base
 Flask==3.0.0
 Flask-Cors==4.0.1
 kafka-python==2.0.2
