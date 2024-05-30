@@ -19,18 +19,18 @@ import logging
 import base64
 from hashlib import sha1, sha256, sha384, sha512
 
-from ccnp.eventlog.eventlog_sdk import CCEventLogEntry, CCAlgorithms
-from ccnp import Measurement, MeasurementType
+from ccnp import CcnpSdk
+from cctrusted_base.tcg import TcgAlgorithmRegistry
 
 LOG = logging.getLogger(__name__)
 
 IMR_VERIFY_COUNT = 3
 
-def replay_event_log(event_logs: list[CCEventLogEntry]) -> dict:
+def replay_event_log(event_logs) -> dict:
     """Replay event logs by Integrated Measurement Register (IMR) index.
 
     Args:
-        event_logs (list[CCEventLogEntry]): Event logs fetched by CCNP.
+        event_logs: Event logs fetched by CCNP.
 
     Returns:
         dict: A dictionary containing the replay result displayed by IMR index and hash algorithm. 
@@ -47,13 +47,13 @@ def replay_event_log(event_logs: list[CCEventLogEntry]) -> dict:
 
         alg_id = event_log.alg_id.algo_id
         # Check algorithm type and prepare for replay
-        if alg_id == CCAlgorithms.ALG_SHA1:
+        if alg_id == TcgAlgorithmRegistry.TPM_ALG_SHA1:
             algo = sha1()
-        elif alg_id == CCAlgorithms.ALG_SHA384:
+        elif alg_id == TcgAlgorithmRegistry.TPM_ALG_SHA384:
             algo = sha384()
-        elif alg_id == CCAlgorithms.ALG_SHA256:
+        elif alg_id == TcgAlgorithmRegistry.TPM_ALG_SHA256:
             algo = sha256()
-        elif alg_id == CCAlgorithms.ALG_SHA512:
+        elif alg_id == TcgAlgorithmRegistry.TPM_ALG_SHA512:
             algo = sha512()
         else:
             LOG.error("Unsupported hash algorithm %d", alg_id)
@@ -89,9 +89,9 @@ def verify_event_log(measurement_dict: dict) -> bool:
     for index in range(IMR_VERIFY_COUNT):
         # Fectch IMR measurement
         LOG.info("Fetch measurements in IMR[%d]", index)
-        imr_measurement = base64.b64decode(Measurement.get_platform_measurement(
-            MeasurementType.TYPE_TDX_RTMR, None, index))
-        LOG.info("IMR[%d](measurement): %s", index, imr_measurement.hex())
+        imr_measurement = base64.b64decode(CcnpSdk.inst().get_cc_measurement(
+            [index, 12]))
+        LOG.info("IMR[%d](measurement): %s", index, imr_measurement.hash.hex())
 
         # Get IMR value from replayed event log
         if index not in measurement_dict or measurement_dict[index] == {}:
@@ -102,7 +102,7 @@ def verify_event_log(measurement_dict: dict) -> bool:
             imr_replayed = value
             break
 
-        LOG.info("IMR[%d](replayed): %s", index, imr_replayed.hex())
+        LOG.info("IMR[%d](replayed): %s", index, imr_replayed.hash.hex())
         if imr_measurement == imr_replayed:
             LOG.info("IMR[%d] passed the verification.", index)
         else:

@@ -15,14 +15,14 @@ import logging
 import struct
 import requests
 
-from ccnp import Eventlog, Quote
+from ccnp import CcnpSdk
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from core.eventlog import replay_event_log, verify_event_log
+from core.eventlog import verify_event_log
 
 LOG = logging.getLogger(__name__)
 
@@ -120,10 +120,10 @@ class SimpleKeyBrokerClient(KeyBrokerClientBase):
         # Get and verify event logs before get quote.
         # The exectuion environment judgment will be implemented by ccnp in the future.
         LOG.debug("Getting event log by CCNP")
-        event_logs = Eventlog.get_platform_eventlog()
+        event_logs = CcnpSdk.inst().get_cc_eventlog()
         if event_logs is None:
             raise RuntimeError("Get event log failed")
-        measurement_dict = replay_event_log(event_logs)
+        measurement_dict = CcnpSdk.inst().replay_cc_eventlog(event_logs)
         if verify_event_log(measurement_dict):
             LOG.info("Event log verify successfully.\n")
         else:
@@ -137,7 +137,7 @@ class SimpleKeyBrokerClient(KeyBrokerClientBase):
 
         LOG.debug("Getting TDX Quote by CCNP")
         user_data = base64.b64encode(pubkey_der).decode('utf-8')
-        quote = Quote.get_quote(user_data=user_data)
+        quote = CcnpSdk.inst().get_cc_report(data=user_data).dump()
         if quote is None:
             raise RuntimeError("Get TDX Quote failed")
         quote = base64.b64encode(quote.quote).decode('utf-8')

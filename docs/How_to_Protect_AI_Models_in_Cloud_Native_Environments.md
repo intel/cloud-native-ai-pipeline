@@ -40,27 +40,27 @@ The service supports attestation, measurement fetching and event logs collecting
 CCNP is a good choice to fetch these evidences including measurements and event logs, which hides the complexity of the underlying platforms and increase the usability of the APIs. Here's the sample code using CCNP:
 
 ```Python
-from ccnp import Eventlog
-event_logs = Eventlog.get_platform_eventlog()
+from ccnp import Ccnpsdk
+event_logs = CcnpSdk.inst().get_cc_eventlog()
 ```
 
 To verify that the event logs have not been tampered with, we can compare the measurement replayed from event logs with the IMR (Integrated Measurement Register) values fetched using CCNP.
 Here's the sample code using CCNP to fetch IMR values (use Intel TDX RTMR as example):
 
 ```Python
-from ccnp import Measurement, MeasurementType
-imr_measurement = Measurement.get_platform_measurement(MeasurementType.TYPE_TDX_RTMR, None, 1)
+from ccnp import Ccnpsdk
+imr_measurement = CcnpSdk.inst().get_cc_measurement([index, 12])
 ```
 
-CCNP API detail documentation can be found [here](https://intel.github.io/confidential-cloud-native-primitives/).
+CCNP API detail documentation can be found [here](https://cc-api.github.io/confidential-cloud-native-primitives/).
 
 ### 1.3 Attestation by using Confidential Cloud-Native Primitives (CCNP)
 
 To get the key to decrypt the model, we need provide the quote of TEE for attestation, CCNP is a good choice to get the quote and it hides the complexity and is easy to use, sample code from CCNP:
 
 ```Python
-from ccnp import Quote
-quote=Quote.get_quote()
+from ccnp import Ccnpsdk
+quote = CcnpSdk.inst().get_cc_report().dump() 
 ```
 
 ### 1.4 AI Model Decryption
@@ -221,20 +221,20 @@ We can fetch, replay and verify event logs before attestation, the sample code:
 ```Python
 import logging
 
-from ccnp import Eventlog, Measurement, MeasurementType
+from ccnp import Ccnpsdk
 
 LOG = logging.getLogger(__name__)
 IMR_VERIFY_COUNT = 3
 
 # Fetch event logs using CCNP and replay.
-event_logs = Eventlog.get_platform_eventlog()
-measurement_dict = replay(event_logs)
+event_logs = CcnpSdk.inst().get_cc_eventlog()
+measurement_dict = CcnpSdk.inst().replay_cc_eventlog(event_logs)
 
 # Fetch IMR measurement (use Intel TDX RTMR as example) and verify with replayed value.
 for index in range(IMR_VERIFY_COUNT):
     # Fectch IMR measurement
-    imr_measurement = base64.b64decode(Measurement.get_platform_measurement(
-        MeasurementType.TYPE_TDX_RTMR, None, index))
+    imr_measurement = base64.b64decode(CcnpSdk.inst().get_cc_measurement(
+            [index, 12])
 
     # Get IMR value from replayed event logs
     for value in measurement_dict[index].values():
@@ -261,7 +261,7 @@ The sample code to get the quote with user data:
 ```Python
 import base64
 
-from ccnp import Quote
+from ccnp import Ccnpsdk
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 private_key = rsa.generate_private_key(public_exponent=65537, key_size=3072)
@@ -269,7 +269,8 @@ pubkey = private_key.public_key()
 pubkey_der = pubkey.public_bytes(encoding=serialization.Encoding.DER,
                                  format=serialization.PublicFormat.SubjectPublicKeyInfo)
 user_data = base64.b64encode(pubkey_der).decode('utf-8')
-quote = Quote.get_quote(user_data=user_data)
+quote = Ccnpsdk.get_cc_report(data=user_data).dump()
+quote = base64.b64encode(quote.quote).decode('utf-8')
 ```
 
 ### 2.7 AI Model Decryption
@@ -286,8 +287,7 @@ uint32 IV length | uint32 tag length | uint32 data length
 
 To decrypt the data, here are some sample code:
 
-```
-
+```Python
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 def decrypt_data(encrypted_data, key) -> bytes:
@@ -317,4 +317,5 @@ Intel’s TDX technology can provide a TEE running environment, and CCNP can sim
 1. Model Provider: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/modelprovider.py
 2. Key Broker Client: https://github.com/intel/cloud-native-ai-pipeline/blob/main/cnap/core/keybroker.py
 3. CCNP: https://github.com/cc-api/confidential-cloud-native-primitives
-4. TCG_PCClient Spec: https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientSpecPlat_TPM_2p0_1p04_pub.pdf
+4. CC Trusted API: https://github.com/cc-api/cc-trusted-api
+5. TCG_PCClient Spec: https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientSpecPlat_TPM_2p0_1p04_pub.pdf
