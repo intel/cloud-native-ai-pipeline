@@ -1,7 +1,7 @@
 ccnp
 cctrusted_base
 Flask==3.0.0
-Flask-Cors==4.0.1
+Flask-Cors==4.0.2
 kafka-python==2.0.2
 numpy==1.26.2
 opencv-python==4.8.1.78
